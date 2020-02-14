@@ -1,6 +1,7 @@
-all: results.zip results/
-results.zip:
-	wget https://github.com/glandfried/output-ogs-dataset/releases/download/v1.0/results.zip
+all: data/handicap.pickle
 
-results/:
-	unzip results.zip
+data/handicap.pickle: trueskill/.git
+	make -C data
+
+trueskill/.git:
+	git submodule update --init trueskill/

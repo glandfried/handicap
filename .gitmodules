@@ -1,0 +1,3 @@
+[submodule "trueskill"]
+	path = trueskill
+	url = https://github.com/glandfried/trueskill.py
