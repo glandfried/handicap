@@ -1,3 +1,6 @@
 [submodule "trueskill"]
 	path = trueskill
 	url = https://github.com/glandfried/trueskill.py
+[submodule "glicko2"]
+	path = glicko2
+	url = https://github.com/sublee/glicko2
