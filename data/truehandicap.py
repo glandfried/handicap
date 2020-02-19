@@ -1,6 +1,7 @@
+import pandas as pd
 import getpass
 import sys
-sys.path.append('..')
+sys.path.append('../software')
 import os
 import pickle
 import numpy as np
@@ -8,7 +9,6 @@ import trueskill as th
 from importlib import reload  # Python 3.4+ only.
 reload(th)
 env = th.TrueSkill(draw_probability=0)
-
 
 with open('summary/summary.pickle', 'rb') as handle:
     games_sorted= pickle.load(handle)
@@ -101,6 +101,9 @@ for g in games_sorted :
     else:
         player_history[g['black']] = [(g['id'], g['black_posterior'],g['black_posterior_woh'])]
 
+handicap_matrix = np.matrix(list(map(lambda xs: [xs[0][0],xs[0][1], xs[1].mu, xs[1].sigma] , handicap.items())))
+handicap_df = pd.DataFrame(handicap_lista, columns=["Handicap", "Size", "Skill", "Uncertainty"])
+pd.DataFrame.to_csv(handicap_df,"handicap.csv")
 
 with open('handicap.pickle', 'wb') as handle:
     pickle.dump(handicap, handle, protocol=pickle.HIGHEST_PROTOCOL)

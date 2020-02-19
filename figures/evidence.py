@@ -1,15 +1,18 @@
-import getpass
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
+
+import sys
+sys.path.append('../software')
 import trueskill as th
+
 from importlib import reload  # Python 3.4+ only.
 reload(th)
 env = th.TrueSkill(draw_probability=0)
 
-with open("handicap.pickle",'rb') as file:
+with open("../data/handicap.pickle",'rb') as file:
     handicap = pickle.load(file)
-with open("handicap_history.pickle",'rb') as file:
+with open("../data/handicap_history.pickle",'rb') as file:
     handicap_history = pickle.load(file)
 
 """
@@ -46,7 +49,7 @@ plt.plot(list(map(lambda x: x.mu, handicap_history[(8,19)] )) )
 plt.plot(list(map(lambda x: x.mu, handicap_history[(9,19)] )) )
 
 
-with open("player_history.pickle",'rb') as file:
+with open("../data/player_history.pickle",'rb') as file:
     player_history = pickle.load(file)
 
 dif = list( map(lambda k: (k, max(map(lambda x: abs(x[1].mu-x[2].mu),player_history[k])) ), player_history))

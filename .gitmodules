@@ -1,6 +1,9 @@
-[submodule "trueskill"]
-	path = trueskill
+[submodule "software/trueskill"]
+	path = software/trueskill
 	url = https://github.com/glandfried/trueskill.py
-[submodule "glicko2"]
-	path = glicko2
+[submodule "software/glicko2"]
+	path = software/glicko2
 	url = https://github.com/sublee/glicko2
+[submodule "software/analytic-bayesian-linear-regression"]
+	path = software/analytic-bayesian-linear-regression
+	url = git@github.com:glandfried/analytic-bayesian-linear-regression.git
