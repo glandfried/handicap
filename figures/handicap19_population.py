@@ -25,7 +25,9 @@ if __name__ == "__main__":
     
     diff_mean = []
     for i in range(2,10):
-        dif = list(map(lambda g: (g['black_prior_woh']-g['white_prior_woh']).mu, games_s_h(19,i)  ))
+        #dif = list(map(lambda g: (g['black_prior_woh']-g['white_prior_woh']).mu, games_s_h(19,i)  ))
+        dif = list(map(lambda g: (g['black_prior_woh']-g['white_prior_woh']), games_s_h(19,i)  ))
+        np.sum(dif)/len(dif)
         #plt.hist(dif,100)
         #plt.axvline(np.mean(dif), color='black', linestyle='-')
         #plt.axvline(0, color='black', linestyle='--',alpha=0.3)
