@@ -12,32 +12,32 @@ import pickle
 #import numpy as np
 
 
+#if (' point' in g['outcome'] or 'Resignation' == g['outcome'] or 'Timeout'  == g['outcome']) and not g['annulled']:
+
 if __name__ == "__main__":
 
-    with open("../data/handicap.pickle",'rb') as file:
-        handicap = pickle.load(file)
-    with open("../data/handicap_history.pickle",'rb') as file:
-        handicap_history = pickle.load(file)
-
-    skill = []
-    sigma = []
-    handicap19 = []
+    with open("../data/games_sorted.pickle",'rb') as file:
+        games_sorted = pickle.load(file)
+    
+    games_sorted[0].keys()
+    def games_s_h(s,h):
+        return list(filter(lambda g: g['width']==s and g['handicap']==h ,games_sorted))
+    
+    diff_mean = []
     for i in range(2,10):
-        skill.append(handicap[(i,19)].mu)
-        sigma.append(handicap[(i,19)].sigma)
-        handicap19.append(i)
-        plt.plot([handicap19[-1],handicap19[-1]],[skill[-1]+2*sigma[-1],skill[-1]-2*sigma[-1] ],linewidth=0.5,color='grey')
-        plt.plot([handicap19[-1],handicap19[-1]],[skill[-1]+sigma[-1],skill[-1]-sigma[-1] ],linewidth=1,color='black')
-        plt.scatter(i,handicap[(i,19)].mu)
+        dif = list(map(lambda g: (g['black_prior_woh']-g['white_prior_woh']).mu, games_s_h(13,i)  ))
+        #plt.hist(dif,100)
+        #plt.axvline(np.mean(dif), color='black', linestyle='-')
+        #plt.axvline(0, color='black', linestyle='--',alpha=0.3)
+        diff_mean.append(np.mean(dif))
     
-    #plt.scatter(handicap19,skill, color='black',s=40)
-    
-    ####
+    plt.scatter(range(2,10),diff_mean)
+
     # We will perform a bayesian linear regression
     alpha = 10**(-30) # prior precision
-    beta = 1/np.mean(sigma[0:7]) # Noise of target value
-    t = skill[0:7]
-    X_vec = np.array(handicap19[0:7]).reshape(-1, 1) 
+    beta = 1/0.3 # Noise of target value
+    t = diff_mean[0:7]
+    X_vec = np.array(range(2,9)).reshape(-1, 1) 
     Phi = ablr.linear.phi(X_vec , ablr.linear.identity_basis_function)  
     
     fit_mu, fit_sigma = ablr.linear.posterior(alpha,beta,t,Phi)
@@ -48,10 +48,11 @@ if __name__ == "__main__":
     plt.xticks(fontsize=12) # rotation=90
     plt.yticks(fontsize=12) # rotation=90
     
-    plt.title(r"19 X 19", fontsize=16 )
+    plt.title(r"13 X 13", fontsize=16 )
     plt.xlabel("Handicap", fontsize=16 )
-    plt.ylabel("Skill", fontsize=16 )
-    
+    plt.ylabel("Skill mean 'mean difference'", fontsize=16 )
+
+
     plt.savefig("pdf/"+name+".pdf",pad_inches =0,transparent =True,frameon=True)
     bash_cmd = "pdfcrop --margins '0 0 0 0' pdf/{0}.pdf pdf/{0}.pdf".format(name)
     os.system(bash_cmd)

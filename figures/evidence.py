@@ -34,30 +34,8 @@ Conlusi\'on 1):
     
 """
 
-key_h= sorted(handicap , key= lambda x: (x[1],x[0]))
 
-for h in range(2,10):
-    plt.scatter(h,handicap[(h,19)].mu)
-    
-plt.plot(list(map(lambda x: x.mu, handicap_history[(2,19)] )) )
-plt.plot(list(map(lambda x: x.mu, handicap_history[(3,19)] )) )
-plt.plot(list(map(lambda x: x.mu, handicap_history[(4,19)] )) )
-plt.plot(list(map(lambda x: x.mu, handicap_history[(5,19)] )) )
-plt.plot(list(map(lambda x: x.mu, handicap_history[(6,19)] )) )
-plt.plot(list(map(lambda x: x.mu, handicap_history[(7,19)] )) )
-plt.plot(list(map(lambda x: x.mu, handicap_history[(8,19)] )) )
-plt.plot(list(map(lambda x: x.mu, handicap_history[(9,19)] )) )
-
-
-with open("../data/player_history.pickle",'rb') as file:
-    player_history = pickle.load(file)
-
-dif = list( map(lambda k: (k, max(map(lambda x: abs(x[1].mu-x[2].mu),player_history[k])) ), player_history))
-act = list( map(lambda k: (k, len(player_history[k])), player_history))
-
-player_history = None
-
-with open("games_sorted.pickle",'rb') as file:
+with open("../data/games_sorted.pickle",'rb') as file:
     games_sorted = pickle.load(file)
 
 evidence = list(filter(lambda x: not x is None, list(map(lambda x:  x['evidence'] if x['estimated'] else None ,games_sorted ))))

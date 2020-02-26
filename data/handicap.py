@@ -101,9 +101,9 @@ for g in games_sorted :
     else:
         player_history[g['black']] = [(g['id'], g['black_posterior'],g['black_posterior_woh'])]
 
-handicap_matrix = np.matrix(list(map(lambda xs: [xs[0][0],xs[0][1], xs[1].mu, xs[1].sigma] , handicap.items())))
-handicap_df = pd.DataFrame(handicap_lista, columns=["Handicap", "Size", "Skill", "Uncertainty"])
-pd.DataFrame.to_csv(handicap_df,"handicap.csv")
+#handicap_matrix = np.matrix(list(map(lambda xs: [xs[0][0],xs[0][1], xs[1].mu, xs[1].sigma] , handicap.items())))
+#handicap_df = pd.DataFrame(handicap_lista, columns=["Handicap", "Size", "Skill", "Uncertainty"])
+#pd.DataFrame.to_csv(handicap_df,"handicap.csv")
 
 with open('handicap.pickle', 'wb') as handle:
     pickle.dump(handicap, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -111,8 +111,8 @@ with open('handicap_history.pickle', 'wb') as handle:
     pickle.dump(handicap_history, handle, protocol=pickle.HIGHEST_PROTOCOL)
 with open('player_history.pickle', 'wb') as handle:
     pickle.dump(player_history, handle, protocol=pickle.HIGHEST_PROTOCOL)
-#with open('games_sorted.pickle', 'wb') as handle:
-#    pickle.dump(games_sorted, handle, protocol=pickle.HIGHEST_PROTOCOL)
+with open('games_sorted.pickle', 'wb') as handle:
+    pickle.dump(games_sorted, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 """
 handicap_sorted = sorted(handicap.items(),key=lambda x: (x[0][1], x[0][0]) )

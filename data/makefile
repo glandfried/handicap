@@ -1,5 +1,5 @@
 handicap.pickle: summary/summary.csv
-	python3 truehandicap.py
+	python3 handicap.py
 
 summary/summary.csv: results
 	make -C data/summary/
