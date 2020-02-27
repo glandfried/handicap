@@ -25,7 +25,7 @@ if __name__ == "__main__":
     
     games_sorted[0].keys()
     
-    #diff_prod = []
+    diff_prod = []
     diff_mean = []
     skill = []
     sigma = []
@@ -34,9 +34,9 @@ if __name__ == "__main__":
     for i in range(2,6):
         dif = list(map(lambda g: (g['black_prior_woh']-g['white_prior_woh']), games_s_h(9,i)  ))
         diff_mean.append( np.mean(dif))
-        #diff_prod.append(np.prod(dif))
-        skill.append(diff_mean[-1].mu)
-        sigma.append(diff_mean[-1].sigma)
+        diff_prod.append(np.prod(dif))
+        skill.append(diff_prod[-1].mu)
+        sigma.append(diff_prod[-1].sigma)
         handicap.append(i)
     for i in range(0,4):
         plt.plot([handicap[i],handicap[i]],[skill[i]+2*sigma[i],skill[i]-2*sigma[i] ],linewidth=0.5,color='grey')
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     
     plt.title(r"9 X 9", fontsize=16 )
     plt.xlabel("Handicap", fontsize=16 )
-    plt.ylabel("Skill difference (mean)", fontsize=16 )
+    plt.ylabel("Skill difference (prod)", fontsize=16 )
 
 
     plt.savefig("pdf/"+name+".pdf",pad_inches =0,transparent =True,frameon=True)

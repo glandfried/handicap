@@ -2,43 +2,66 @@ import os
 name = os.path.basename(__file__).split(".py")[0]
 #
 import matplotlib.pyplot as plt
+#%matplotlib auto
 ##########
 import sys
-sys.path.append('../software')
+sys.path.append('../software/')
 import trueskill
 import ablr # analytic-bayesian-linear-regression own package
 import numpy as np
 import pickle
 #import numpy as np
 
+"""
 
+    HAY QUE TERMINAR DE HACER LOS GRAFICOS USANDO 
+    DISTRIBUCIONES DE CREENCIAS
+
+
+"""
 #if (' point' in g['outcome'] or 'Resignation' == g['outcome'] or 'Timeout'  == g['outcome']) and not g['annulled']:
+
+def games_s_h(s,h):
+    return list(filter(lambda g: g['width']==s and g['handicap']==h ,games_sorted))
+    
 
 if __name__ == "__main__":
 
     with open("../data/games_sorted.pickle",'rb') as file:
         games_sorted = pickle.load(file)
     
+    
     games_sorted[0].keys()
-    def games_s_h(s,h):
-        return list(filter(lambda g: g['width']==s and g['handicap']==h ,games_sorted))
     
     diff_mean = []
+    skill = []
+    sigma = []
+    handicap = []
     for i in range(2,10):
-        #dif = list(map(lambda g: (g['black_prior_woh']-g['white_prior_woh']).mu, games_s_h(19,i)  ))
         dif = list(map(lambda g: (g['black_prior_woh']-g['white_prior_woh']), games_s_h(19,i)  ))
-        np.sum(dif)/len(dif)
-        #plt.hist(dif,100)
-        #plt.axvline(np.mean(dif), color='black', linestyle='-')
-        #plt.axvline(0, color='black', linestyle='--',alpha=0.3)
-        diff_mean.append(np.mean(dif))
+        diff_mean.append( np.mean(dif))
+        skill.append(diff_mean[-1].mu)
+        sigma.append(diff_mean[-1].sigma)
+        handicap.append(i)
+    for i in range(0,8):
+        plt.plot([handicap[i],handicap[i]],[skill[i]+2*sigma[i],skill[i]-2*sigma[i] ],linewidth=0.5,color='grey')
+        plt.plot([handicap[i],handicap[i]],[skill[i]+sigma[i],skill[i]-sigma[i] ],linewidth=1,color='black')
+        plt.scatter(handicap[i],skill[i])
     
-    plt.scatter(range(2,10),diff_mean)
+    #dif = list(map(lambda g: (g['black_prior_woh']-g['white_prior_woh']).mu, games_s_h(19,i)  ))
+    #diff_mean.append(np.mean(dif))
+    #plt.hist(dif,100)
+    #plt.axvline(np.mean(dif), color='black', linestyle='-')
+    #plt.axvline(0, color='black', linestyle='--',alpha=0.3)
+ 
 
     # We will perform a bayesian linear regression
+    
+    
+    
     alpha = 10**(-30) # prior precision
-    beta = 1/0.3 # Noise of target value
-    t = diff_mean[0:7]
+    beta = 1/np.mean(sigma[0:7]) # Noise of target value
+    t = skill[0:7]
     X_vec = np.array(range(2,9)).reshape(-1, 1) 
     Phi = ablr.linear.phi(X_vec , ablr.linear.identity_basis_function)  
     

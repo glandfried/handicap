@@ -21,12 +21,18 @@ def reduce_games(game):#game=player_games[0]
     res.append(('width', game['width']))
     res.append(('started', game['started']))
     res.append(('ended', game['ended']))
-    #res['source'] = game['source']
-    #res['mode'] = game['mode']
+    players = game['historical_ratings'].keys()
+    res.append(('black_rating', game['historical_ratings']['black']['ratings']['overall']['rating'] if 'black' in players else None))
+    res.append(('white_rating', game['historical_ratings']['white']['ratings']['overall']['rating'] if 'white' in players else None))
+    res.append(('black_deviation', game['historical_ratings']['black']['ratings']['overall']['deviation'] if 'black' in players else None))
+    res.append(('white_deviation', game['historical_ratings']['white']['ratings']['overall']['deviation'] if 'white' in players else None))
+    res.append(('black_volatility', game['historical_ratings']['black']['ratings']['overall']['volatility'] if 'black' in players else None))
+    res.append(('white_volatility', game['historical_ratings']['white']['ratings']['overall']['volatility'] if 'white' in players else None))
+    res.append(('black_ranking', game['historical_ratings']['black']['ranking'] if 'black' in players else None))
+    res.append(('white_ranking', game['historical_ratings']['white']['ranking'] if 'white' in players else None))
     res.append(('tournament', not game['tournament'] is None))
     return res
     
-
 """
 Each source file have all the games played by the player.
 """
@@ -38,7 +44,7 @@ We will extract all games from the files.
 """
 games = []
 for f in range(len(listdir_)):
-    #f = 0
+    #f = 3
     file_path = os.path.join(files_dir, listdir_[f])
     player_games = pickle.load(open(file_path , "rb"))
     games = games + list(map(lambda x: reduce_games(x), player_games))
