@@ -1,0 +1,216 @@
+\documentclass[shownotes]{beamer}
+
+\mode<presentation>
+{
+%   \usetheme{Madrid}      % or try Darmstadt, Madrid, Warsaw, ...
+%   \usecolortheme{default} % or try albatross, beaver, crane, ...
+%   \usefonttheme{default}  % or try serif, structurebold, ...
+ \usetheme{Antibes}
+ \usecolortheme[rgb={0.6,0.75,0}]{structure}%divido los RGB por 252
+ \setbeamercolor{block title}{fg=white,bg=azuluca}
+ \xdefinecolor{azuluca}{rgb}{0.02, 0.2, 0.18}
+ \definecolor{greenblue}{rgb}{0.1, 0.55, 0.5}
+
+ \setbeamercolor{palette quaternary}{fg=white,bg=azuluca}
+ \setbeamertemplate{caption}[numbered]
+ \setbeamertemplate{navigation symbols}{}
+
+}
+
+\input{./tex/diapo_encabezado.tex}
+
+\title[Handicap]{Handicap}
+
+\author[Gustavo Landfried]{Gustavo Landfried \\ \vspace{0.2cm}
+\scriptsize Lic. Ciencias Antropol\'ogicas. \\
+Doctorando Ciencias de la Computaci\'on \\
+\vspace{-0.3cm}}
+\institute[DC-ICC-CONICET]{Departamento de Ciencias de la Computaci\'on (UBA -- CONICET) \vspace{-0.3cm}}
+\date{}
+
+
+\begin{document}
+\small 
+
+\begin{frame}[noframenumbering]
+
+\maketitle
+
+ \begin{textblock}{80}(72,82)
+ \includegraphics[width=0.2\textwidth]{images/logo_licar} 
+ \end{textblock}
+  \begin{textblock}{80}(42,82)
+ \includegraphics[width=0.2\textwidth]{images/logo_version_02} 
+\end{textblock}
+
+\end{frame}
+
+\section{Problema}
+
+\begin{frame}
+  Que es el handicap, ejemplos de uso.
+\end{frame}
+
+
+\begin{frame}
+ 
+ \begin{framed} \centering
+  Efecto de handicap en la estimaci\'on de habilidad: caso GO.
+ \end{framed}
+ 
+\end{frame}
+
+\begin{frame}
+ \begin{framed} \centering
+  ¿Son correctas las heuristicas para otorgar 
+  
+  ventajas (handicap) en el juego Go?
+ \end{framed}
+ 
+\end{frame}
+
+
+\section{Metodolog\'ia}
+\begin{frame}
+ 
+\only<1>{
+\begin{textblock}{128}(0,8)
+\begin{center}
+ \large TrueSkill
+\end{center}
+\end{textblock}
+\begin{textblock}{128}(0,33)
+\includegraphics[width=1\textwidth]{graph/trueskill}    
+\end{textblock}
+}
+\only<2>{
+\begin{textblock}{128}(0,8)
+\begin{center}
+ \large TrueHandicap
+\end{center}
+\end{textblock}
+\begin{textblock}{128}(0,33)
+\includegraphics[width=1\textwidth]{graph/truehandicap}    
+\end{textblock}
+}
+
+
+\end{frame}
+
+\section{Resultados}
+
+\begin{frame}
+  \begin{figure}[H]     
+     \centering \normalsize
+     \begin{subfigure}[b]{0.8\textwidth}
+     \includegraphics[width=1\textwidth]{../figures/pdf/handicap19.pdf} 
+     \end{subfigure}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[H]     
+     \centering \normalsize
+     \begin{subfigure}[b]{0.8\textwidth}
+     \includegraphics[width=1\textwidth]{../figures/pdf/handicap19_history.pdf} 
+     \end{subfigure}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[H]     
+     \centering \normalsize
+     \begin{subfigure}[b]{0.8\textwidth}
+     \includegraphics[width=1\textwidth]{../figures/pdf/handicap19_population.pdf} 
+     \end{subfigure}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \begin{figure}[H]     
+     \centering \normalsize
+     \begin{subfigure}[b]{0.8\textwidth}
+     \includegraphics[width=1\textwidth]{../figures/pdf/handicap19_population_distribution.pdf} 
+     \end{subfigure}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[H]     
+     \centering \normalsize
+     \begin{subfigure}[b]{0.8\textwidth}
+     \includegraphics[width=1\textwidth]{../figures/pdf/handicap9.pdf} 
+     \end{subfigure}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[H]     
+     \centering \normalsize
+     \begin{subfigure}[b]{0.8\textwidth}
+     \includegraphics[width=1\textwidth]{../figures/pdf/handicap9_history.pdf} 
+     \end{subfigure}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[H]     
+     \centering \normalsize
+     \begin{subfigure}[b]{0.8\textwidth}
+     \includegraphics[width=1\textwidth]{../figures/pdf/handicap9_population.pdf} 
+     \end{subfigure}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \begin{figure}[H]     
+     \centering \normalsize
+     \begin{subfigure}[b]{0.8\textwidth}
+     \includegraphics[width=1\textwidth]{../figures/pdf/handicap13.pdf} 
+     \end{subfigure}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[H]     
+     \centering \normalsize
+     \begin{subfigure}[b]{0.8\textwidth}
+     \includegraphics[width=1\textwidth]{../figures/pdf/handicap13_history.pdf} 
+     \end{subfigure}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[H]     
+     \centering \normalsize
+     \begin{subfigure}[b]{0.8\textwidth}
+     \includegraphics[width=1\textwidth]{../figures/pdf/handicap13_population.pdf} 
+     \end{subfigure}
+  \end{figure}
+\end{frame}
+
+
+\section{Gracias}
+
+\begin{frame}
+ 
+ \begin{center}
+  \Large Gracias
+ \end{center}
+
+ \begin{figure}[H]     
+     \centering
+     \begin{subfigure}[b]{0.45\textwidth}
+       \includegraphics[width=\textwidth]{images/pachacuteckoricancha.jpg} 
+     \end{subfigure}
+   \end{figure} 
+  
+\end{frame}
+
+
+\end{document}
+
+
+

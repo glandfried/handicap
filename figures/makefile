@@ -32,3 +32,6 @@ pdf/handicap13_population_prod.pdf:
 	python3 handicap13_population_prod.py
 pdf/handicap19_population_prod.pdf:
 	python3 handicap19_population_prod.py
+
+pdf/handicap19_population_distribution.pdf:
+	python3 handicap19_population_distribution.py

@@ -45,6 +45,8 @@ plt.hist(evidence,alpha=0.3)
 plt.hist(evidence_woh ,alpha=0.3)
 #games_sorted[1096]
 
+10**(np.sum(np.log10(evidence))/len(evidence))
+10**(np.sum(np.log10(evidence_woh))/len(evidence_woh))
 """
 Gano en todos los escenarios posibles.
 Los escenarios los defino ac\'a abajo

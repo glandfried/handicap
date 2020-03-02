@@ -44,8 +44,8 @@ if __name__ == "__main__":
     plt.yticks(fontsize=12) # rotation=90
     
     plt.title(r"19 X 19", fontsize=16 )
-    plt.xlabel("", fontsize=16 )
-    plt.ylabel("Skill difference", fontsize=16 )
+    plt.ylabel("", fontsize=16 )
+    plt.xlabel("Skill difference", fontsize=16 )
 
 
     plt.savefig("pdf/"+name+".pdf",pad_inches =0,transparent =True,frameon=True)
