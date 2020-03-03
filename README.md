@@ -1,3 +1,6 @@
 # handicap
 
-Article about handicap effect in the game of go. 
+El estimador glicko de Online GO (OGS) Parece no considerar el handicap
+- [Acá](https://github.com/online-go/online-go.com/blob/8d5ffa47ccd2d59ef41454d6141183a9e6408ef9/src/lib/rank_utils.ts) definen "get_handicap_adjustment()", que...
+- [Acá](https://github.com/online-go/online-go.com/blob/2ab4a2e291dd183cfc1d40d7d30d99beb31ca72a/src/components/RatingsChart/RatingEntry.ts) se usa en el constructor del RatingEntry que...
+- [Acá](https://github.com/online-go/online-go.com/blob/978cc50179cc5b93e49a207693c72d2ccc5f148c/src/components/RatingsChart/RatingsChart.tsx) se usa en [3] para generar el piechart de contra cuántos mejores o peores ganó/perdió el jugador
