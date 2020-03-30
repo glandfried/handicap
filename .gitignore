@@ -1,9 +1,11 @@
-*  # Ignora todo
+*
 !*/ # Salvo las carpetas
-*download/
 
 ########################
 # Archivos que NO ignora
+
+!LICENSE
+!license
 
 ## Latex
 !*.tex
@@ -29,10 +31,3 @@
 !.keep
 !.gitignore
 
-#########################
-# Carpetas que SI ignora
-
-#########################
-# Nombre de archivo o carpeta que SIEMPRE ignora
-
-*-ignore* 

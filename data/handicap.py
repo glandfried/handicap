@@ -1,7 +1,7 @@
 import pandas as pd
 import getpass
 import sys
-sys.path.append('../software')
+sys.path.append('../software/')
 import os
 import pickle
 import numpy as np
