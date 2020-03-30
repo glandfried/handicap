@@ -1,6 +1,3 @@
-[submodule "software/trueskill"]
-	path = software/trueskill
-	url = https://github.com/glandfried/trueskill.py
 [submodule "software/glicko2"]
 	path = software/glicko2
 	url = https://github.com/sublee/glicko2
