@@ -10,3 +10,6 @@
 [submodule "doc/images"]
 	path = doc/images
 	url = git@github.com:glandfried/images.git
+[submodule "software/trueskill"]
+	path = software/trueskill
+	url = git@gitlab.licar.exp.dc.uba.ar:gaming/trueskill.git

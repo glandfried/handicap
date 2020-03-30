@@ -1,15 +1,15 @@
 all: data/handicap.pickle 
 
-data/handicap.pickle: trueskill/.git
+data/handicap.pickle: software/trueskill/.git
 	make -C data
 
-setup:
-	git submodule update --init software/
-	make setup -C analytic-bayesian-linear-regression/
-
 software/trueskill/.git:
-	git submodule update --init software/trueskill/.git
+	git submodule update --init software/trueskill/
+	make handicap -C software/trueskill/
+
+
+
 software/glicko2/.git:
-	git submodule update --init software/glicko2/.git
+	git submodule update --init software/glicko2/
 software/analytic-bayesian-linear-regression/.git:
-	git submodule update --init software/analytic-bayesian-linear-regression/.git
+	git submodule update --init software/analytic-bayesian-linear-regression/
