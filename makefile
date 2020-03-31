@@ -1,6 +1,6 @@
 all: figure
 
-figure: data/handicap.pickle software/analytic-bayesian-linear-regression/.git
+figure: data/handicap.pickle software/ablr/.git
 	make -C figures
 
 data/handicap.pickle: software/skill/.git
@@ -12,9 +12,9 @@ software/skill/.git:
 
 software/glicko2/.git:
 	git submodule update --init software/glicko2/
-software/analytic-bayesian-linear-regression/.git:
-	git submodule update --init software/analytic-bayesian-linear-regression/
-	make setup -C analytic-bayesian-linear-regression/
+software/abrl/.git:
+	git submodule update --init software/abrl/
+	make -C software/abrl/ setup
 
 setup:
 	echo "backend: Agg" > ~/.config/matplotlib/matplotlibrc

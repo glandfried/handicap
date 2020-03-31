@@ -2,13 +2,6 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 
-import sys
-sys.path.append('../software')
-import trueskill as th
-
-from importlib import reload  # Python 3.4+ only.
-reload(th)
-env = th.TrueSkill(draw_probability=0)
 
 """
 Observaci\'on: 

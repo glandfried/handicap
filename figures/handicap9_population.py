@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt # %matplotlib auto
 ##########
 import sys
 sys.path.append('../software/')
-import trueskill
+import skill as trueskill
 import ablr # analytic-bayesian-linear-regression own package
 import numpy as np
 import pickle
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     with open("../data/games_sorted.pickle",'rb') as file:
         games_sorted = pickle.load(file)
     
-    
+    """    
     games_sorted[0].keys()
     
     #diff_prod = []
@@ -31,8 +31,9 @@ if __name__ == "__main__":
     sigma = []
     handicap = []
     
-    for i in range(2,6):
+    for i in range(2,6):	
         dif = list(map(lambda g: (g['black_prior_woh']-g['white_prior_woh']), games_s_h(9,i)  ))
+        print(dif)
         diff_mean.append( np.mean(dif))
         #diff_prod.append(np.prod(dif))
         skill.append(diff_mean[-1].mu)
@@ -64,6 +65,13 @@ if __name__ == "__main__":
     plt.plot([2,5],[fit_mu[0]+fit_mu[1]*2,fit_mu[0]+fit_mu[1]*5],alpha=0.7,color="black")    
     # END: baysian linear regression
     ###
+    """
+    i = 2
+    dif = list(map(lambda g: (g['black_prior_woh']-g['white_prior_woh']).mu, games_s_h(19,i)  ))    
+    plt.hist(dif,100)
+    plt.axvline(np.mean(dif), color='black', linestyle='-')
+
+
     
     plt.xticks(fontsize=12) # rotation=90
     plt.yticks(fontsize=12) # rotation=90

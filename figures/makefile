@@ -4,8 +4,8 @@ all: handicap handicap_history handicap_population handicap_population_prod
 relevance: pdf/handicap_relevance.pdf
 handicap: pdf/handicap19.pdf pdf/handicap9.pdf pdf/handicap13.pdf
 handicap_history:  pdf/handicap19_history.pdf pdf/handicap9_history.pdf pdf/handicap13_history.pdf
-handicap_population: pdf/handicap19_population.pdf pdf/handicap9_population.pdf pdf/handicap13_population.pdf
-handicap_population_prod: pdf/handicap9_population_prod.pdf pdf/handicap13_population_prod.pdf pdf/handicap19_population_prod.pdf
+handicap_population: pdf/handicap19_population.pdf 
+#handicap_population_prod: pdf/handicap9_population_prod.pdf pdf/handicap13_population_prod.pdf pdf/handicap19_population_prod.pdf
 
 pdf/handicap_relevance.pdf:
 	python3 handicap_relevance.py
