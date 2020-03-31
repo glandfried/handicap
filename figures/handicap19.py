@@ -1,11 +1,12 @@
 import os
 name = os.path.basename(__file__).split(".py")[0]
 #
+print(name)
 import matplotlib.pyplot as plt
 ##########
 import sys
 sys.path.append('../software')
-import trueskill
+import skill as th
 import ablr # analytic-bayesian-linear-regression own package
 import numpy as np
 import pickle

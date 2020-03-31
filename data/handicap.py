@@ -5,7 +5,7 @@ sys.path.append('../software/')
 import os
 import pickle
 import numpy as np
-import trueskill as th
+import skill as th
 from importlib import reload  # Python 3.4+ only.
 reload(th)
 env = th.TrueSkill(draw_probability=0)

@@ -2,7 +2,7 @@
 	path = software/glicko2
 	url = https://github.com/sublee/glicko2
 [submodule "software/analytic-bayesian-linear-regression"]
-	path = software/analytic-bayesian-linear-regression
+	path = software/analytic-bayesian-linear-regression/
 	url = git@github.com:glandfried/analytic-bayesian-linear-regression.git
 [submodule "doc/tex"]
 	path = doc/tex
@@ -11,5 +11,5 @@
 	path = doc/images
 	url = git@github.com:glandfried/images.git
 [submodule "software/trueskill"]
-	path = software/handicap
+	path = software/skill
 	url = git@gitlab.licar.exp.dc.uba.ar:gaming/trueskill.git
