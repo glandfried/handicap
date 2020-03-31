@@ -2,7 +2,7 @@ handicap.pickle: summary/summary.csv
 	python3 handicap.py
 
 summary/summary.csv: results
-	make -C data/summary/
+	make -C summary/
 
 results: results.zip
 	unzip -u results.zip # -d data/
