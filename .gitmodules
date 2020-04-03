@@ -16,3 +16,6 @@
 [submodule "software/ablr"]
 	path = software/ablr
 	url = git@github.com:glandfried/analytic-bayesian-linear-regression.git
+[submodule "software/ttt"]
+	path = software/ttt
+	url = git@gitlab.licar.exp.dc.uba.ar:gaming/trueskill.git
