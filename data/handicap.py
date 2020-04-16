@@ -48,7 +48,8 @@ for g in games_sorted :
         # Equipo negro
         h_key = (g['handicap'] , g['width'])
         tw = env.Team([g['white_prior']])
-        tb_woh = env.Team([g['black_prior']])
+	tw_woh = env.Team([g['white_prior_woh']])
+        tb_woh = env.Team([g['black_prior_woh']])
         
         if h_key[0] >1:
             h_factor = handicap.get(h_key, env.Rating(0,25/3,0,1/100))
@@ -58,7 +59,7 @@ for g in games_sorted :
         
         #estimacion
         g['estimated'] = True
-        [g['white_posterior_woh']], [g['black_posterior_woh']] = env.Game([tw,tb_woh],result).posterior
+        [g['white_posterior_woh']], [g['black_posterior_woh']] = env.Game([tw_woh,tb_woh],result).posterior
         [g['white_posterior']], tb_post = env.Game([tw,tb],result).posterior
         
         
