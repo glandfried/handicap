@@ -1,4 +1,7 @@
-all: figure
+all: talk
+
+talk: figure
+	make -C doc
 
 figure: data/handicap.pickle software/ablr/.git
 	make -C figures

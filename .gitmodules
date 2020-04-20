@@ -5,10 +5,10 @@
 	path = software/analytic-bayesian-linear-regression/
 	url = git@github.com:glandfried/analytic-bayesian-linear-regression.git
 [submodule "doc/tex"]
-	path = doc/tex
+	path = doc/aux/tex
 	url = git@github.com:glandfried/tex.git
 [submodule "doc/images"]
-	path = doc/images
+	path = doc/aux/images
 	url = git@github.com:glandfried/images.git
 [submodule "software/trueskill"]
 	path = software/skill
