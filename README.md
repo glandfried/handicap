@@ -15,6 +15,9 @@
 0. Software estado del arte
     - Whole-History Rating [WHR](https://pypi.org/project/whole-history-rating/). 
     - American Go Asociation [AGA](https://www.usgo.org/ratings), versión argentina [AGA-AAgo](https://github.com/elsantodel90/RAAGo/tree/master/original-AGA-rating-system/aago-rating-calculator).
+    - Revisar si EGF tiene una solución con handicap
+    - Revisar si NIHON KI-IN (Japon) tiene solución con handicap
+    - Revisar si KBA (Corea) tiene soluión con handicap.
     - Solución [OGS](https://forums.online-go.com/t/ogs-has-a-new-glicko-2-based-rating-system/13058) basada en glicko2. 
         - ¿Es posible correr el código?
         - Si no, ¿Es posible saber al menos si considera o no el handicap (en el mejor de los casos está harcodeado)?.  
