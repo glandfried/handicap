@@ -48,3 +48,43 @@ The primary content-type, the *Data Descriptor*, combines traditional narrative 
 These principles are designed to align with and support the [FAIR Principles](https://www.nature.com/articles/sdata201618) for scientific data management and stewardship, which declare that research data should be **Findable**, **Accessible**, **Interoperable** and **Reusable** (see [FORCE11](https://www.force11.org/fairprinciples) for details).
 
 
+### OGS
+
+
+```bash
+grep -r get_handicap_adjustment ./*
+./components/RatingsChart/RatingEntry.ts:import {get_handicap_adjustment, effective_outcome, EffectiveOutcome} from 'rank_utils';
+./components/RatingsChart/RatingsChart.tsx:    get_handicap_adjustment,
+./lib/rank_utils.ts:export function get_handicap_adjustment(rating:number, handicap:number):number {
+./lib/rank_utils.ts:    let black_effective_rating: number = black_rating + get_handicap_adjustment(black_rating, handicap);
+```
+
+The source code of handicap\_adjustment
+
+```
+export function rank_to_rating(rank:number) {
+    return 850 * Math.exp(0.032 * rank);
+}
+
+export function rating_to_rank(rating:number) {
+    return Math.log(Math.min(MAX_RATING, Math.max(MIN_RATING, rating)) / 850.0) / 0.032;
+}
+
+export function get_handicap_adjustment(rating:number, handicap:number):number {
+    return rank_to_rating(rating_to_rank(rating) + handicap) - rating;
+}
+```
+
+And effective_outcome
+
+```
+grep -r effective_outcome ./* -l
+./components/RatingsChart/RatingEntry.ts
+./lib/rank_utils.ts
+./views/User/User.tsx
+```
+
+0. [Handicap](https://forums.online-go.com/t/does-handicap-affect-how-ranked-games-are-rated/13615)
+0. [Scoring system](https://forums.online-go.com/t/scoring-system/17323/7)
+0. [Ranking and handicap](https://forums.online-go.com/t/ranking-and-handicaps/17739)
+
