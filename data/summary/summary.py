@@ -2,8 +2,7 @@ import csv
 import os
 import pickle
 import numpy as np
-
-def reduce_games(game):#game=player_games[0] 
+def reduce_games(game):#game=player_games[0]
     """
     Recive a game
     Return relevant information
@@ -32,22 +31,32 @@ def reduce_games(game):#game=player_games[0]
     res.append(('white_ranking', game['historical_ratings']['white']['ranking'] if 'white' in players else None))
     res.append(('tournament', not game['tournament'] is None))
     return res
-    
+
 """
 Each source file have all the games played by the player.
 """
 files_dir = '../results/'
-listdir_ = os.listdir(files_dir ) 
+listdir_ = os.listdir(files_dir ) # Crea una lista de todos los archivos dentro de esa carpeta
 
 """
 We will extract all games from the files.
 """
 games = []
+count = 0
 for f in range(len(listdir_)):
+
     #f = 3
-    file_path = os.path.join(files_dir, listdir_[f])
-    player_games = pickle.load(open(file_path , "rb"))
-    games = games + list(map(lambda x: reduce_games(x), player_games))
+    print(f"Porcentaje de sumary.py es del {int(count/len(listdir_)*100)}%", end='\r')
+    count = count + 1
+    file_path = os.path.join(files_dir, listdir_[f]) # Genera el path completo de un archivo
+    player_games = pickle.load(open(file_path , "rb")) # abre el archivo
+    games = games + list(map(lambda x: reduce_games(x), player_games))# La linea de abajo creo que es equivalente
+    #games = games + list(map(reduce_games, player_games))
+
+
+#map() le das una funcion y con que iterar.
+#lambda es para generar funciones cortas, le pasas las variables y con  dos puntos : la funciones
+
 
 """
 Note that each game we will find it twice, one for each player.
@@ -75,4 +84,3 @@ with open('summary.csv', 'w') as output_file:
 
 with open('summary.pickle', 'wb') as handle:
     pickle.dump(games_sorted, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
