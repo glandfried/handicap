@@ -1,6 +1,7 @@
 import csv
 import os
 import json
+import pickle
 import numpy as np
 def reduce_games(game):#game=player_games[0]
     """
@@ -46,7 +47,7 @@ games = []
 count = 0
 for f in range(len(listdir_)):
     #f = 3
-    print(f"Porcentaje de sumary.py es del {int(count/len(listdir_)*100)}%", end='\r')
+    print(f"Porcentaje de sumaryJson.py es del {int(count/len(listdir_)*100)}%", end='\r')
     count = count + 1
     file_path = os.path.join(files_dir, listdir_[f]) # Genera el path completo de un archivo
     player_games = json.load(open(file_path , "rb")) # abre el archivo, r de read and write, b de binary

@@ -23,9 +23,9 @@ def StrToFloat(x):
 
 def stringToList(x):
     if x == '(1, 0)':
-        x = [1, 0]
+        x = list([1, 0])
     elif x == '(0, 1)':
-        x = [0, 1]        
+        x = list([0, 1])      
     else:
         pass
     return x
@@ -37,9 +37,9 @@ def resultWohKomi(orders, outcomes, komis):
         when_black_win_then_positive_else_negative = 2*resultado-1
         points = when_black_win_then_positive_else_negative*(outcomes + komis)
         if points > 0:
-            result = [1, 0]
+            result = list([1, 0])
         else:
-            result = [0, 1]
+            result = list([0, 1])
         return result
     except: 
         return orders
