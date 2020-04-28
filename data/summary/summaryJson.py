@@ -51,7 +51,7 @@ for f in range(len(listdir_)):
     count = count + 1
     file_path = os.path.join(files_dir, listdir_[f]) # Genera el path completo de un archivo
     player_games = json.load(open(file_path , "rb")) # abre el archivo, r de read and write, b de binary
-    games = games + list(map(reduce_games, player_games))# La linea de abajo creo que es equivalente
+    games = games + list(map(reduce_games, player_games))
 
 
 #%%

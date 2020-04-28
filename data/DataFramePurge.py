@@ -5,7 +5,8 @@ Created on Mon Apr 27 10:52:44 2020
 
 @author: mati
 """
-
+import os
+import pickle
 import pandas as pd
 import sys
 sys.path.append('../software/')
@@ -33,9 +34,9 @@ def stringToList(x):
 
 def resultWohKomi(orders, outcomes, komis):
     try:
-        resultado = orders[1]
+        resultado = orders[0]
         when_black_win_then_positive_else_negative = 2*resultado-1
-        points = when_black_win_then_positive_else_negative*(outcomes + komis)
+        points = when_black_win_then_positive_else_negative*outcomes + komis
         if points > 0:
             result = list([1, 0])
         else:
@@ -45,26 +46,42 @@ def resultWohKomi(orders, outcomes, komis):
         return orders
 
 print("Dataframe metida")   
-# %%    
+  
 df = pd.read_csv(csv_name)
-df =df[['id','black','white','order','outcome','handicap','komi','width', 'annulled']]
+
+df =df[['id','black','white','order','outcome','handicap','komi','width', 'annulled','started']]
+
 df = df[df.annulled == False]
+
 df = df[(df.outcome == 'Resignation') | (df.outcome == 'Timeout') | (df.outcome.str.contains(' point',na=False))]
+
 replace_values = {' points': '', ' point': ''}
 df.outcome.replace(replace_values, regex=True,inplace=True)
 print("Purgacion 1 completa")
-df.outcome = df.outcome.apply(lambda x: StrToFloat(x))
-df.komi = df.komi.apply(lambda x: StrToFloat(x))
-df.order = df.order.apply(lambda x : stringToList(x))
 
-Type_new = df.apply(lambda x: resultWohKomi(x.order,x.outcome,x.komi), axis=1)
-df.insert(2, "results",Type_new)
+df.outcome = df.outcome.map(lambda x: StrToFloat(x))
+
+df.komi = df.komi.map(lambda x: StrToFloat(x))
+
+df.order = df.order.map(lambda x : stringToList(x))
+
+
+df['results'] = df.apply(lambda x: resultWohKomi(x.order,x.outcome,x.komi), axis=1)
+
 print("Purgacion 2 completa") 
 # %%
-           
+         
 df = df[['id','black','white','order','results','handicap','komi','width']]
-
-df = df.reindex(columns = df.columns.tolist() + ['white_prior','black_prior','white_prior_woh','black_prior_woh','white_posterior'])
-
+df = df.reset_index()
+# %% 
 df.to_csv("DataFramePurge.csv", index=False)
+df.to_pickle("DataFramePurge.pickle")
 print("Purgacion 3 completa")
+
+#%%
+#summary = df.to_dict('records')
+
+#%%
+#with open('summary.pickle', 'wb') as handle:
+#    pickle.dump(summary, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    
