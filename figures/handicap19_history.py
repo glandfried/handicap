@@ -31,7 +31,7 @@ if __name__ == "__main__":
     
     plt.xticks(fontsize=12) # rotation=90
     plt.yticks(fontsize=12) # rotation=90
-    plt.ylim((-2.5, 5.5)) 
+    #plt.ylim((-2.5, 5.5)) 
     
     plt.title(r"19 X 19", fontsize=16 )
     plt.xlabel("Games", fontsize=16 )
