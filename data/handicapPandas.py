@@ -22,8 +22,10 @@ count = 0
 games_sorted = []
 
 # %% 
-
-
+hist_plot = df['komi'].hist(bin=150)
+hist_plot.set_title("cantidad de komis")
+hist_plot.set_xlabel('x')
+hist_plot.set_ylabel('y')
 
  #%%
 def stringToList(x):
