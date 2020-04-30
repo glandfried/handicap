@@ -21,6 +21,10 @@ player_history = {}
 count = 0
 games_sorted = []
 
+# %% 
+
+
+
  #%%
 def stringToList(x):
     if x == '[1, 0]':
