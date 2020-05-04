@@ -1,11 +1,11 @@
 handicap.pickle: summary/summary.csv
 	python3 handicap.py
 
-summary/summary.csv: results
+summary/summary.csv: resultsJson
 	make -C summary/
 
-results: results.zip
-	unzip -u results.zip # -d data/
+resultsJson: resultsJson.zip
+	unzip -u resultsJson.zip # -d data/
 
-results.zip:
-	wget https://github.com/glandfried/output-ogs-dataset/releases/download/v1.1/results.zip #-O data/results.zip
+resultsJson.zip:
+	wget https://github.com/glandfried/output-ogs-dataset/releases/download/v1.1/resultsJson.zip #-O data/results.zip

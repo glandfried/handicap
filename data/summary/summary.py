@@ -1,5 +1,6 @@
 import csv
 import os
+import json
 import pickle
 import numpy as np
 def reduce_games(game):#game=player_games[0]
@@ -35,7 +36,8 @@ def reduce_games(game):#game=player_games[0]
 """
 Each source file have all the games played by the player.
 """
-files_dir = '../results/'
+#files_dir = '/home/mati/Storage/Doctorado/Licar/licar/papers/2020_Handicap/nucleo/data/resultsJson/'
+files_dir = '../resultsJson/'
 listdir_ = os.listdir(files_dir ) # Crea una lista de todos los archivos dentro de esa carpeta
 
 """
@@ -44,16 +46,15 @@ We will extract all games from the files.
 games = []
 count = 0
 for f in range(len(listdir_)):
-
     #f = 3
-    print(f"Porcentaje de sumary.py es del {int(count/len(listdir_)*100)}%", end='\r')
+    print(f"Porcentaje de sumaryJson.py es del {int(count/len(listdir_)*100)}%", end='\r')
     count = count + 1
     file_path = os.path.join(files_dir, listdir_[f]) # Genera el path completo de un archivo
-    player_games = pickle.load(open(file_path , "rb")) # abre el archivo
-    games = games + list(map(lambda x: reduce_games(x), player_games))# La linea de abajo creo que es equivalente
-    #games = games + list(map(reduce_games, player_games))
+    player_games = json.load(open(file_path , "rb")) # abre el archivo, r de read and write, b de binary
+    games = games + list(map(reduce_games, player_games))
 
 
+#%%
 #map() le das una funcion y con que iterar.
 #lambda es para generar funciones cortas, le pasas las variables y con  dos puntos : la funciones
 
@@ -77,10 +78,9 @@ games_sorted = sorted(games_dict, key=lambda x: (x['started'], x['id']) )
 We write the games
 """
 keys = games_sorted[0].keys()
-with open('summary.csv', 'w') as output_file:
+with open('summaryJson.csv', 'w') as output_file:
     dict_writer = csv.DictWriter(output_file, keys)
     dict_writer.writeheader()
     dict_writer.writerows(games_sorted)
-
-with open('summary.pickle', 'wb') as handle:
+with open('summaryJson.pickle', 'wb') as handle:
     pickle.dump(games_sorted, handle, protocol=pickle.HIGHEST_PROTOCOL)
