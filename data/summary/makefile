@@ -1,2 +1,2 @@
 all:
-	python3 summaryJson.py	
+	python3 summary.py	
