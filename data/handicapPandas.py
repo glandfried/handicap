@@ -8,7 +8,7 @@ from importlib import reload  # Python 3.4+ only.
 reload(th)
 env = th.TrueSkill(draw_probability=0)
 
-csv_name = 'DataFramePurge.csv'
+csv_name = 'summary_filtered.csv'
 #csv_name = '/home/mati/Storage/Doctorado/Licar/licar/papers/2020_Handicap/nucleo/data/DataFramePurge.csv'
  
 df = pd.read_csv(csv_name)
