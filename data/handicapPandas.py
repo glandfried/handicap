@@ -9,7 +9,7 @@ reload(th)
 env = th.TrueSkill(draw_probability=0)
 
 csv_name = 'DataFramePurge.csv'
-csv_name = '/home/mati/Storage/Doctorado/Licar/licar/papers/2020_Handicap/nucleo/data/DataFramePurge.csv'
+#csv_name = '/home/mati/Storage/Doctorado/Licar/licar/papers/2020_Handicap/nucleo/data/DataFramePurge.csv'
  
 df = pd.read_csv(csv_name)
 
@@ -21,13 +21,13 @@ player_history = {}
 count = 0
 games_sorted = []
 
-# %% 
+## %% 
 hist_plot = df['komi'].hist(bin=150)
 hist_plot.set_title("cantidad de komis")
 hist_plot.set_xlabel('x')
 hist_plot.set_ylabel('y')
 
- #%%
+ ##%%
 def stringToList(x):
     if x == '[1, 0]':
         x = list([1, 0])
@@ -36,7 +36,7 @@ def stringToList(x):
     else:
         pass
     return x
-    #%%
+    ##%%
 for index in df.index:
     # Priors
     g = {}
@@ -120,7 +120,7 @@ for index in df.index:
     #if count > 5000 & h_key[0]>1:
      #   break
 
-#%%   
+##%%   
 with open('handicap.pickle', 'wb') as handle:
     pickle.dump(handicap, handle, protocol=pickle.HIGHEST_PROTOCOL)
 with open('handicap_history.pickle', 'wb') as handle:
