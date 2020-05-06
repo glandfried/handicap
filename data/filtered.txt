@@ -1,1 +1,1 @@
-{"Annulled": 575, "Outcomes": 28, "Width": 12, "Order": 414}
+{"Annulled": 575, "Outcomes": 28, "Squared": 17, "Width": 6, "Order": 414}

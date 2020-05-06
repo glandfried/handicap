@@ -17,8 +17,7 @@ csv_name = 'summary.csv'
 ## %%
 print("Dataframe metida")   
 df = pd.read_csv(csv_name)
-df = df[['id','black','white','order','outcome','handicap','komi','width', 'annulled','ranked','started','ended']]
-
+df = df[['id','black','white','order','outcome','handicap','komi','width','height', 'annulled','ranked','started','ended']]
 
 #plt.hist(df[df.komi<100].komi,bins=np.arange(min(df[df.komi<0].komi), max(df[df.komi<0].komi) + 1, 1))
 #df[(df.komi<0)&(df.handicap<9)][['komi','handicap','white_ranking','black_ranking']]
@@ -60,6 +59,8 @@ filtered['Annulled'] = sum(df.annulled != False)
 df = df[df.annulled == False]
 filtered['Outcomes'] = sum(~((df.outcome == 'Resignation') | (df.outcome == 'Timeout') | (df.outcome.str.contains(' point'))))
 df = df[(df.outcome == 'Resignation') | (df.outcome == 'Timeout') | (df.outcome.str.contains(' point'))]
+filtered['Squared'] = sum(df.height!=df.width)
+df = df[df.height==df.width]
 filtered['Width'] = sum(~((df["width"] >= 9) & (df["width"] <=19 )))
 df = df[(df["width"] >= 9) & (df["width"] <=19 )]
 filtered['Order'] = sum(~((df.order != "(0, 0)")&(df.order != "(1, 1)")))

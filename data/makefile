@@ -1,6 +1,9 @@
 handicap.pickle: summary/summary.csv
 	python3 handicap.py
 
+summary_filtered.csv: summary.csv
+	python3 summary_filtered.py
+
 summary.csv: summary.zip
 	unzip -u summary.zip # -d data/
 
