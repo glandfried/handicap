@@ -1,4 +1,6 @@
-all: handicap handicap_history handicap_population handicap_population_prod
+all:
+	sh py.sh	
+
 
 
 relevance: pdf/handicap_relevance.pdf
