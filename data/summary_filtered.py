@@ -81,7 +81,7 @@ DatosText['PartidasGanadasPorKomi'] = int(np.sum([(~df.puntos.isnull())&(df.blac
 df.puntos.map(lambda x: float(x) if isinstance(x, str) else  None )
 
 
-df = df[['id','black','white','outcome','handicap','komi','width','puntos','ranked','started','ended']]
+df = df[['id','black','white','outcome','black_win','black_win_not_komi','handicap','komi','width','puntos','ranked','started','ended']]
 
 #import datetime
 df.sort_values(by=['ended','started','id'])
@@ -98,6 +98,10 @@ with open('filtered.txt', 'w') as file:
 #df = df[['id','black','white','order','results','handicap','komi','width']]
 df = df.reset_index()
 df.to_csv("summary_filtered.csv", index=False)
+
+df = df[['id']]
+df.to_csv("estimations.csv", index=False)
+
 #df.to_pickle("DataFramePurge.pickle")
 ## %% 
 
