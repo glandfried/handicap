@@ -31,8 +31,8 @@ df['points'] = df.outcome.replace(replace_values, regex=True)
 df.points = df.points.map(lambda x: float(x) if isinstance(x, str) else  None )
 df.outcome[df.outcome.str.contains(' point',na=False)] = "Points"
 # Hago el order con formato lista para poder luego usar como argumento de las funciones de skill
-df["black_win"] = df.order.map(lambda x :  1 if x[1]=='1' else -1)
-df['black_win_not_komi'] =  np.sign(df.black_win*df.points+(df.komi-6.5))
+df["black_win"] = df.order.map(lambda x :  1 if x[1]=='1' else 0)
+df['black_win_not_komi'] =  np.sign((2*df.black_win-1)*df.points+(df.komi-6.5))
 
 df = df[['id','black','white','outcome','black_win','black_win_not_komi','handicap','komi', 'width','points','ranked','started','ended']]
 # Ordeno
