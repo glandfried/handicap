@@ -1,14 +1,18 @@
-all: talk
+#all: talk
 
-talk: figure
-	make -C doc
+#talk: figure
+#	make -C doc
 
-figure: data/handicap.pickle software/ablr/.git
-	make -C figures
+#figure: data/handicap.pickle software/ablr/.git
+#	make -C figures
 
-data/handicap.pickle: software/skill/.git
-	make -C data
+estimations/tsh.csv: dataset software/skill/.git
+	make -C estimations
 
+dateset: 
+	make -c data
+
+# Submodules
 software/skill/.git:
 	git submodule update --init software/skill/
 	make handicap -C software/skill/
@@ -21,6 +25,7 @@ software/abrl/.git:
 	git submodule update --init software/abrl/
 	make -C software/abrl/ setup
 
+# Posible fix
 setup:
 	# El backend que agrego a matplotlib es para evitar un posible error
 	echo "backend: Agg" > ~/.config/matplotlib/matplotlibrc
