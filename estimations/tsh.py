@@ -1,10 +1,11 @@
 import os
 name = os.path.basename(__file__).split(".py")[0]
 ##################
+#import time
 import pandas as pd
 import sys
 sys.path.append('../software/')
-import numpy as np
+#import numpy as np
 import skill as th
 #from importlib import reload  # Python 3.4+ only.
 #reload(th)
@@ -16,15 +17,14 @@ dataset = 'ogs'
 # Data
 df = pd.read_csv('../data/'+dataset+'/summary_filtered.csv')
 
-es = df[['id']].copy()
-es["w_mean"] = np.nan
-es["w_std"] = np.nan
-es["b_mean"] = np.nan
-es["b_std"] = np.nan
-es["h_mean"] = np.nan
-es["h_std"] = np.nan
-es["estimated"] = np.nan
-es["evidence"] = np.nan
+w_mean = []
+w_std = []
+b_mean = []
+b_std = []
+h_mean = []
+h_std = []
+estimated = []
+evidence = []
 
 # Prior data structure
 from collections import defaultdict
@@ -34,37 +34,49 @@ player = defaultdict(lambda:env.skill())
 for i in df.index:#i=0            
     
     h_key = (df.loc[i].handicap , df.loc[i].width)    
+    w_key = df.loc[i].white
+    b_key=  df.loc[i].black
+    prior_h = handicap[h_key]
+    prior_w = player[w_key]
+    prior_b = player[b_key]
     
     if df.loc[i].ranked:
-        es.loc[i,'estimated'] = True        
-        # Teams
-        tw = env.Team([player[df.loc[i].white]])
-        # Con handicap    
-        if h_key[0] > 1:
-            tb = env.Team([player[df.loc[i].black],handicap[h_key]])
-        else:
-            tb = env.Team([player[df.loc[i].black]])
-        
         result = [1,0] if df.loc[i].black_win else [0,1]
         
+        tw = env.Team([prior_w])
+        tb = env.Team([prior_b,prior_h]) if h_key[0] > 1 else env.Team([prior_h])
         game = env.Game([tw,tb],result)
-        es.evidence_tsh = game.evidence
+        
+        evidence.append(game.evidence)
         tw_post, tb_post = game.posterior
+        w_mean.append(tw_post[0].mu); w_std.append(tw_post[0].sigma)
+        b_mean.append(tb_post[0].mu); b_std.append(tb_post[0].sigma)
+        if h_key[0] >1:
+            h_mean.append(tb_post[1].mu);h_std.append(tb_post[1].sigma);
+        else:
+            h_mean.append(prior_h.mu);h_std.append(prior_h.sigma);
+        estimated.append(True)
         
-        es.loc[i,'w_mean'], es.loc[i,'w_std'] = tw_post[0]
-        es.loc[i,'b_mean'], es.loc[i,'b_std'] = tb_post[0]
-        es.loc[i,'h_mean'], es.loc[i,'h_std'] = tb_post[1] if h_key[0] >1 else handicap[h_key]
-        
-        player[df.loc[i].white] = tw_post[0]
-        player[df.loc[i].black] = tb_post[0]
-        handicap[h_key] = tb_post[1] if h_key[0] >1 else handicap[h_key]
-        
+        player[w_key] = tw_post[0]
+        player[b_key] = tb_post[0]
+        handicap[h_key] = tb_post[1] if h_key[0] >1 else prior_h
     else:
-        es.iloc[i].estimated_tsh = False
-        es.loc[i,'w_mean'], es.loc[i,'w_std'] = player[df.iloc[i].white]
-        es.loc[i,'b_mean'], es.loc[i,'b_std'] = player[df.iloc[i].black]    
-        es.loc[i,'h_mean'], es.loc[i,'h_std'] = handicap[h_key]
-                    
+        estimated.append(False)
+        evidence.append(1)
+        w_mean.append(prior_w.mu); w_std.append(prior_w.sigma)
+        b_mean.append(prior_b.mu); b_std.append(prior_b.sigma)
+        h_mean.append(prior_h.mu);h_std.append(prior_h.sigma);
+        
     print('Porcentaje:', int(i/len(df.index)*100), end='\r')
-     
+
+es = df[['id']].copy()
+es["w_mean"] = w_mean
+es["w_std"] = w_std
+es["b_mean"] = b_mean
+es["b_std"] = b_std
+es["h_mean"] = h_mean
+es["h_std"] = h_std
+es["estimated"] = estimated
+es["evidence"] = evidence
+    
 df.to_csv(name+".csv", index=False)
