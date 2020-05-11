@@ -39,12 +39,8 @@ df = df[['id','black','white','outcome','black_win','black_win_not_komi','handic
 df.sort_values(by=['ended','started','id'])
 
 # Escribo los
-with open('filtered.txt', 'w') as file:
+with open('filtered.json', 'w') as file:
      file.write(json.dumps(filtered)) # use `json.loads` to do the reverse
 
 df = df.reset_index()
 df.to_csv("summary_filtered.csv", index=False)
-
-# Donde se van a guardar las estimaciones.
-df = df[['id']]
-df.to_csv("estimations.csv", index=False)

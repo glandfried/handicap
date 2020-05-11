@@ -1,3 +1,6 @@
+import os
+name = os.path.basename(__file__).split(".py")[0]
+##################
 import pandas as pd
 import sys
 sys.path.append('../software/')
@@ -8,18 +11,17 @@ import skill as th
 env = th.TrueSkill(draw_probability=0)
 
 # Data
-df = pd.read_csv('summary_filtered.csv')
-es = pd.read_csv('estimations.csv')
+df = pd.read_csv('../data/ogs_filtered.csv')
 
-# TrueSkill - handicap [only ranked]
-es["w_mean_tsh"] = np.nan
-es["w_std_tsh"] = np.nan
-es["b_mean_tsh"] = np.nan
-es["b_std_tsh"] = np.nan
-es["h_mean_tsh"] = np.nan
-es["h_std_tsh"] = np.nan
-es["estimated_tsh"] = np.nan
-es["evidence_tsh"] = np.nan
+es = df[['id']].copy()
+es["w_mean"] = np.nan
+es["w_std"] = np.nan
+es["b_mean"] = np.nan
+es["b_std"] = np.nan
+es["h_mean"] = np.nan
+es["h_std"] = np.nan
+es["estimated"] = np.nan
+es["evidence"] = np.nan
 
 # Prior data structure
 from collections import defaultdict
@@ -45,9 +47,9 @@ for i in df.index:#i=0
         es.evidence_tsh = game.evidence
         tw_post, tb_post = game.posterior
         
-        es.iloc[i].w_mean_tsh, es.iloc[i].w_std_tsh = tw_post[0]
-        es.iloc[i].b_mean_tsh, es.iloc[i].b_std_tsh = tb_post[0]
-        es.iloc[i].h_mean_tsh, es.iloc[i].h_std_tsh = tb_post[1] if h_key[0] >1 else handicap[h_key]
+        es.iloc[i].w_mean, es.iloc[i].w_std = tw_post[0]
+        es.iloc[i].b_mean, es.iloc[i].b_std = tb_post[0]
+        es.iloc[i].h_mean, es.iloc[i].h_std = tb_post[1] if h_key[0] >1 else handicap[h_key]
         
         player[df.iloc[i].white] = tw_post[0]
         player[df.iloc[i].black] = tb_post[0]
@@ -55,9 +57,9 @@ for i in df.index:#i=0
         
     else:
         es.iloc[i].estimated_tsh = False
-        es.iloc[i].w_mean_tsh, es.iloc[i].w_std_tsh = player[df.iloc[i].white]
-        es.iloc[i].b_mean_tsh, es.iloc[i].b_std_tsh = player[df.iloc[i].black]    
+        es.iloc[i].w_mean, es.iloc[i].w_std = player[df.iloc[i].white]
+        es.iloc[i].b_mean, es.iloc[i].b_std = player[df.iloc[i].black]    
                 
     print(f"Porcentaje de handicap.py es del {int(i/len(df.index)*100)}%", end='\r')
      
-df.to_csv("estimated.csv", index=False)
+df.to_csv(name+".csv", index=False)

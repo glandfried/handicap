@@ -1,5 +1,4 @@
-handicap.pickle: summary/summary.csv
-	python3 handicap.py
+all: summary_filtered.csv
 
 summary_filtered.csv: summary.csv
 	python3 summary_filtered.py
