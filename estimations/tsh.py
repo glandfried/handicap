@@ -10,8 +10,11 @@ import skill as th
 #reload(th)
 env = th.TrueSkill(draw_probability=0)
 
+# Posible variable
+dataset = 'ogs'
+
 # Data
-df = pd.read_csv('../data/ogs_filtered.csv')
+df = pd.read_csv('../data/'+dataset+'/summary_filtered.csv')
 
 es = df[['id']].copy()
 es["w_mean"] = np.nan
@@ -60,6 +63,6 @@ for i in df.index:#i=0
         es.iloc[i].w_mean, es.iloc[i].w_std = player[df.iloc[i].white]
         es.iloc[i].b_mean, es.iloc[i].b_std = player[df.iloc[i].black]    
                 
-    print(f"Porcentaje de handicap.py es del {int(i/len(df.index)*100)}%", end='\r')
+    print(f"Porcentaje de "+name+".py es del {int(i/len(df.index)*100)}%", end='\r')
      
 df.to_csv(name+".csv", index=False)
