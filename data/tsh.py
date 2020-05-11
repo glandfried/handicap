@@ -31,7 +31,7 @@ for i in df.index:#i=0
     if df.iloc[i].ranked:
         es.iloc[i].estimated = True        
         # Teams
-        tw = env.Team(player[df.iloc[i].white])
+        tw = env.Team([player[df.iloc[i].white]])
         # Con handicap
         h_key = (df.iloc[i].handicap , df.iloc[i].width)
         if h_key[0] > 1:
@@ -41,8 +41,9 @@ for i in df.index:#i=0
         
         result = [1,0] if df.iloc[i].black_win else [0,1]
         
-        es.evidence_tsh = env.Game([tw,tb],result).evidence
-        tw_post, tb_post = env.Game([tw,tb],result).posterior
+        game = env.Game([tw,tb],result)
+        es.evidence_tsh = game.evidence
+        tw_post, tb_post = game.posterior
         
         es.iloc[i].w_mean_tsh, es.iloc[i].w_std_tsh = tw_post[0]
         es.iloc[i].b_mean_tsh, es.iloc[i].b_std_tsh = tb_post[0]
