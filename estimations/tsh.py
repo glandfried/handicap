@@ -65,6 +65,6 @@ for i in df.index:#i=0
         es.loc[i,'b_mean'], es.loc[i,'b_std'] = player[df.iloc[i].black]    
         es.loc[i,'h_mean'], es.loc[i,'h_std'] = handicap[h_key]
                     
-    print(f"Porcentaje de "+name+".py es del {int(i/len(df.index)*100)}%", end='\r')
+    print('Porcentaje:', int(i/len(df.index)*100), end='\r')
      
 df.to_csv(name+".csv", index=False)
