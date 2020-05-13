@@ -33,6 +33,7 @@ player = defaultdict(lambda:env.skill())
 
 for i in df.index:#i=0            
     
+    
     h_key = (df.loc[i].handicap , df.loc[i].width)    
     w_key = df.loc[i].white
     b_key=  df.loc[i].black
@@ -45,6 +46,7 @@ for i in df.index:#i=0
         
         tw = env.Team([prior_w])
         tb = env.Team([prior_b,prior_h]) if h_key[0] > 1 else env.Team([prior_h])
+        tb.ratings[1].performance 
         game = env.Game([tw,tb],result)
         
         evidence.append(game.evidence)
@@ -79,4 +81,4 @@ es["h_std"] = h_std
 es["estimated"] = estimated
 es["evidence"] = evidence
     
-df.to_csv(name+".csv", index=False)
+es.to_csv(name+".csv", index=False)
