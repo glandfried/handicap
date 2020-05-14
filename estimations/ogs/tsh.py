@@ -4,18 +4,18 @@ name = os.path.basename(__file__).split(".py")[0]
 #import time
 import pandas as pd
 import sys
-sys.path.append('../software/')
+sys.path.append('../../software/trueskill.py/')
 #import numpy as np
-import skill as th
-#from importlib import reload  # Python 3.4+ only.
-#reload(th)
+import src as th
+from importlib import reload  # Python 3.4+ only.
+reload(th)
 env = th.TrueSkill(draw_probability=0)
 
 # Posible variable
 dataset = 'ogs'
 
 # Data
-df = pd.read_csv('../data/'+dataset+'/summary_filtered.csv')
+df = pd.read_csv('../../data/'+dataset+'/summary_filtered.csv')
 
 w_mean = []
 w_std = []
@@ -29,7 +29,7 @@ evidence = []
 # Prior data structure
 from collections import defaultdict
 handicap = defaultdict(lambda:env.Rating(0,25/3,0,1/100))
-player = defaultdict(lambda:env.skill())
+player = defaultdict(lambda:env.Rating())
 
 for i in df.index:#i=0            
     
@@ -45,23 +45,24 @@ for i in df.index:#i=0
         result = [1,0] if df.loc[i].black_win else [0,1]
         
         tw = env.Team([prior_w])
-        tb = env.Team([prior_b,prior_h]) if h_key[0] > 1 else env.Team([prior_h])
-        tb.ratings[1].performance 
+        tb = env.Team([prior_b,prior_h]) if h_key[0] > 1 else env.Team([prior_b])
         game = env.Game([tw,tb],result)
+        
         
         evidence.append(game.evidence)
         tw_post, tb_post = game.posterior
         w_mean.append(tw_post[0].mu); w_std.append(tw_post[0].sigma)
         b_mean.append(tb_post[0].mu); b_std.append(tb_post[0].sigma)
         if h_key[0] >1:
-            h_mean.append(tb_post[1].mu);h_std.append(tb_post[1].sigma);
+            h_mean.append(tb_post[1].mu); h_std.append(tb_post[1].sigma);
         else:
-            h_mean.append(prior_h.mu);h_std.append(prior_h.sigma);
+            h_mean.append(prior_h.mu); h_std.append(prior_h.sigma);
         estimated.append(True)
         
         player[w_key] = tw_post[0]
         player[b_key] = tb_post[0]
-        handicap[h_key] = tb_post[1] if h_key[0] >1 else prior_h
+        if h_key[0] > 1:
+            handicap[h_key] = tb_post[1]
     else:
         estimated.append(False)
         evidence.append(1)

@@ -19,3 +19,6 @@
 [submodule "software/ttt"]
 	path = software/ttt
 	url = git@gitlab.licar.exp.dc.uba.ar:gaming/trueskill.git
+[submodule "software/trueskill.py"]
+	path = software/trueskill.py
+	url = git@github.com:glandfried/trueskill.py.git
