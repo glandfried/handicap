@@ -28,7 +28,7 @@ composition = [[[w],[b]] if h<2 else [[w],[b,(h,s)]] for w, b, h, s in zip(df.wh
 
 history= env.history(composition, results, prior_dict=prior_dict)
 #history.trueSkill()
-history.through_time()
+history.through_time(online=False)
 history.convergence()
 
 with open(name+".pickle", "wb") as output_file:
