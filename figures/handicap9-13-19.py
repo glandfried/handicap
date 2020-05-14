@@ -9,83 +9,50 @@ import os
 name = os.path.basename(__file__).split(".py")[0]
 #
 import matplotlib.pyplot as plt
+
+
 ##########
-import sys
-sys.path.append('../software')
-import trueskill
-import ablr # analytic-bayesian-linear-regression own package
+#import sys
+#sys.path.append('../software/trueskill.py/')
+import pandas as pd
+#import src as trueskill
+#import ablr # analytic-bayesian-linear-regression own package
 import numpy as np
-import pickle
 #import numpy as np
-with open("/home/mati/Storage/Doctorado/Licar/licar/papers/2020_Handicap/nucleo/data/handicap.pickle",'rb') as file:
-    handicap = pickle.load(file)
-with open("/home/mati/Storage/Doctorado/Licar/licar/papers/2020_Handicap/nucleo/data/handicap_history.pickle",'rb') as file:
-    handicap_history = pickle.load(file)
-#%%
-skill9 = []
-sigma9 = []
-skill13= []
-sigma13 = []
-skill19 = []
-sigma19 = []
-handicap9 = []
-handicap13 = []
-handicap19 = []
 
-#%%
-for i in handicap: # i es el key
-    if (i[1] == 9) & (i[0]>1) & (i[0]<6):
-        handicap9.append(i[0])
-        skill9.append(handicap[i].mu)
-        sigma9.append(handicap[i].sigma)
-  
-    elif (i[1] == 13) & (i[0]>1) & (i[0]<8):
-        handicap13.append(i[0])
-        skill13.append(handicap[i].mu)
-        sigma13.append(handicap[i].sigma) 
-     
-    elif (i[1] == 19) & (i[0]>1) & (i[0]<9):
-        handicap19.append(i[0])
-        skill19.append(handicap[i].mu)
-        sigma19.append(handicap[i].sigma)
+df = pd.read_csv('../data/ogs/summary_filtered.csv')
+tsh_ogs = pd.read_csv('../estimations/ogs/tsh.csv')
+
+"El ID es el mismo"
+assert sum(df.id != tsh_ogs.id)==0
+
+log_evidence = np.sum(np.log(tsh_ogs[tsh_ogs.estimated].evidence))
+mean_log_evidence = log_evidence/sum(tsh_ogs.estimated)
+np.exp(mean_log_evidence)
+
+skill9 = [tsh_ogs[(df.handicap==i)&(df.width==9)].iloc[-1].h_mean for i in range(2,6)]
+sigma9 = [tsh_ogs[(df.handicap==i)&(df.width==9)].iloc[-1].h_std for i in range(2,6)]
+skill13= [tsh_ogs[(df.handicap==i)&(df.width==13)].iloc[-1].h_mean for i in range(2,8)]
+sigma13 = [tsh_ogs[(df.handicap==i)&(df.width==13)].iloc[-1].h_std for i in range(2,8)]
+skill19 = [tsh_ogs[(df.handicap==i)&(df.width==19)].iloc[-1].h_mean for i in range(2,10)]
+sigma19 = [tsh_ogs[(df.handicap==i)&(df.width==19)].iloc[-1].h_std for i in range(2,10)]
+handicap9 = list(range(2,6))
+handicap13 = list(range(2,8))
+handicap19 = list(range(2,10))
         
-handicap9 = np.array(handicap9)
-skill9 = np.array(skill9)
-sigma9 = np.array(sigma9)
-idx9   = np.argsort(handicap9)
-handicap9 = np.array(handicap9)[idx9]
-skill9 = np.array(skill9)[idx9]
-sigma9 = np.array(sigma9)[idx9]
-
-handicap13 = np.array(handicap13)
-skill13 = np.array(skill13)
-sigma13 = np.array(sigma13)
-idx13  = np.argsort(handicap13)
-handicap13 = np.array(handicap13)[idx13]
-skill13 = np.array(skill13)[idx13]
-sigma13 = np.array(sigma13)[idx13]
-
-handicap19 = np.array(handicap19)
-skill19 = np.array(skill19)
-sigma19 = np.array(sigma19)
-idx19  = np.argsort(handicap19)
-handicap19 = np.array(handicap19)[idx19]
-skill19 = np.array(skill19)[idx19]
-sigma19 = np.array(sigma19)[idx19]
-
-
-width = [9,13,19]
+width= [9,13,19]
 handicaps = [handicap9,handicap13,handicap19] 
 skills = [skill9,skill13,skill19]
 sigmas = [sigma9,sigma13,sigma19]
 FitHarcodeado = [5,8,8]
-#%%
+
 for j in range(3):
     for i in range(len(handicaps[j])):
         plt.figure(j)
         plt.plot([handicaps[j][i],handicaps[j][i]],[skills[j][i]+2*sigmas[j][i], skills[j][i]-2*sigmas[j][i] ],linewidth=0.5,color='grey')
         plt.plot([handicaps[j][i],handicaps[j][i]],[skills[j][i]+sigmas[j][i], skills[j][i]-sigmas[j][i] ],linewidth=1,color='black')
         plt.scatter(handicaps[j][i],skills[j][i])
+    """
     X_vec = 0
     t = 0
     Phi = 0
@@ -102,6 +69,7 @@ for j in range(3):
     plt.plot([min(handicaps[j]),max(handicaps[j])],[fit_mu[0]+fit_mu[1]*2,fit_mu[0]+fit_mu[1]*FitHarcodeado[j]],color="black")    
     # END: baysian linear regression
     print(fit_mu, fit_sigma )
+    """
 ###
     
     plt.xticks(fontsize=12) # rotation=90
@@ -111,4 +79,7 @@ for j in range(3):
     plt.xlabel("Handicap", fontsize=16 )
     plt.ylabel("Skill", fontsize=16 )
     
-#%%
+    plt.savefig("pdf/"+name+str(width[j])+".pdf",pad_inches =0,transparent =True,frameon=True)
+    bash_cmd = "pdfcrop --margins '0 0 0 0' pdf/{0}.pdf pdf/{0}.pdf".format(name+str(width[j]))
+    os.system(bash_cmd)
+
