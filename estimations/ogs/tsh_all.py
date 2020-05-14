@@ -28,7 +28,7 @@ evidence = []
 
 # Prior data structure
 from collections import defaultdict
-handicap = defaultdict(lambda:env.Rating(0,25/3,1,1/100))
+handicap = defaultdict(lambda:env.Rating(0,25/3,0,1/100))
 player = defaultdict(lambda:env.Rating())
 
 for i in df.index:#i=0            
