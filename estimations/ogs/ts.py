@@ -3,8 +3,13 @@ name = os.path.basename(__file__).split(".py")[0]
 ##################
 #import time
 import pandas as pd
-import trueskill as ts
-env = ts.TrueSkill(draw_probability=0)
+import sys
+sys.path.append('../../software/trueskill.py/')
+#import numpy as np
+import src as th
+from importlib import reload  # Python 3.4+ only.
+reload(th)
+env = th.TrueSkill(draw_probability=0)
 
 # Posible variable
 dataset = 'ogs'
@@ -16,8 +21,6 @@ w_mean = []
 w_std = []
 b_mean = []
 b_std = []
-h_mean = []
-h_std = []
 estimated = []
 evidence = []
 
@@ -27,8 +30,6 @@ player = defaultdict(lambda:env.Rating())
 
 for i in df.index:#i=0            
     
-    
-    h_key = (df.loc[i].handicap , df.loc[i].width)    
     w_key = df.loc[i].white
     b_key=  df.loc[i].black
     prior_w = player[w_key]
@@ -40,7 +41,7 @@ for i in df.index:#i=0
         tw = env.Team([prior_w])
         tb = env.Team([prior_b])
         game = env.Game([tw,tb],result)
-        
+                
         evidence.append(game.evidence)
         tw_post, tb_post = game.posterior
         w_mean.append(tw_post[0].mu); w_std.append(tw_post[0].sigma)
@@ -49,6 +50,7 @@ for i in df.index:#i=0
         
         player[w_key] = tw_post[0]
         player[b_key] = tb_post[0]
+        
     else:
         estimated.append(False)
         evidence.append(1)
