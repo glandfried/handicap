@@ -11,6 +11,8 @@ import src as th
 from importlib import reload  # Python 3.4+ only.
 reload(th)
 env = th.TrueSkill(draw_probability=0,tau=1,epsilon=0.1)
+import ipdb
+
 
 # Posible variable
 dataset = 'ogs'
@@ -33,6 +35,8 @@ history= env.history(composition, results, prior_dict=prior_dict)
 #history.trueSkill()
 history.through_time(online=False)
 history.convergence()
+
+ipdb.set_trace()
 
 with open(name+".pickle", "wb") as output_file:
     pickle.dump(history, output_file,protocol=pickle.HIGHEST_PROTOCOL)
