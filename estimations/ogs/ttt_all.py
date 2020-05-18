@@ -26,6 +26,9 @@ dict(prior_dict)
 results = list(df.black_win.map(lambda x: [1,0] if x else [0,1] ) )
 composition = [[[w],[b]] if h<2 else [[w],[b,(h,s)]] for w, b, h, s in zip(df.white, df.black, df.handicap, df.width) ]   
 
+results = [ res for res, rank in zip(results,df.ranked) if rank] 
+composition = [ c for c, rank in zip(composition,df.ranked) if rank] 
+
 history= env.history(composition, results, prior_dict=prior_dict)
 #history.trueSkill()
 history.through_time(online=False)
