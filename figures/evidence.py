@@ -25,6 +25,18 @@ Conlusi\'on 1):
 df = pd.read_csv('../data/ogs/summary_filtered.csv')
 tsh_ogs = pd.read_csv('../estimations/ogs/tsh.csv')
 tsh_all_ogs = pd.read_csv('../estimations/ogs/tsh_all.csv')
+ts_ogs = pd.read_csv('../estimations/ogs/ts.csv')
+ts_all_ogs = pd.read_csv('../estimations/ogs/ts_all.csv')
+ttt_ogs = pd.read_csv('../estimations/ogs/ttt.csv')
+
+
+log_evidence_ts = np.sum(np.log(ts_ogs[ts_ogs.estimated].evidence))
+mean_log_evidence_ts = log_evidence_ts/sum(ts_ogs.estimated)
+np.exp(mean_log_evidence_ts)
+
+log_evidence_ts_all = np.sum(np.log(ts_all_ogs[ts_all_ogs.estimated].evidence))
+mean_log_evidence_ts_all = log_evidence_ts_all/sum(ts_all_ogs.estimated)
+np.exp(mean_log_evidence_ts_all) 
 
 log_evidence = np.sum(np.log(tsh_ogs[tsh_ogs.estimated].evidence))
 mean_log_evidence = log_evidence/sum(tsh_ogs.estimated)
@@ -34,47 +46,25 @@ log_evidence_all = np.sum(np.log(tsh_all_ogs[tsh_all_ogs.estimated].evidence))
 mean_log_evidence_all = log_evidence_all/sum(tsh_all_ogs.estimated)
 np.exp(mean_log_evidence_all)
 
+log_evidence_ttt = np.sum(np.log(ttt_ogs.evidence))
+mean_log_evidence_ttt = log_evidence_ttt/len(ttt_ogs.evidence)
+np.exp(mean_log_evidence_ttt)
 
-evidence = list(filter(lambda x: not x is None, list(map(lambda x:  x['evidence'] if x['estimated'] else None ,games_sorted ))))
-evidence_woh = list(filter(lambda x: not x is None, list(map(lambda x:  x['evidence_woh'] if x['estimated'] else None ,games_sorted ))))
+log_evidence_ttt - log_evidence_ts
+log_evidence_ttt - log_evidence
 
-plt.hist(evidence,alpha=0.3)
-plt.hist(evidence_woh ,alpha=0.3)
-#games_sorted[1096]
+log_evidence_all-log_evidence_ts_all
 
-10**(np.sum(np.log10(evidence))/len(evidence))
-10**(np.sum(np.log10(evidence_woh))/len(evidence_woh))
-"""
-Gano en todos los escenarios posibles.
-Los escenarios los defino ac\'a abajo
-"""
+####
+# ONly handicap 
 
-diferentes = list(filter(lambda x: x[1]>4,dif))
-activos = list(filter(lambda x: x[1]>20,act))
+log_evidence_ts_oh = np.sum(np.log(ts_ogs[ts_ogs.estimated&(df.handicap>1)].evidence))
+mean_log_evidence_ts_oh = log_evidence_ts_oh/sum(ts_ogs.estimated&(df.handicap>1))
+np.exp(mean_log_evidence_ts_oh)
 
-len(diferentes )
-len(activos)
-
-jugadores = set(map(lambda x: x[0], diferentes)).intersection(set(map(lambda x: x[0], activos)))
-
-len(jugadores)
+log_evidence_oh = np.sum(np.log(tsh_ogs[tsh_ogs.estimated&(df.handicap>1)].evidence))
+mean_log_evidence_oh = log_evidence_oh/sum(tsh_ogs.estimated&(df.handicap>1))
+np.exp(mean_log_evidence_oh)
 
 
-games_jugadores = list(filter(lambda x: x['white'] in jugadores or x['black'] in jugadores ,  games_sorted))
-len(games_jugadores )
 
-evidence = sum(map(lambda x:  np.log10(x['evidence']) if x['estimated'] else 0 ,games_jugadores))
-evidence_woh = sum(map(lambda x:  np.log10(x['evidence_woh']) if x['estimated'] else 0 ,games_jugadores ))
-cantidad = sum(map(lambda x:  1 if x['estimated'] else 0 ,games_jugadores ))
-
-print(10**(evidence/cantidad), 10**(evidence_woh/cantidad))
-
-
-evidence = sum(map(lambda x:  np.log10(x['evidence']) if x['estimated'] else 0 ,games_sorted ))
-evidence_woh = sum(map(lambda x:  np.log10(x['evidence_woh']) if x['estimated'] else 0 ,games_sorted ))
-cantidad = sum(map(lambda x:  1 if x['estimated'] else 0 ,games_sorted ))
-
-print(10**(evidence/cantidad), 10**(evidence_woh/cantidad))
-
-#jugadores = set(map(lambda x: x['id'], games_sorted ))
-#losQueJueganConHandicap =  filter(lambda x: x[1]>10, list(map(lambda j: (j,sum(map(lambda g: 1 if g['id']==j and g['handicap'] != 0 else 0 , games_sorted))) , jugadores) ))
