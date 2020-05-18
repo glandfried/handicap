@@ -22,13 +22,38 @@ import numpy as np
 
 df = pd.read_csv('../data/ogs/summary_filtered.csv')
 tsh_ogs = pd.read_csv('../estimations/ogs/tsh.csv')
+tsh_all_ogs = pd.read_csv('../estimations/ogs/tsh_all.csv')
+ttt_ogs = pd.read_csv('../estimations/ogs/ttt.csv')
+df_r = df[df.ranked].copy()
+df_r = df_r.reset_index()
 
 "El ID es el mismo"
+assert list(df.id[df.ranked]) ==  list(ttt_ogs.id)
 assert sum(df.id != tsh_ogs.id)==0
+
+log_evidence_ttt = np.sum(np.log(ttt_ogs.evidence))
+mean_log_evidence_ttt = log_evidence_ttt/len(ttt_ogs.id)
+np.exp(mean_log_evidence_ttt)
 
 log_evidence = np.sum(np.log(tsh_ogs[tsh_ogs.estimated].evidence))
 mean_log_evidence = log_evidence/sum(tsh_ogs.estimated)
 np.exp(mean_log_evidence)
+
+model_selection = log_evidence_ttt - log_evidence 
+
+skill9_ttt = [ttt_ogs[(df_r.handicap==i)&(df_r.width==9)].iloc[-1].h_mean for i in range(2,6)]
+sigma9_ttt = [ttt_ogs[(df_r.handicap==i)&(df_r.width==9)].iloc[-1].h_std for i in range(2,6)]
+skill13_ttt= [ttt_ogs[(df_r.handicap==i)&(df_r.width==13)].iloc[-1].h_mean for i in range(2,8)]
+sigma13_ttt = [ttt_ogs[(df_r.handicap==i)&(df_r.width==13)].iloc[-1].h_std for i in range(2,8)]
+skill19_ttt = [ttt_ogs[(df_r.handicap==i)&(df_r.width==19)].iloc[-1].h_mean for i in range(2,10)]
+sigma19_ttt = [ttt_ogs[(df_r.handicap==i)&(df_r.width==19)].iloc[-1].h_std for i in range(2,10)]
+"""
+Observaci\'on:
+    Las estimaciones finales del TTT en general son muy parecidas a las de trueskill.
+    En este caso tambi\'en son parecidas para los handicap 
+"""
+
+
 
 skill9 = [tsh_ogs[(df.handicap==i)&(df.width==9)].iloc[-1].h_mean for i in range(2,6)]
 sigma9 = [tsh_ogs[(df.handicap==i)&(df.width==9)].iloc[-1].h_std for i in range(2,6)]

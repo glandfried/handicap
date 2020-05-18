@@ -38,7 +38,21 @@ history.convergence()
 
 ipdb.set_trace()
 
-with open(name+".pickle", "wb") as output_file:
-    pickle.dump(history, output_file,protocol=pickle.HIGHEST_PROTOCOL)
+w_mean = [ t.posteriors[w].mu for t,w,b in zip(history.times,df.white[df.ranked],df.black[df.ranked]) ]                                                            
+b_mean = [ t.posteriors[b].mu for t,w,b in zip(history.times,df.white[df.ranked],df.black[df.ranked]) ]                                                            
+w_std = [ t.posteriors[w].sigma for t,w,b in zip(history.times,df.white[df.ranked],df.black[df.ranked]) ]                                                          
+b_std = [ t.posteriors[b].sigma for t,w,b in zip(history.times,df.white[df.ranked],df.black[df.ranked]) ]    
+h_mean = [  t.posteriors[(h,w)].mu if h > 1 else 0 for t,h,w in zip(history.times,df.handicap[df.ranked],df.width[df.ranked]) ]
+h_std = [  t.posteriors[(h,w)].sigma if h > 1 else 0 for t,h,w in zip(history.times,df.handicap[df.ranked],df.width[df.ranked]) ] 
+evidence = [  t.evidence[0] for t in history.times] 
 
-#es.to_csv(name+".csv", index=False)
+res = df[['id']][df.ranked].copy() 
+res["w_mean"] = w_mean
+res["w_std"] = w_std
+res["b_mean"] = b_mean
+res["b_std"] = b_std
+res["h_mean"] = h_mean
+res["h_std"] = h_std
+res["evidence"] = evidence
+
+res.to_csv(name+".csv", index=False)
