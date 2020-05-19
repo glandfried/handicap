@@ -9,7 +9,7 @@ sys.path.append('../../software/trueskill.py/')
 import src as th
 from importlib import reload  # Python 3.4+ only.
 reload(th)
-env = th.TrueSkill(draw_probability=0,tau=10,beta=1,epsilon=0.1)
+env = th.TrueSkill(draw_probability=0,tau=1,beta=4.33,epsilon=0.1)
 #import ipdb
 
 
