@@ -2,11 +2,11 @@ import os
 name = os.path.basename(__file__).split(".py")[0]
 ##################
 #import time
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 import pandas as pd
 import numpy as np
-
+from datetime import datetime
 # Posible variable
 dataset = 'ogs'
 
@@ -28,7 +28,6 @@ if False:
     """
     JUego
     """
-    from datetime import datetime
     import scipy
     whr.load_games(composition[1:1000])
     whr.iterate(4)
