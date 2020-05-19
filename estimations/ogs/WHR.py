@@ -2,7 +2,6 @@ import os
 name = os.path.basename(__file__).split(".py")[0]
 ##################
 #import time
-#import matplotlib.pyplot as plt
 
 import pandas as pd
 import numpy as np
@@ -20,7 +19,7 @@ composition = [str(w)+" "+str(b)+" "+("B" if r else "W")+" "+str(d)+" "+"0"  for
 composition = [ c for c, rank in zip(composition,df.ranked) if rank] 
 
 from whr import whole_history_rating
-whr = whole_history_rating.Base()
+whr = whole_history_rating.Base({'w2':14})
 whr.load_games(composition)
 whr.iterate(4)
     
@@ -28,6 +27,7 @@ if False:
     """
     JUego
     """
+    import matplotlib.pyplot as plt
     import scipy
     whr.load_games(composition[1:1000])
     whr.iterate(4)

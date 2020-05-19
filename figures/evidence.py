@@ -31,10 +31,21 @@ tsh_all_ogs = pd.read_csv('../estimations/ogs/tsh_all.csv')
 ts_ogs = pd.read_csv('../estimations/ogs/ts.csv')
 ts_all_ogs = pd.read_csv('../estimations/ogs/ts_all.csv')
 ttt_ogs = pd.read_csv('../estimations/ogs/ttt.csv')
-whr_ogs = pd.read_csv('../estimations/ogs/whr.csv')
+whr_ogs = pd.read_csv('../estimations/ogs/WHR.csv')
 
 np.exp(np.sum(np.log(whr_ogs.evidence))/len(whr_ogs.evidence))
 plt.hist(whr_ogs.evidence)
+
+if False:
+    """
+    Curva de aprendizaje de un jugador.
+    Va del m\'inimo (-5) al m\'aximo (5) de una partida a otra.
+    """
+    lc = [ rb if b == 2100 else rw for rw, rb, w, b in zip(whr_ogs.w_mean,whr_ogs.b_mean,df_r.white,df_r.black ) if b == 2100 or w ==2100 ]
+    plt.plot(np.log(lc) )
+
+np.min(np.log(whr_ogs.w_mean))
+
 
 log_evidence_ts = np.sum(np.log(ts_ogs[ts_ogs.estimated].evidence))
 mean_log_evidence_ts = log_evidence_ts/sum(ts_ogs.estimated)
