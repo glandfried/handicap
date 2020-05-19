@@ -31,7 +31,10 @@ tsh_all_ogs = pd.read_csv('../estimations/ogs/tsh_all.csv')
 ts_ogs = pd.read_csv('../estimations/ogs/ts.csv')
 ts_all_ogs = pd.read_csv('../estimations/ogs/ts_all.csv')
 ttt_ogs = pd.read_csv('../estimations/ogs/ttt.csv')
+whr_ogs = pd.read_csv('../estimations/ogs/whr.csv')
 
+np.exp(np.sum(np.log(whr_ogs.evidence))/len(whr_ogs.evidence))
+plt.hist(whr_ogs.evidence)
 
 log_evidence_ts = np.sum(np.log(ts_ogs[ts_ogs.estimated].evidence))
 mean_log_evidence_ts = log_evidence_ts/sum(ts_ogs.estimated)
