@@ -22,3 +22,6 @@
 [submodule "software/trueskill.py"]
 	path = software/trueskill.py
 	url = git@github.com:glandfried/trueskill.py.git
+[submodule "software/whole_history_rating"]
+	path = software/whole_history_rating
+	url = git@github.com:glandfried/whole_history_rating.git
