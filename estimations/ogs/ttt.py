@@ -36,7 +36,7 @@ history= env.history(composition, results, prior_dict=prior_dict)
 history.through_time(online=False)
 history.convergence()
 
-ipdb.set_trace()
+#ipdb.set_trace()
 
 w_mean = [ t.posteriors[w].mu for t,w,b in zip(history.times,df.white[df.ranked],df.black[df.ranked]) ]                                                            
 b_mean = [ t.posteriors[b].mu for t,w,b in zip(history.times,df.white[df.ranked],df.black[df.ranked]) ]                                                            
