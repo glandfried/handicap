@@ -23,27 +23,6 @@ whr = whole_history_rating.Base({'w2':14})
 whr.load_games(composition)
 whr.iterate(4)
     
-if False:
-    """
-    JUego
-    """
-    import matplotlib.pyplot as plt
-    import scipy
-    whr.load_games(composition[1:1000])
-    whr.iterate(4)
-    
-    s = np.arange(-3,3,0.01)
-    plt.plot(s,scipy.stats.norm.pdf(s,np.log(whr.games[0].bpd.gamma()),np.sqrt(whr.games[0].bpd.uncertainty) ))
-    plt.plot(s,scipy.stats.norm.pdf(s,np.log(whr.games[0].wpd.gamma()),np.sqrt(whr.games[0].wpd.uncertainty)))
-    
-    #10**(whr.games[0].bpd.elo()/400)    
-    whr.games[0].bpd.gamma()
-    whr.games[0].inspect()
-    whr.games[0].bpd.gamma()/(whr.games[0].bpd.gamma()+whr.games[0].wpd.gamma())
-    #whr.games[99].white_player.days[0].uncertainty*100
-    #whr.player_by_name("2100")[0]
-    #whr.ratings_for_player("2100")[0]
-
 w_mean = [ g.wpd.gamma() for g in whr.games ]                                                            
 b_mean = [ g.bpd.gamma() for g in whr.games ] 
 w_std = [ g.wpd.uncertainty for g in whr.games ]  

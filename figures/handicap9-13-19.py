@@ -64,6 +64,9 @@ sigma19 = [tsh_ogs[(df.handicap==i)&(df.width==19)].iloc[-1].h_std for i in rang
 handicap9 = list(range(2,6))
 handicap13 = list(range(2,8))
 handicap19 = list(range(2,10))
+
+#plt.plot(skill19_ttt);plt.plot(skill19)
+
         
 width= [9,13,19]
 handicaps = [handicap9,handicap13,handicap19] 

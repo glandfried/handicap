@@ -2,12 +2,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sys
-sys.path.append('../software')
-import trueskill as th
+sys.path.append('../software/trueskill.py/')
+import trueskill as ts
+import src as th
 
 from importlib import reload  # Python 3.4+ only.
 reload(th)
-env = th.TrueSkill(draw_probability=0)
+env = ts.TrueSkill(draw_probability=0)
+env_h = th.TrueSkill(draw_probability=0,beta=0)
 
 
 
@@ -38,11 +40,81 @@ plt.hist(whr_ogs.evidence)
 
 if False:
     """
+    La evidencia de WHR integrando todas las hipótesis usando el modelo genertivo Thurstone (Trueskill)
+    Conlcusi\'on:
+        Es mucho m\'as grande que la que calcula WHR (el paquete es correcto en este punto).
+    """
+    env_h = th.TrueSkill(draw_probability=0,beta=0)
+    data = zip(np.log(whr_ogs.w_mean[0:1000]),np.log(whr_ogs.b_mean[0:1000]),np.sqrt(whr_ogs.w_std[0:1000]),np.sqrt(whr_ogs.b_std[0:1000]),df_r.black_win[0:1000])
+    games = [env_h.Game([env_h.Team([env_h.Rating(wm,ws)]),env_h.Team([env_h.Rating(bm,bs)])],[r,1-r])  for wm, bm, ws, bs, r in data]
+    evidence_whr = [g.evidence for g in games ]
+    """
+    Marginal likelihood de WHR
+    Conlcusi\'on:
+        Es menor que el likelihood reportado en WHR
+    """
+    wm = np.log(whr_ogs.w_mean[0])
+    bm = np.log(whr_ogs.b_mean[0])
+    ws = np.sqrt(whr_ogs.w_std[0])
+    bs = np.sqrt(whr_ogs.b_std[0])
+    r = df_r.black_win[0]
+    
+    p_w = np.exp(wm)/(np.exp(wm)+np.exp(bm)) 
+    p_b = 1-p_w 
+    
+    d = np.arange(-4,4,0.05)
+    np.exp(wm)/(np.exp(wm)+np.exp(bm)) 
+    
+    dm = bm-wm
+    ds = np.sqrt(ws**2 + bs**2)
+    0.99999< 1-env_h.Rating(dm,ds).cdf(0,dm,ds)
+    
+    1/(1+np.exp(-dm)) == whr_ogs.evidence[0]
+    
+    d = np.arange(-4,4,0.01)
+    import scipy.stats as stats
+    MAP = d[np.argmax((1/(1+np.exp(-d))) * stats.norm.pdf(d,dm,ds))]
+    marginal_likelihhod_whr = np.sum((1/(1+np.exp(-d))) * stats.norm.pdf(d,dm,ds))*0.05
+    marginal_likelihhod_whr < whr_ogs.evidence[0]
+    #eviddencia, Es menor que el likelihood reportado en WHR
+    
+    def evidence_whr(wm,bm,ws,bs,r):
+        dm = bm-wm if r else wm - bm
+        ds = np.sqrt(ws**2 + bs**2)
+        d = np.arange(-4,4,0.05)
+        return np.sum((1/(1+np.exp(-d))) * stats.norm.pdf(d,dm,ds))*0.05
+    
+    data = zip(np.log(whr_ogs.w_mean[0:1000]),np.log(whr_ogs.b_mean[0:1000]),np.sqrt(whr_ogs.w_std[0:1000]),np.sqrt(whr_ogs.b_std[0:1000]),df_r.black_win[0:1000])
+    marginal_likelihhod_whr_1000 = [ evidence_whr(wm,bm,ws,bs,r)  for wm, bm, ws, bs, r in data ]
+    sum(np.array(marginal_likelihhod_whr_1000) > whr_ogs.evidence[0:1000])
+    sum(whr_ogs.evidence[0:1000] < 0.5)
+    
+    
+    """
     Curva de aprendizaje de un jugador.
     Va del m\'inimo (-5) al m\'aximo (5) de una partida a otra.
     """
-    lc = [ rb if b == 2100 else rw for rw, rb, w, b in zip(whr_ogs.w_mean,whr_ogs.b_mean,df_r.white,df_r.black ) if b == 2100 or w ==2100 ]
-    plt.plot(np.log(lc) )
+    jugadores = list(set(df_r.white))[0:100]
+    for i in jugadores:
+        lc = [ rb if b == i else rw for rw, rb, w, b in zip(whr_ogs.w_mean,whr_ogs.b_mean,df_r.white,df_r.black ) if b == i or w ==i ]
+        plt.plot(np.log(lc) )
+        
+    for i in jugadores:
+        lc = [ rb if b == i else rw for rw, rb, w, b in zip(ttt_ogs.w_mean,ttt_ogs.b_mean,df_r.white,df_r.black ) if b == i or w ==i ]
+        plt.plot(lc )
+        
+        
+    """
+    Separa demasiado en la primera partida 
+    """
+    import matplotlib.pyplot as plt
+    import scipy
+    
+    s = np.arange(-3,3,0.01)
+    plt.plot(s,scipy.stats.norm.pdf(s,np.log(whr_ogs.w_mean[1]),np.sqrt(whr_ogs.w_std[1]) ))
+    plt.plot(s,scipy.stats.norm.pdf(s,np.log(whr_ogs.b_mean[1]),np.sqrt(whr_ogs.b_std[1])))
+    
+    
 
 np.min(np.log(whr_ogs.w_mean))
 
@@ -69,6 +141,15 @@ log_evidence_ttt = np.sum(np.log(ttt_ogs.evidence))
 mean_log_evidence_ttt = log_evidence_ttt/len(ttt_ogs.evidence)
 np.exp(mean_log_evidence_ttt)
 
+log_evidence_ttt = np.sum(np.log(ttt_ogs.evidence))
+mean_log_evidence_ttt = log_evidence_ttt/len(ttt_ogs.evidence)
+np.exp(mean_log_evidence_ttt)
+
+log_evidence_ttt_last = np.sum(np.log(ttt_ogs.last_evidence))
+mean_log_evidence_ttt_last = log_evidence_ttt_last/len(ttt_ogs.last_evidence)
+np.exp(mean_log_evidence_ttt_last)
+
+log_evidence_ttt_last - log_evidence
 log_evidence_ttt - log_evidence_ts
 log_evidence_ttt - log_evidence
 
