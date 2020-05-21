@@ -56,8 +56,7 @@ def marginal_likelihood(r1,r2):
     """
     dm = r1.mu - r2.mu    
     ds = np.sqrt(r1.phi**2 + r2.phi**2 + r1.sigma**2 + r2.sigma**2)
-    return 1-cdf(0,dm,ds)
-    
+    return 1-cdf(0,dm,ds)    
     
 for i in df.index:#i=0            
     
@@ -74,7 +73,8 @@ for i in df.index:#i=0
         tb_post = env.rate(prior_b, [(result , prior_w)])
         tw_post = env.rate(prior_w, [(1-result , prior_b)])
         
-        evidence.append(marginal_likelihood(prior_b,prior_w))
+        ml = marginal_likelihood(prior_b,prior_w)
+        evidence.append(ml if df.loc[i].black_win else 1 - ml)
         
         w_mean.append(tw_post.mu); w_std.append(tw_post.phi); w_vol.append(tw_post.sigma)
         b_mean.append(tb_post.mu); b_std.append(tb_post.phi); b_vol.append(tb_post.sigma)

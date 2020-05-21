@@ -34,6 +34,7 @@ ts_ogs = pd.read_csv('../estimations/ogs/ts.csv')
 ts_all_ogs = pd.read_csv('../estimations/ogs/ts_all.csv')
 ttt_ogs = pd.read_csv('../estimations/ogs/ttt.csv')
 whr_ogs = pd.read_csv('../estimations/ogs/WHR.csv')
+glicko_ogs = pd.read_csv('../estimations/ogs/glicko.csv')
 
 np.exp(np.sum(np.log(whr_ogs.evidence))/len(whr_ogs.evidence))
 plt.hist(whr_ogs.evidence)
@@ -103,7 +104,12 @@ if False:
         lc = [ rb if b == i else rw for rw, rb, w, b in zip(ttt_ogs.w_mean,ttt_ogs.b_mean,df_r.white,df_r.black ) if b == i or w ==i ]
         plt.plot(lc )
         
-        
+    for i in jugadores:
+        lc = [ rb if b == i else rw for rw, rb, w, b in zip(glicko_ogs.w_mean,glicko_ogs.b_mean,df_r.white,df_r.black ) if b == i or w ==i ]
+        plt.plot(lc )
+    
+
+    
     """
     Separa demasiado en la primera partida 
     """
@@ -114,9 +120,8 @@ if False:
     plt.plot(s,scipy.stats.norm.pdf(s,np.log(whr_ogs.w_mean[1]),np.sqrt(whr_ogs.w_std[1]) ))
     plt.plot(s,scipy.stats.norm.pdf(s,np.log(whr_ogs.b_mean[1]),np.sqrt(whr_ogs.b_std[1])))
     
-    
 
-np.min(np.log(whr_ogs.w_mean))
+log_evidence_glicko = np.sum(np.log([e if b else 1-e for e,b,r in zip(glicko_ogs.evidence,df.black_win,df.ranked) if r]))
 
 
 log_evidence_ts = np.sum(np.log(ts_ogs[ts_ogs.estimated].evidence))
