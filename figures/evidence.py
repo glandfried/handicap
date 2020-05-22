@@ -116,6 +116,10 @@ if False:
         lc = ks_ogs.item[i].predict(days)[0]
         plt.plot(lc )
     
+    plt.plot(ks_ogs.item[2100].scores[0])
+    plt.plot(ks_ogs.item[2100].scores[1])
+    plt.plot(ks_ogs.item[2100].predict(ks_ogs.item[2100].scores[0])[0])
+    
     
     """
     Separa demasiado en la primera partida 
@@ -130,6 +134,9 @@ if False:
 
 log_evidence_glicko = np.sum(np.log([e if b else 1-e for e,b,r in zip(glicko_ogs.evidence,df.black_win,df.ranked) if r]))
 
+log_evidence_ks = ks_ogs.log_likelihood
+mean_log_evidence_ks = log_evidence_ks/sum(df_r.ranked)
+np.exp(mean_log_evidence_ks )
 
 log_evidence_ts = np.sum(np.log(ts_ogs[ts_ogs.estimated].evidence))
 mean_log_evidence_ts = log_evidence_ts/sum(ts_ogs.estimated)
