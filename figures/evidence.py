@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
+import kickscore as ks
 import numpy as np
 import pandas as pd
 import sys
 sys.path.append('../software/trueskill.py/')
 import trueskill as ts
 import src as th
-
+import pickle
 from importlib import reload  # Python 3.4+ only.
 reload(th)
 env = ts.TrueSkill(draw_probability=0)
@@ -35,6 +36,8 @@ ts_all_ogs = pd.read_csv('../estimations/ogs/ts_all.csv')
 ttt_ogs = pd.read_csv('../estimations/ogs/ttt.csv')
 whr_ogs = pd.read_csv('../estimations/ogs/WHR.csv')
 glicko_ogs = pd.read_csv('../estimations/ogs/glicko.csv')
+with open('../estimations/ogs/ks.pickle', 'rb') as handle:
+    ks_ogs = pickle.load(handle)
 
 np.exp(np.sum(np.log(whr_ogs.evidence))/len(whr_ogs.evidence))
 plt.hist(whr_ogs.evidence)
@@ -108,7 +111,11 @@ if False:
         lc = [ rb if b == i else rw for rw, rb, w, b in zip(glicko_ogs.w_mean,glicko_ogs.b_mean,df_r.white,df_r.black ) if b == i or w ==i ]
         plt.plot(lc )
     
-
+    for i in jugadores:
+        days = ks_ogs.item[i].scores[0]
+        lc = ks_ogs.item[i].predict(days)[0]
+        plt.plot(lc )
+    
     
     """
     Separa demasiado en la primera partida 

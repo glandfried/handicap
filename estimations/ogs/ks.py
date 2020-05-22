@@ -23,20 +23,20 @@ df = pd.read_csv('../../data/'+dataset+'/summary_filtered.csv')
 
 
 from datetime import datetime
-days=list(map(lambda x: int(datetime.strptime(x.split("T")[0],  "%Y-%m-%d").timestamp()/(60*60*24)), df.started) )
-m = min(days)
-days = [(d+1)-m for d in days]
+timestamp=list(map(lambda x: int(datetime.strptime(x.split("T")[0],  "%Y-%m-%d").timestamp()), df.started) )
 
 kernel_const = ks.kernel.Constant(var=1.0)
-kernel_exp = ks.kernel.Exponential(var=1.0, lscale=1.0)
+#kernel_exp = ks.kernel.Exponential(var=1.0, lscale=1.0)
 #kernel_52 = ks.kernel.Matern52(var=0.5, lscale=1.0)
-#kernel_smooth = ks.kernel.Constant(var=1.0) + ks.kernel.Matern52(var=0.5, lscale=1.0)
+seconds_in_year = 365.25 * 24 * 60 * 60
+kernel_smooth = (ks.kernel.Constant(var=0.03)
+        + ks.kernel.Matern32(var=0.138, lscale=1.753*seconds_in_year))
 
 model = ks.BinaryModel()
-list(map(lambda j: model.add_item(j, kernel=kernel_exp), set(pd.concat([df.white[df.ranked],df.black[df.ranked]]) ) ))
+list(map(lambda j: model.add_item(j, kernel=kernel_smooth), set(pd.concat([df.white[df.ranked],df.black[df.ranked]]) ) ))
 list(map(lambda h: model.add_item(h, kernel=kernel_const) if h[0] > 1 else None, set(zip(df.handicap[df.ranked],df.width[df.ranked])) ))
 
-for w, b, d, o, h, s, r in zip(df.white, df.black, days, df.black_win, df.handicap, df.width, df.ranked ):
+for w, b, d, o, h, s, r in zip(df.white, df.black, timestamp, df.black_win, df.handicap, df.width, df.ranked ):
     if r and o and h>1:
         model.observe(winners=[b,(h,s)], losers=[w], t=d)
     elif r and o and h<=1:
