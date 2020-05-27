@@ -23,6 +23,8 @@ filtered['Width'] = sum(~((df["width"] >= 9) & (df["width"] <=19 )))
 df = df[(df["width"] >= 9) & (df["width"] <=19 )]
 filtered['Order'] = sum(~((df.order != "(0, 0)")&(df.order != "(1, 1)")))
 df = df[(df.order != "(0, 0)")&(df.order != "(1, 1)")]#np.sum(df.order == "(0, 0)")
+filtered['Itself'] = sum(df.white == df.black)
+df = df[df.white != df.black]
 
 # Hago una columna con los puntos de las partidas ganadas como tal
 replace_values = {' points': '', ' point': '','Resignation': None,'Timeout': None}
