@@ -40,7 +40,7 @@ h_std = [  t.posteriors[(h,w)].sigma if h > 1 else 0 for t,h,w in zip(history.ti
 evidence = [  t.evidence[0] for t in history.times] 
 last_evidence = [  t.last_evidence[0] for t in history.times] 
 
-res = df[['id']][df.ranked].copy() 
+res = df[['id']].copy() 
 res["w_mean"] = w_mean
 res["w_std"] = w_std
 res["b_mean"] = b_mean
