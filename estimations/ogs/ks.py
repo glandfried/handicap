@@ -14,6 +14,13 @@ reload(th)
 env = th.TrueSkill(draw_probability=0,tau=1,beta=4.33,epsilon=0.1)
 #import ipdb
 
+"""
+Observaci\'on:
+    Los kernel son casi iguales
+    kernel_smooth = (ks.kernel.Constant(var=0.03)  + ks.kernel.Matern32(var=0.138, lscale=1.753*seconds_in_year))
+    kernel_smooth = (ks.kernel.Constant(var=0.13)  + ks.kernel.Matern32(var=0.138, lscale=1.753*seconds_in_year))
+        
+"""
 
 # Posible variable
 dataset = 'ogs'

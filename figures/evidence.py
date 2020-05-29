@@ -111,8 +111,7 @@ if False:
     for i in jugadores:
         lc = [ rb if b == i else rw for rw, rb, w, b in zip(ttt_all_ogs.w_mean,ttt_all_ogs.b_mean,df.white,df.black ) if b == i or w ==i ]
         plt.plot(lc )
-    
-    
+        
     for i in jugadores:
         lc = [ rb if b == i else rw for rw, rb, w, b in zip(glicko_ogs.w_mean,glicko_ogs.b_mean,df_r.white,df_r.black ) if b == i or w ==i ]
         plt.plot(lc )

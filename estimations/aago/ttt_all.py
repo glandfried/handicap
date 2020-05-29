@@ -10,7 +10,7 @@ import src as th
 from importlib import reload  # Python 3.4+ only.
 reload(th)
 env = th.TrueSkill(draw_probability=0,tau=1,beta=4.33,epsilon=0.1)
-import ipdb
+#import ipdb
 
 # Posible variable
 dataset = 'aago'
@@ -35,14 +35,31 @@ history= env.history(composition, results,batch_number, prior_dict=prior_dict)
 history.through_time(online=False)
 history.convergence()
 
-ipdb.set_trace()
+#ipdb.set_trace()
+#from collections import defaultdict
+#res= defaultdict(lambda: ([],[]))
+#for t in history.times:
+#    for j in t.players:
+#        res[str(j)][0].append(t.posterior(j).mu)
+#        res[str(j)][1].append(t.posterior(j).sigma)
 
-res= defaultdict(lambda: ([],[]))
-for t in history.times:
-    for j in t.players:
-        res[j][0].append(t.posterior(j).mu)
-        res[j][1].append(t.posterior(j).sigma)
+w_mean = [t.posteriors[g[0][0]].mu for t in history.times for g in t.games_composition]
+w_std = [t.posteriors[g[0][0]].sigma for t in history.times for g in t.games_composition]
+b_mean = [t.posteriors[g[1][0]].mu for t in history.times for g in t.games_composition]
+b_std = [t.posteriors[g[1][0]].sigma for t in history.times for g in t.games_composition]
+h_mean = [ t.posteriors[g[1][1]].mu if len(g[1]) > 1 else 0 for t in history.times for g in t.games_composition]
+h_std = [ t.posteriors[g[1][1]].sigma if len(g[1]) > 1 else 0 for t in history.times for g in t.games_composition]
+evidence = [e for t in history.times for e in t.last_evidence]
+last_evidence = [e for t in history.times for e in t.last_evidence]
 
-import json
-with open(name+'.json', 'w') as file:
-     file.write(json.dumps(res)) # use `json.loads` to do the reverse
+res = df[['id']].copy() 
+res["w_mean"] = w_mean
+res["w_std"] = w_std
+res["b_mean"] = b_mean
+res["b_std"] = b_std
+res["h_mean"] = h_mean
+res["h_std"] = h_std
+res["evidence"] = evidence
+res["last_evidence"] = last_evidence
+
+res.to_csv(name+".csv", index=False)
