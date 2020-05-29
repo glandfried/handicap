@@ -12,11 +12,11 @@ import matplotlib.pyplot as plt
 
 
 ##########
-#import sys
-#sys.path.append('../software/trueskill.py/')
+import sys
+sys.path.append('../software/')
 import pandas as pd
 #import src as trueskill
-#import ablr # analytic-bayesian-linear-regression own package
+import ablr # analytic-bayesian-linear-regression own package
 import numpy as np
 #import numpy as np
 
@@ -57,6 +57,7 @@ if False: plt.plot(skill19_ttt_all ); plt.plot(skill19_ttt)
 
 
 if False:
+    
     handicaps = list(set(zip(df_r.handicap,df_r.width)))
     for h in handicaps:
         if h[0]>1 and h[1]==19 and h[0]<=9:
@@ -79,6 +80,26 @@ if False:
         plt.plot([handicaps[i],handicaps[i]],[skills[i]+2*sigmas[i], skills[i]-2*sigmas[i] ],linewidth=0.5,color='grey')
         plt.plot([handicaps[i],handicaps[i]],[skills[i]+sigmas[i], skills[i]-sigmas[i] ],linewidth=1,color='black')
         plt.scatter(handicaps[i],skills[i])
+    
+    
+    X_vec = 0
+    t = 0
+    Phi = 0
+    beta = 0
+    alpha = 10**(-30) # prior precision
+    beta = 1/np.mean(sigmas) # Noise of target value
+    
+    t = skills
+    X_vec = np.array(handicaps).reshape(-1, 1) 
+    Phi = ablr.linear.phi(X_vec , ablr.linear.identity_basis_function)  
+
+    
+    fit_mu, fit_sigma = ablr.linear.posterior(alpha,beta,t,Phi)
+    plt.plot([min(handicaps),max(handicaps)],[fit_mu[0]+fit_mu[1]*2,fit_mu[0]+fit_mu[1]*9],color="black")    
+    # END: baysian linear regression
+    print(fit_mu, fit_sigma )
+    
+    
     
 
 """
