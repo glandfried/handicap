@@ -34,6 +34,7 @@ tsh_all_ogs = pd.read_csv('../estimations/ogs/tsh_all.csv')
 ts_ogs = pd.read_csv('../estimations/ogs/ts.csv')
 ts_all_ogs = pd.read_csv('../estimations/ogs/ts_all.csv')
 ttt_ogs = pd.read_csv('../estimations/ogs/ttt.csv')
+ttt_all_ogs = pd.read_csv('../estimations/ogs/ttt_all.csv')
 whr_ogs = pd.read_csv('../estimations/ogs/WHR.csv')
 glicko_ogs = pd.read_csv('../estimations/ogs/glicko.csv')
 with open('../estimations/ogs/ks.pickle', 'rb') as handle:
@@ -106,7 +107,12 @@ if False:
     for i in jugadores:
         lc = [ rb if b == i else rw for rw, rb, w, b in zip(ttt_ogs.w_mean,ttt_ogs.b_mean,df_r.white,df_r.black ) if b == i or w ==i ]
         plt.plot(lc )
-        
+    
+    for i in jugadores:
+        lc = [ rb if b == i else rw for rw, rb, w, b in zip(ttt_all_ogs.w_mean,ttt_all_ogs.b_mean,df.white,df.black ) if b == i or w ==i ]
+        plt.plot(lc )
+    
+    
     for i in jugadores:
         lc = [ rb if b == i else rw for rw, rb, w, b in zip(glicko_ogs.w_mean,glicko_ogs.b_mean,df_r.white,df_r.black ) if b == i or w ==i ]
         plt.plot(lc )
@@ -121,6 +127,17 @@ if False:
     plt.plot(ks_ogs.item[2100].predict(ks_ogs.item[2100].scores[0])[0])
     
     
+    sum(df.white == df.black)
+    df[ttt_all_ogs.w_std<3]
+    
+    jugadores = list(set(df[ttt_all_ogs.w_std<3].white))[0:100]
+    for j in jugadores:
+        filtro = (df.white == j) | (df.black == j)
+        if sum(filtro)>128:
+            curva = (df.white[filtro] == j) * ttt_all_ogs[filtro].w_mean + (df.black[filtro] == j) * ttt_all_ogs[filtro].b_mean
+            plt.plot(range(len(curva )) ,curva )
+        plt.xlim(0,128)
+            
     """
     Separa demasiado en la primera partida 
     """
@@ -167,6 +184,13 @@ np.exp(mean_log_evidence_ttt)
 log_evidence_ttt_last = np.sum(np.log(ttt_ogs.last_evidence))
 mean_log_evidence_ttt_last = log_evidence_ttt_last/len(ttt_ogs.last_evidence)
 np.exp(mean_log_evidence_ttt_last)
+
+log_evidence_ttt_all_last = np.sum(np.log(ttt_all_ogs.last_evidence))
+mean_log_evidence_ttt_all_last = log_evidence_ttt_all_last /len(ttt_all_ogs.last_evidence)
+np.exp(mean_log_evidence_ttt_all_last)
+
+
+
 
 log_evidence_ttt_last - log_evidence
 log_evidence_ttt - log_evidence_ts

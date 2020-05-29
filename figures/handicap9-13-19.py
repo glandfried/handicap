@@ -24,6 +24,7 @@ df = pd.read_csv('../data/ogs/summary_filtered.csv')
 tsh_ogs = pd.read_csv('../estimations/ogs/tsh.csv')
 tsh_all_ogs = pd.read_csv('../estimations/ogs/tsh_all.csv')
 ttt_ogs = pd.read_csv('../estimations/ogs/ttt.csv')
+ttt_all_ogs = pd.read_csv('../estimations/ogs/ttt_all.csv')
 df_r = df[df.ranked].copy()
 df_r = df_r.reset_index()
 
@@ -47,6 +48,39 @@ skill13_ttt= [ttt_ogs[(df_r.handicap==i)&(df_r.width==13)].iloc[-1].h_mean for i
 sigma13_ttt = [ttt_ogs[(df_r.handicap==i)&(df_r.width==13)].iloc[-1].h_std for i in range(2,8)]
 skill19_ttt = [ttt_ogs[(df_r.handicap==i)&(df_r.width==19)].iloc[-1].h_mean for i in range(2,10)]
 sigma19_ttt = [ttt_ogs[(df_r.handicap==i)&(df_r.width==19)].iloc[-1].h_std for i in range(2,10)]
+
+
+skill19_ttt_all = [ttt_all_ogs[(df.handicap==i)&(df.width==19)].iloc[-1].h_mean for i in range(2,10)]
+sigma19_ttt_all = [ttt_all_ogs[(df.handicap==i)&(df.width==19)].iloc[-1].h_std for i in range(2,10)]
+
+if False: plt.plot(skill19_ttt_all ); plt.plot(skill19_ttt)
+
+
+if False:
+    handicaps = list(set(zip(df_r.handicap,df_r.width)))
+    for h in handicaps:
+        if h[0]>1 and h[1]==19 and h[0]<=9:
+            filtro = (df_r.handicap == h[0]) & (df_r.width == h[1])
+            curva = ttt_ogs[filtro].h_mean
+            plt.plot(range(len(curva )) ,curva )
+    
+    
+    handicaps = list(set(zip(df.handicap,df.width)))
+    for h in handicaps:
+        if h[0]>1 and h[1]==19 and h[0]<=9:
+            filtro = (df.handicap == h[0]) & (df.width == h[1])
+            curva = ttt_all_ogs[filtro].h_mean
+            plt.plot(range(len(curva )) ,curva )
+        
+    handicaps = list(range(2,10))
+    skills = skill19_ttt_all 
+    sigmas = sigma19_ttt_all 
+    for i in range(len(handicaps)):
+        plt.plot([handicaps[i],handicaps[i]],[skills[i]+2*sigmas[i], skills[i]-2*sigmas[i] ],linewidth=0.5,color='grey')
+        plt.plot([handicaps[i],handicaps[i]],[skills[i]+sigmas[i], skills[i]-sigmas[i] ],linewidth=1,color='black')
+        plt.scatter(handicaps[i],skills[i])
+    
+
 """
 Observaci\'on:
     Las estimaciones finales del TTT en general son muy parecidas a las de trueskill.

@@ -27,13 +27,14 @@ for h_key in set([(h,19) for h in df.handicap ]):
 dict(prior_dict)
 results = list(df.result.map(lambda x: [1,0] if x=="black" else [0,1] ) )
 composition = [[[w],[b]] if h<2 else [[w],[b,(h,19)]] for w, b, h in zip(df.white_player_id, df.black_player_id, df.handicap) ]   
+batch_number = list(df.event_id)
 
-history= env.history(composition, results, prior_dict=prior_dict)
+
+history= env.history(composition, results,batch_number, prior_dict=prior_dict)
 #history.trueSkill()
-history.through_time(online=True)
+history.through_time(online=False)
 history.convergence()
     
-
 w_mean = [ t.posteriors[w].mu for t,w,b in zip(history.times,df.white,df.black) ]                                                            
 b_mean = [ t.posteriors[b].mu for t,w,b in zip(history.times,df.white,df.black) ]                                                            
 w_std = [ t.posteriors[w].sigma for t,w,b in zip(history.times,df.white,df.black) ]                                                          
