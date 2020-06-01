@@ -8,6 +8,8 @@ df = pd.read_csv('../data/aago/summary_filtered.csv')
 data = pd.read_csv('../estimations/aago/ttt_all.csv')
 # Opening JSON file 
 sum(df.id != data.id)
+sum(df.white_player_id != data.w_id)
+
 
 np.exp(np.sum(np.log(data.evidence))/len(data.evidence))
 np.exp(np.sum(np.log(data.last_evidence))/len(data.evidence))

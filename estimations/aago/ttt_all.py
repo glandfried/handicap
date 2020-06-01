@@ -19,6 +19,8 @@ dataset = 'aago'
 df = pd.read_csv('../../data/'+dataset+'/summary_filtered.csv')
 #df.columns
 
+sum([df.created[i]>df.created[i+1] for i in range(len(df.created)-1)])
+
 fit_mu_handicap = [-0.53445148,  0.82848756] 
 prior_dict = {}
 for h_key in set([(h,19) for h in df.handicap ]):
@@ -27,7 +29,14 @@ for h_key in set([(h,19) for h in df.handicap ]):
 
 results = list(df.result.map(lambda x: [1,0] if x=="black" else [0,1] ) )
 composition = [[[w],[b]] if h<2 else [[w],[b,(h,19)]] for w, b, h in zip(df.white_player_id, df.black_player_id, df.handicap) ]   
-batch_number = list(df.event_id)
+eventos = []
+batch_number = []
+c=0
+for e in df.event_id:
+    if not e in eventos:
+        eventos.append(e)
+        c += 1
+    batch_number.append(c)
 
 
 history= env.history(composition, results,batch_number, prior_dict=prior_dict)
