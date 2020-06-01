@@ -55,12 +55,24 @@ history.convergence()
 w_id = [g[0][0] for t in history.times for g in t.games_composition]
 b_id = [g[1][0] for t in history.times for g in t.games_composition]
 h_id = [g[1][1] if len(g[1]) > 1 else -1 for t in history.times for g in t.games_composition]
+
+
 w_mean = [t.posterior(g[0][0]).mu for t in history.times for g in t.games_composition]
 w_std = [t.posterior(g[0][0]).sigma for t in history.times for g in t.games_composition]
 b_mean = [t.posterior(g[1][0]).mu for t in history.times for g in t.games_composition]
 b_std = [t.posterior(g[1][0]).sigma for t in history.times for g in t.games_composition]
 h_mean = [ t.posterior(g[1][1]).mu if len(g[1]) > 1 else 0 for t in history.times for g in t.games_composition]
 h_std = [ t.posterior(g[1][1]).sigma if len(g[1]) > 1 else 0 for t in history.times for g in t.games_composition]
+
+w_mean_prior = [t.priors[g[0][0]].mu for t in history.times for g in t.games_composition]
+w_std_prior = [t.priors[g[0][0]].sigma for t in history.times for g in t.games_composition]
+b_mean_prior = [t.priors[g[1][0]].mu for t in history.times for g in t.games_composition]
+b_std_prior = [t.priors[g[1][0]].sigma for t in history.times for g in t.games_composition]
+h_mean_prior = [t.priors[g[1][1]].mu if len(g[1]) > 1 else 0 for t in history.times for g in t.games_composition]
+h_std_prior = [t.priors[g[1][1]].sigma if len(g[1]) > 1 else 0 for t in history.times for g in t.games_composition]
+
+
+
 evidence = [e for t in history.times for e in t.evidence]
 last_evidence = [e for t in history.times for e in t.last_evidence]
 
@@ -74,6 +86,12 @@ res["b_mean"] = b_mean
 res["b_std"] = b_std
 res["h_mean"] = h_mean
 res["h_std"] = h_std
+res["w_mean_prior"] = w_mean_prior
+res["w_std_prior"] = w_std_prior
+res["b_mean_prior"] = b_mean_prior
+res["b_std_prior"] = b_std_prior
+res["h_mean_prior"] = h_mean_prior
+res["h_std_prior"] = h_std_prior
 res["evidence"] = evidence
 res["last_evidence"] = last_evidence
 

@@ -11,33 +11,49 @@ sum(df.id != data.id)
 sum(df.white_player_id != data.w_id)
 
 
-np.exp(np.sum(np.log(data.evidence))/len(data.evidence))
-np.exp(np.sum(np.log(data.last_evidence))/len(data.evidence))
+def evidencia_promedio(xs):
+    return np.exp(np.sum(np.log(xs))/len(xs))
 
-"""
-TODO:
-    1. por qu\'e last evidence es igual a evidence.
-"""
+evidencia_promedio(data.evidence)
+evidencia_promedio(data.last_evidence)
+evidencia_promedio(data.evidence[df.handicap>1])
+evidencia_promedio(data.last_evidence[df.handicap>1])
 
-df.columns 
-players = list(df.black_player_id) + list(df.black_player_id)
-activity = [(i, players.count(i)) for i in set(players)]
 
-filtro = (df.white_player_id == 53) | (df.black_player_id == 53)
-data[filtro]
+from collections import defaultdict
+res= defaultdict(lambda: {"mu":[],"sigma":[],"evento":[]})
+for i in range(len(data.id)):#i=0
+    e = df.event_id[i]
+    w = data.w_id[i]
+    b = data.b_id[i]
+    h = df.handicap[i]
+    if not e in res[w]["evento"]:
+        res[w]["mu"].append(data.w_mean[i])
+        res[w]["sigma"].append(data.w_std[i])
+        res[w]["evento"].append(e)
+    if not e in res[b]["evento"]:
+        res[b]["mu"].append(data.b_mean[i])
+        res[b]["sigma"].append(data.b_std[i])
+        res[b]["evento"].append(e)
+    if h > 1 and (not e in res[(h,19)]["evento"]):
+        res[(h,19)]["mu"].append(data.h_mean[i])
+        res[(h,19)]["sigma"].append(data.h_std[i])
+        res[(h,19)]["evento"].append(e)
+res = dict(res)
 
-for j,a in activity:
-    filtro = (df.white_player_id == j) | (df.black_player_id == j)
-    if a>20:
-        curva = (df.white_player_id[filtro] == j) * data[filtro].w_mean + (df.black_player_id[filtro] == j) * data[filtro].b_mean
-        plt.plot(range(len(curva )) ,curva )
+diff = 0
+for k in res:
+    if not "(" in str(k):  plt.plot(res[k]["mu"])
+    diff = max(abs(res[k]["mu"][-1]-res[k]["mu"][0]),diff)
     #plt.xlim(0,128)
     
-filtro = (df.handicap == 3)
-plt.plot(data[filtro].h_mean)
+for k in res:
+    if "(" in str(k): plt.plot(res[k]["mu"])
+    #plt.xlim(0,128)    
 
-for h in range(2,10):
-    filtro = (df.handicap == h)
-    plt.plot(range(sum(filtro)) ,data[filtro].h_mean)
+
     
+for k in res:
+    if not "(" in str(k):  plt.plot(res[k]["sigma"])
     
+
