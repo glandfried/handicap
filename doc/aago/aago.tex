@@ -1,0 +1,79 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\input{../aux/tex/encabezado.tex}
+\input{../aux/tex/tikzlibrarybayesnet.code.tex}
+
+\usepackage{paracol}
+%opening
+
+\title{AAGo: Reporte t\'ecnico}
+\author{Gustavo Landfried}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Se reporta una primera comparaci\'on entre las estimaciones de AAGo y las que surgen del algoritmo Trueskill Through Time (TTT). 
+Si bien existen diferencias significativas, estas no ofrecen evidencia respecto de qu\'e algoritmo funciona mejor.
+Para evaluarlos solo falta contar con las predicciones a priori de AAGo. 
+\end{abstract}
+
+Realizamos estimaciones de habilidad a trav\'es del algoritmo TrueSkill Through Time (Fig~\ref{aago_ttt_escalado}).
+La escala de TTT no tiene significado en t\'erminos absolutos.
+Lo que importa es la diferencia de habilidad, a partir de la cual se puede calcular la probabilidad de ganar.
+Un tarea pendiente consiste en re-escalar los valores absolutos de TTT para que cada punto de habilidad represente el aporte de una piedra de handicap.
+Como primera aproximaci\'on para poder comparar las estimaciones de TTT y las la AAGo (Fig~\ref{aago_aga}), lo que se hizo fue re-escalar las estimaciones de TTT en t\'erminos de la media y la varianaza de las estimaciones de AAGo (tomado solo la primera partida de cada jugador).
+
+ \begin{figure}[H]\centering
+\begin{subfigure}[t]{0.48\textwidth}
+\includegraphics[width=\textwidth]{../../figures/pdf/aago_ttt_escalado} 
+\caption{Trueskill Through Time (TTT)}
+\label{aago_ttt_escalado}
+\end{subfigure}
+\begin{subfigure}[t]{0.48\textwidth}
+\includegraphics[width=\textwidth]{../../figures/pdf/aago_aga} 
+\caption{RAAGO (ranking)}
+\label{aago_aga}
+\end{subfigure}
+\caption{Funci\'on de mapeo $x\text{d} = x$ y $x\text{k} = -x + 1$}
+\end{figure}
+
+Una comparaci\'on correcta de las algoritmos de estimaciones de habilidad requiere contar con las predicciones a priori de los resultados observados.
+Solo a modo exploratorio, mostramos la diferencia de ranking entre estimaciones (Fig~\ref{aago_diferencia_escalada}). 
+
+\vspace{0.3cm}
+
+\textbf{Nota}: La cantidad de estiamaciones disponibles en la tabla \texttt{events\_eventplayer}, no coinciden de forma perfecta con la cantidad de estimaciones que surgen usando la tabla \texttt{games\_game} filtrando en base a las recomendaciones enviadas por mail 66 partidas por razones de \texttt{Result: 3, Reaso: 55, Unrated: 10}. En el siguiente gr\'afico se descartan las estimaciones AAGo que no tienen correlato en Trueskill.
+
+ \begin{figure}[H]\centering
+\begin{subfigure}[t]{0.66\textwidth}
+\includegraphics[width=\textwidth]{../../figures/pdf/aago_diferencia_escalada} 
+\end{subfigure}
+\caption{}
+\label{aago_diferencia_escalada}
+\end{figure}
+
+Este gr\'afico parece indicar que existe una diferencia significativa entre las estimaciones que surgen de uno y otro algoritmos.
+Otra diferencia significativa surge de comparar la selecci\'on de handicap que hace uno y otro algoritmo (Fig~\ref{aago_handicap}). 
+
+\begin{figure}[H]\centering
+\begin{subfigure}[t]{0.66\textwidth}
+\includegraphics[width=\textwidth]{../../figures/pdf/aago_handicap} 
+\end{subfigure}
+\caption{Rosa: AAGo. Celeste: TTT}
+\label{aago_handicap}
+\end{figure}
+
+Del conjunto de partidas que tuvieron asignado handicap el $61.3\%$ de las veces gana el blanco.
+Esto indica que el handicap no alcanza (por el motivo que sea) para hacer que las partidas sean parejas.
+
+\vspace{0.3cm}
+
+Estas difrencias no dicen nada respecto de qu\'e algoritmo funciona mejor.
+Para evaluarlos es necesario contar con las predicciones a priori de RAAGo.
+
+
+
+\end{document}
