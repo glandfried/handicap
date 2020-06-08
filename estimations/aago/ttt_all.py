@@ -19,7 +19,6 @@ dataset = 'aago'
 df = pd.read_csv('../../data/'+dataset+'/summary_filtered.csv')
 #df.columns
 
-sum([df.created[i]>df.created[i+1] for i in range(len(df.created)-1)])
 
 fit_mu_handicap = [-0.53445148,  0.82848756] 
 prior_dict = {}
