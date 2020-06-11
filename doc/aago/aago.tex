@@ -20,7 +20,7 @@ Si bien existen diferencias significativas, estas no ofrecen evidencia respecto 
 Para evaluarlos solo falta contar con las predicciones a priori de AAGo. 
 \end{abstract}
 
-Realizamos estimaciones de habilidad a trav\'es del algoritmo TrueSkill Through Time (Fig~\ref{aago_ttt_escalado}).
+Realizamos estimaciones de habilidad a trav\'es del algoritmo TrueSkill Through Time (Fig~\ref{aago_ttt_estandarizado}).
 La escala de TTT no tiene significado en t\'erminos absolutos.
 Lo que importa es la diferencia de habilidad, a partir de la cual se puede calcular la probabilidad de ganar.
 Un tarea pendiente consiste en re-escalar los valores absolutos de TTT para que cada punto de habilidad represente el aporte de una piedra de handicap.
@@ -28,9 +28,9 @@ Como primera aproximaci\'on para poder comparar las estimaciones de TTT y las la
 
  \begin{figure}[H]\centering
 \begin{subfigure}[t]{0.48\textwidth}
-\includegraphics[width=\textwidth]{../../figures/pdf/aago_ttt_escalado} 
+\includegraphics[width=\textwidth]{../../figures/pdf/aago_ttt_estandarizado} 
 \caption{Trueskill Through Time (TTT)}
-\label{aago_ttt_escalado}
+\label{aago_ttt_estandarizado}
 \end{subfigure}
 \begin{subfigure}[t]{0.48\textwidth}
 \includegraphics[width=\textwidth]{../../figures/pdf/aago_aga} 
@@ -41,7 +41,7 @@ Como primera aproximaci\'on para poder comparar las estimaciones de TTT y las la
 \end{figure}
 
 Una comparaci\'on correcta de las algoritmos de estimaciones de habilidad requiere contar con las predicciones a priori de los resultados observados.
-Solo a modo exploratorio, mostramos la diferencia de ranking entre estimaciones (Fig~\ref{aago_diferencia_escalada}). 
+Solo a modo exploratorio, mostramos la diferencia de ranking entre estimaciones (Fig~\ref{aago_diferencia_estandarizado}). 
 
 \vspace{0.3cm}
 
@@ -49,10 +49,10 @@ Solo a modo exploratorio, mostramos la diferencia de ranking entre estimaciones 
 
  \begin{figure}[H]\centering
 \begin{subfigure}[t]{0.66\textwidth}
-\includegraphics[width=\textwidth]{../../figures/pdf/aago_diferencia_escalada} 
+\includegraphics[width=\textwidth]{../../figures/pdf/aago_diferencia_estandarizado} 
 \end{subfigure}
 \caption{}
-\label{aago_diferencia_escalada}
+\label{aago_diferencia_estandarizado}
 \end{figure}
 
 Este gr\'afico parece indicar que existe una diferencia significativa entre las estimaciones que surgen de uno y otro algoritmos.
@@ -74,6 +74,20 @@ Esto indica que el handicap no alcanza (por el motivo que sea) para hacer que la
 Estas difrencias no dicen nada respecto de qu\'e algoritmo funciona mejor.
 Para evaluarlos es necesario contar con las predicciones a priori de RAAGo.
 
+\newpage
 
+\section{Anexo}
+
+En una primera aproximaci\'on encontramos que el aporte de handicap en la habilidad a las personas sigue una funci\'on lineal $handicap = -0.534 + h * 0.828$.
+Esta estimaci\'on se ver\'a corregida cuando agregemos las estimaciones
+de jugar segundo y de komi.
+Para simplificar, supongamos que la habilidad que agrega cada piedra es de $0.83$ bajo una escala por defecto de $25/6$.
+Nosotres queremos determinar una escala $\beta$ que lleve la habilidad que agregan las piedras a $1$.
+Lo que se debe mantener constante en la probabilidad de ganar.
+\begin{enumerate}
+\item Primero mostramos que la probabilidad de ganar modificando al habilidad de a $0.85$ (Ver c\'odigo)
+\item Luego elegimos una escala alternativa que haga que un $1.0$ de habilidad modifique la probabilidad de ganar de la misma forma que en (1) (Ver c\'odigo)
+\item Verifico que sea independiente a la incertidumbre (Ver c\'odigo)
+\end{enumerate}
 
 \end{document}

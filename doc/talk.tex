@@ -1,266 +1,300 @@
-\documentclass[shownotes]{beamer}
-
-\mode<presentation>
-{
-%   \usetheme{Madrid}      % or try Darmstadt, Madrid, Warsaw, ...
-%   \usecolortheme{default} % or try albatross, beaver, crane, ...
-%   \usefonttheme{default}  % or try serif, structurebold, ...
- \usetheme{Antibes}
- \usecolortheme[rgb={0.6,0.75,0}]{structure}%divido los RGB por 252
- \setbeamercolor{block title}{fg=white,bg=azuluca}
- \xdefinecolor{azuluca}{rgb}{0.02, 0.2, 0.18}
- \definecolor{greenblue}{rgb}{0.1, 0.55, 0.5}
-
- \setbeamercolor{palette quaternary}{fg=white,bg=azuluca}
- \setbeamertemplate{caption}[numbered]
- \setbeamertemplate{navigation symbols}{}
-
-}
-
+\documentclass[shownotes,aspectratio=169]{beamer}
+ \mode<presentation>
+ {
+  \usetheme{Antibes}
+  \setbeamertemplate{navigation symbols}{}
+ }
+ 
 \input{./aux/tex/diapo_encabezado.tex}
+\usepackage{todonotes}% INCOMPATIBLE con Tikz
+
 %\input{./aux/tex/tikzlibrarybayesnet.code.tex}
 
-\title[Handicap]{Handicap}
+%\title[Handicap]{Handicap}
 
-\author[Gustavo Landfried]{Gustavo Landfried \\ \vspace{0.2cm}
-\scriptsize Lic. Ciencias Antropol\'ogicas. \\
-Doctorando Ciencias de la Computaci\'on \\
-\vspace{-0.3cm}}
-\institute[DC-ICC-CONICET]{Departamento de Ciencias de la Computaci\'on (UBA -- CONICET) \vspace{-0.3cm}}
-\date{}
+%\author[Gustavo Landfried]{Gustavo Landfried \\ \vspace{0.2cm}
+%\scriptsize Lic. Ciencias Antropol\'ogicas. \\
+%Doctorando Ciencias de la Computaci\'on \\
+%\vspace{-0.3cm}}
+%\institute[DC-ICC-CONICET]{Departamento de Ciencias de la Computaci\'on (UBA -- CONICET) \vspace{-0.3cm}}
+%\date{}
 
 
 \begin{document}
-\small 
+\color{black!85}
+\small
+\setbeamercolor{background canvas}{bg=gray!8}
 
-\begin{frame}[noframenumbering]
 
-\maketitle
+\begin{frame}[plain]
+\begin{center}
+ \Huge Handicap en Go
+\end{center}
+\end{frame}
 
- \begin{textblock}{80}(72,82)
- \includegraphics[width=0.2\textwidth]{aux/images/logo_licar} 
- \end{textblock}
-  \begin{textblock}{80}(42,82)
- \includegraphics[width=0.2\textwidth]{aux/images/logo_version_02} 
+\begin{frame}[plain]
+ \centering
+ \LARGE Introducci\'on
+ 
+\end{frame}
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Problema
+\end{center}
 \end{textblock}
-
-\end{frame}
-
-\section{Problema}
-
-\begin{frame}
-  Que es el handicap, ejemplos de uso.
-\end{frame}
-
-
-\begin{frame}
+ \vspace{0.75cm} \pause
  
- \begin{framed} \centering
-  Efecto de handicap en la estimaci\'on de habilidad: caso GO.
- \end{framed}
- 
-\end{frame}
-
-\begin{frame}
- \begin{framed} \centering
-  ¿Son correctas las heuristicas para otorgar 
+  El juego de Go se caracteriza por tener reglas sencillas pero muchos estados posibles, lo que lo hace muy dif\'icil de aprender.
   
-  ventajas (handicap) en el juego Go?
- \end{framed}
+  \vspace{0.3cm} \pause
+  
+  Por este motivo la diferencia de habilidad en una poblaci\'on de jugadores habituales de Go generalmente es muy grande.
+  
+ \vspace{0.3cm} \pause
+ 
+  Es una pr\'actica com\'un en partidas de Go amateur otorgar ventaja al jugador menos h\'abil de modo de lograr partidas un algo m\'as parejas. [La mayor cantidad de gente es amateur]
+ 
+ \vspace{0.3cm} \pause
+ 
+  Para elegir la ventaja correcta es necesario contar con buenas estimaciones de habilidad.
+  
+ \vspace{0.3cm} \pause
+  
+  Debido a que las competencias profesionales de Go se juegan sin ventaja, el algoritmos estado del arte para estimar de habilidad en Go (WHR) no considera el efecto del handicap.
+ 
+ \vspace{0.3cm} \pause
+ 
+  Esto es un problema, por ejemplo, para la Asociaci\'on Argentina de Go, que se ve obligada a usar un algoritmo alternativo (AGA) que no tiene la calidad necesaria.
+  
+ \vspace{0.3cm} \pause
+ 
+  Para solucionar este problema, incorporamos handicap y komi al estimador de la industria del video juego (TTT), ofreciendo resultados que superan el nivel predictivo de WHR y AGA. 
  
 \end{frame}
 
 
-\section{Metodolog\'ia}
-\begin{frame}
+\begin{frame}[plain]
+ \centering
+ \LARGE Metodolog\'ia
  
-\only<1>{
-\begin{textblock}{128}(0,8)
+\end{frame}
+
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
 \begin{center}
- \large TrueSkill
+ \Large Base de datos \\ \large Secci\'on metodolog\'ia
 \end{center}
 \end{textblock}
-\begin{textblock}{128}(0,33)
-\tikz{ %
-        
-        \node[det, fill=black!10] (r) {$r_{ij}$} ; %
-        \node[const, left=of r, xshift=-1.4cm] (r_name) {\small Resultado observado}; 
-        \node[const, right=of r] (dr) {\large $ r_{ij} = \mathbb{I}(p_i>p_j)$}; 
-          
-         \node[latent, above=of r, xshift=-0.8cm] (p1) {$p_i$} ; %
-         \node[latent, above=of r, xshift=0.8cm] (p2) {$p_j$} ; %
-         \node[const, left=of p1, xshift=-0.55cm] (p_name) {\small Rendimiento oculto}; 
-         
-         \node[latent, above=of p1] (s1) {$s_i$} ; %
-         \node[latent, above=of p2] (s2) {$s_j$} ; %
-         %\node[latent, above=of p2,xshift=1.2cm] (h) {$h_n$} ; %
-                  
-         \node[const, right=of p2] (dp2) {\large $p \sim N(s,\beta^2)$};
-         
-         
-%          \node[latent, above=of p1, fill=black, minimum size=1pt] (s1) {} ; %
-%          \node[latent, above=of p2, fill=black, minimum size=1pt] (s2) {} ; %
-%          \node[const, above=of s1] (ds1) {\large $s_i$};
-%          \node[const, above=of s2] (ds2) {\large $s_j$};
-          \node[const, left=of s1, xshift=-.85cm] (s_name) {\small Habilidad oculta}; 
-%          
-         \edge {p1,p2} {r};
-         \edge {s1} {p1};
-         \edge {s2} {p2};
-         
-         \node[invisible, right=of p2, xshift=4.75cm] (s-dist) {};
-} 
-\end{textblock}
-}
-\only<2>{
-\begin{textblock}{128}(0,8)
+
+\begin{table}
+\begin{tabular}{|c|c|c|c|} \hline
+ Base & Tama\~no & \% handicap & Gana blanco \\ \hline
+ OGS & $400$ mil &  & 0.55 \\ \hline
+ AAGo & $3.5$ mil &  & 0.62 \\ \hline
+ KGS &  & & \\ \hline
+\end{tabular}
+\end{table}
+
+
+\end{frame}
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
 \begin{center}
- \large TrueHandicap
+ \Large Resultado intuitivo motivador \\ \large Secci\'on metodolog\'ia
 \end{center}
 \end{textblock}
-\begin{textblock}{128}(0,33)
-\tikz{ %
-        
-        \node[det, fill=black!10] (r) {$r_{ij}$} ; %
-        \node[const, left=of r, xshift=-1.4cm] (r_name) {\small Resultado observado}; 
-        \node[const, right=of r] (dr) {\large $ r_{ij} = \mathbb{I}(p_i>p_j)$}; 
-          
-         \node[latent, above=of r, xshift=-0.8cm] (p1) {$p_i$} ; %
-         \node[latent, above=of r, xshift=0.8cm] (p2) {$p_j$} ; %
-         \node[const, left=of p1, xshift=-0.55cm] (p_name) {\small Rendimiento oculto}; 
-         
-         \node[latent, above=of p1] (s1) {$s_i$} ; %
-         \node[latent, above=of p2] (s2) {$s_j$} ; %
-         \node[latent, above=of p2,xshift=1.2cm] (h) {$h_n$} ; %
-                  
-         \node[const, right=of p2] (dp2) {\large $p \sim N(s + h,\beta^2)$};
-         
-         
-%          \node[latent, above=of p1, fill=black, minimum size=1pt] (s1) {} ; %
-%          \node[latent, above=of p2, fill=black, minimum size=1pt] (s2) {} ; %
-%          \node[const, above=of s1] (ds1) {\large $s_i$};
-%          \node[const, above=of s2] (ds2) {\large $s_j$};
-          \node[const, left=of s1, xshift=-.85cm] (s_name) {\small Habilidad oculta}; 
-%          
-         \edge {p1,p2} {r};
-         \edge {s1} {p1};
-         \edge {s2,h} {p2};
-         
-         
-         \node[invisible, right=of p2, xshift=4.75cm] (s-dist) {};
-} 
-\end{textblock}
-}
 
-
-\end{frame}
-
-\section{Resultados}
-
-\begin{frame}
-  \begin{figure}[H]     
-     \centering \normalsize
-     \begin{subfigure}[b]{0.8\textwidth}
-     \includegraphics[width=1\textwidth]{../figures/pdf/handicap19.pdf} 
-     \end{subfigure}
-  \end{figure}
-\end{frame}
-
-\begin{frame}
-  \begin{figure}[H]     
-     \centering \normalsize
-     \begin{subfigure}[b]{0.8\textwidth}
-     \includegraphics[width=1\textwidth]{../figures/pdf/handicap19_history.pdf} 
-     \end{subfigure}
-  \end{figure}
-\end{frame}
-
-\begin{frame}
-  \begin{figure}[H]     
-     \centering \normalsize
-     \begin{subfigure}[b]{0.8\textwidth}
-     \includegraphics[width=1\textwidth]{../figures/pdf/handicap19_population.pdf} 
-     \end{subfigure}
-  \end{figure}
-\end{frame}
-
-
-\begin{frame}
-  \begin{figure}[H]     
-     \centering \normalsize
-     \begin{subfigure}[b]{0.8\textwidth}
-     \includegraphics[width=1\textwidth]{../figures/pdf/handicap19_population_distribution.pdf} 
-     \end{subfigure}
-  \end{figure}
-\end{frame}
-
-\begin{frame}
-  \begin{figure}[H]     
-     \centering \normalsize
-     \begin{subfigure}[b]{0.8\textwidth}
-     \includegraphics[width=1\textwidth]{../figures/pdf/handicap9.pdf} 
-     \end{subfigure}
-  \end{figure}
-\end{frame}
-
-\begin{frame}
-  \begin{figure}[H]     
-     \centering \normalsize
-     \begin{subfigure}[b]{0.8\textwidth}
-     \includegraphics[width=1\textwidth]{../figures/pdf/handicap9_history.pdf} 
-     \end{subfigure}
-  \end{figure}
-\end{frame}
-
-\begin{frame}
-  \begin{figure}[H]     
-     \centering \normalsize
-     \begin{subfigure}[b]{0.8\textwidth}
-     \includegraphics[width=1\textwidth]{../figures/pdf/handicap9_population.pdf} 
-     \end{subfigure}
-  \end{figure}
-\end{frame}
-
-
-\begin{frame}
-  \begin{figure}[H]     
-     \centering \normalsize
-     \begin{subfigure}[b]{0.8\textwidth}
-     \includegraphics[width=1\textwidth]{../figures/pdf/handicap13.pdf} 
-     \end{subfigure}
-  \end{figure}
-\end{frame}
-
-\begin{frame}
-  \begin{figure}[H]     
-     \centering \normalsize
-     \begin{subfigure}[b]{0.8\textwidth}
-     \includegraphics[width=1\textwidth]{../figures/pdf/handicap13_history.pdf} 
-     \end{subfigure}
-  \end{figure}
-\end{frame}
-
-\begin{frame}
-  \begin{figure}[H]     
-     \centering \normalsize
-     \begin{subfigure}[b]{0.8\textwidth}
-     \includegraphics[width=1\textwidth]{../figures/pdf/handicap13_population.pdf} 
-     \end{subfigure}
-  \end{figure}
-\end{frame}
-
-
-\section{Gracias}
-
-\begin{frame}
+\todo[inline, color=black!16]{\textbf{Figura}: Motivar la lectura (el inter\'es sobre el algoritmo),  mostrando que si selecciono las partidas que yo considero que tuvieron un sub-asignaci\'on de handicap, entonces la cantidad de partidas a favor del blanco aumenta}
  
- \begin{center}
-  \Large Gracias
- \end{center}
+\end{frame}
 
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Modelo gr\'afico \\ \large Secci\'on metodolog\'ia
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Modelo gr\'afico}, introducir la metodolog\'ia y la soluci\'on gen\'erica}
+
+\end{frame}
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Interpretabilidad del valor de habilidad \\ \large Secci\'on metodolog\'ia
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Figura (te\'orica)}, mostrar como cambia la probabilidad de ganar en funci\'on de la diferencia de habilidad (sin y con incertidumbre, y con la diferencia medida en escalas)}
+
+\end{frame}
+
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large El h\'andicap como unidad de medida \\ \large Secci\'on metodolog\'ia
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Figura} Explicar como reesclar las habilidades para elegir el $\beta$ }
+
+ \textbf{Preguntas abiertas: 1) El valor del handicap 2) Hay relaci\'on lineal?}
+
+\end{frame}
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Komi (factor por segundo) \\ \large Secci\'on metodolog\'ia
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Opciones} a) no considerar el komi, b) un factor komi cada bloques de puntos centrados en 7 c) un \'unico factor komi (pendiente), multiplicado por el valor del komi, m\'as un factor por segundo (ordenada al origen), d) corregir (sacar) komi y agregar factor por segundo}
+
+\end{frame}
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large La predicci\'on a priori (evidencia) como fuente de selecci\'on \\ \large Secci\'on metodolog\'ia
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Figuras} para explicar la evidencia. Vamos a tener que seleccionar entre: A) diferentes soluciones propias (komi) validar que tenga sentido la modificaci\'on que pronemos (evidencia con y son facores handiico y/o komi), B) Entre diferentes algoritmos }
+
+\end{frame}
+
+
+\begin{frame}[plain]
+ \centering
+ \LARGE Resultados
+ 
+\end{frame}
+
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Validaci\'on \\ \large Secci\'on resultados
+\end{center}
+\end{textblock}
+
+ \todo[inline, color=black!16]{\textbf{Figura de validaci\'on} Diferencia de habilidad vs probabilidad emp\'irica de ganar. Mostrar que la curva emp\'irica, dada la incertidumbre subyacente de las estimaciones, se ajusta a la curva te\'orica con misma incertidumbre.}
+ 
+\end{frame}
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Arte (curvas de aprendizaje) \\ \large Secci\'on resultados
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Figura art\'istica} Mostrar una selecci\'on de curvas de aprendizaje para mostrar como lucen.}
+
+\end{frame}
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Estimaciones handicap \\ \large Secci\'on resultados
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Figura} Mostrar estimaciones finales (usando tau 0 no va a haber historia)}
+
+\end{frame}
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Arte y mapeo a tradici\'on \\ \large Secci\'on resultados
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Figura 1} Curvas de aprendizaje re-escaladas, \textbf{Figura 2} Curvas de aprendizaje en escalas tradiciones}
+
+\end{frame}
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Komi \\ \large Secci\'on resultados
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Tabla} de evincias comparando opciones. \textbf{Figura} si es necesario}
+
+\end{frame}
+
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Algoritmos \\ \large Secci\'on resultados
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Tabla} comparaci\'on de evidencia respecto de otros modelos comparados usando handicap y komi}
+
+\end{frame}
+
+
+\begin{frame}[plain]
+ \centering
+ \LARGE Discusiones / Conlcusiones
+ 
+\end{frame}
+
+\begin{frame}[plain]
+ 
+ \begin{itemize}
+  \item[\textbf{19 Junio}]
+  \begin{itemize}
+   \item[$\circ$] Correr full TTT-hk (handicap-komi) las 3 versiones
+  \end{itemize}
+  
+  \item[\textbf{26 Junio}] 
+  \begin{itemize}
+   \item[$\circ$] Comparar las versiones de TTT-hk
+   \item[$\circ$] KS, WHR correr grilla de par\'ametros, con mejor versi\'on hk (intentar glicko y AGA)
+  \end{itemize}
+  
+  \item[\textbf{3 Julio}]
+  \begin{itemize}
+   \item[$\circ$] KS, WHR correr las otras versi\'on hk con mejor par\'amtros (intentar glicko y AGA).
+   \end{itemize}
+  
+  \item[\textbf{10 Julio}] 
+  \begin{itemize}
+   \item[$\circ$] Nueva base. Correr algoritmos sobre KGS 
+  \end{itemize}
+  
+  \item[\textbf{17 Julio}] 
+  \begin{itemize}
+   \item[$\circ$] Revisar todas las figuras 
+  \end{itemize}
+  
+  \item[\textbf{31 Julio}]
+  \begin{itemize}
+   \item[$\circ$] Escritura
+  \end{itemize}
+ \end{itemize}
+ 
+\end{frame}
+
+
+\begin{frame}[plain]
+ 
  \begin{figure}[H]     
      \centering
-     \begin{subfigure}[b]{0.45\textwidth}
+     \begin{subfigure}[b]{0.33\textwidth}
        \includegraphics[width=\textwidth]{aux/images/pachacuteckoricancha.jpg} 
      \end{subfigure}
    \end{figure} 

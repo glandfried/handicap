@@ -86,11 +86,13 @@ skill_0 = np.array([ res[k]["aga"][0] for k in res if len(res[k]["aga"])>0])
 mean_aga = np.mean(skill_0)
 std_aga = np.sqrt(np.mean(skill_0**2) - mean_aga**2 )
 
+mean_final = np.mean(np.array([ res[k]["mu"][-1] for k in res if len(res[k]["mu"])>0]))
+mean_final_aga = np.mean(np.array([ res[k]["aga"][-1] for k in res if len(res[k]["aga"])>0]))
+
 
 diff = 0
 for k in res:
     if not "(" in str(k):  plt.plot(res[k]["mu"])
-plt.xlim(-30,10)
 plt.tight_layout()
 plt.savefig("pdf/"+name+"_ttt.pdf",bbox_inches='tight')
 plt.savefig("png/"+name+"_ttt.png",bbox_inches='tight', transparent=True)
@@ -111,11 +113,25 @@ for k in res:
     if not "(" in str(k): 
         plt.plot((((np.array(res[k]["mu"])-mean)/std)*(std_aga))+mean_aga )
 plt.tight_layout()
+plt.savefig("pdf/"+name+"_ttt_estandarizado.pdf",bbox_inches='tight')
+plt.savefig("png/"+name+"_ttt_estandarizado.png",bbox_inches='tight', transparent=True)
+plt.close()
+
+
+"Re-escalado (Escala Handicap, Centrado en )"
+#activo = [ (len(res[k]["evento"]),k) for k in res if not "(" in res]
+#activo_ordenada = sorted(activo , key=lambda tup: tup[0])
+#mas_activo = activo_ordenada[-1][1]
+#res[mas_activo]["mu"][-1]/0.83 - 45 
+
+for k in res: 
+    if not "(" in str(k): 
+        plt.plot( ((np.array(res[k]["mu"])-mean_final)/0.83)+mean_final_aga)
+plt.tight_layout()
 plt.savefig("pdf/"+name+"_ttt_escalado.pdf",bbox_inches='tight')
 plt.savefig("png/"+name+"_ttt_escalado.png",bbox_inches='tight', transparent=True)
 plt.close()
 
-#plt.xlim(0,5)
 
 "Diferencia estandarizada"
 for k in res:    
@@ -125,10 +141,23 @@ for k in res:
         filtro = [ e in res[k]["evento"] for e in res[k]["evento_aga"] ]
         if sum(filtro) == len(res[k]["mu"]):  plt.plot(s - np.array(res[k]["aga"])[filtro])
 plt.tight_layout()
+plt.savefig("pdf/"+name+"_diferencia_estandarizado.pdf",bbox_inches='tight')
+plt.savefig("png/"+name+"_diferencia_estandarizado.png",bbox_inches='tight', transparent=True)
+plt.close()
+    
+"Diferencia escalada"
+for k in res:    
+    n = len(res[k]["mu"])
+    if len(res[k]["mu"])>0 and not "(" in str(k):
+        s = ((np.array(res[k]["mu"])-mean_final)/0.83)+mean_final_aga
+        filtro = [ e in res[k]["evento"] for e in res[k]["evento_aga"] ]
+        if sum(filtro) == len(res[k]["mu"]):  plt.plot(s - np.array(res[k]["aga"])[filtro])
+plt.tight_layout()
 plt.savefig("pdf/"+name+"_diferencia_escalada.pdf",bbox_inches='tight')
 plt.savefig("png/"+name+"_diferencia_escalada.png",bbox_inches='tight', transparent=True)
 plt.close()
-    
+
+
 for k in res:
     if not "(" in str(k):  plt.plot(res[k]["mu_p"])    
 for k in res:
