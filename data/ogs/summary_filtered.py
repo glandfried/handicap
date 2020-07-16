@@ -11,6 +11,9 @@ print("Dataframe metida")
 df = pd.read_csv(csv_name)
 df = df[['id','black','white','order','outcome','handicap','komi','width','height', 'annulled','ranked','started','ended']]
 
+filtro = (df.annulled != False) | (~((df.outcome == 'Resignation') | (df.outcome == 'Timeout') | (df.outcome.str.contains(' point')))) | (df.height!=df.width) | (~((df["width"] >= 9) & (df["width"] <=19 ))) | (~((df.order != "(0, 0)")&(df.order != "(1, 1)"))) | (df.white == df.black)
+fd = df[filtro]
+
 filtered = {}
 ##%% Selecciono las columnas que quiero y las filas con ciertas restricciones
 filtered['Annulled'] = sum(df.annulled != False)  
@@ -43,6 +46,8 @@ df.sort_values(by=['ended','started','id'])
 # Escribo los
 with open('filtered.json', 'w') as file:
      file.write(json.dumps(filtered)) # use `json.loads` to do the reverse
+
+fd.to_csv("filtered_data.csv", index=False)
 
 df = df.reset_index()
 df.to_csv("summary_filtered.csv", index=False)
