@@ -16,6 +16,7 @@
 !*.cls
 
 ## Codigo
+!*.jl
 !*.py
 !*.R
 !*.c
