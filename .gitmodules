@@ -25,3 +25,6 @@
 [submodule "software/whole_history_rating"]
 	path = software/whole_history_rating
 	url = git@github.com:glandfried/whole_history_rating.git
+[submodule "software/trueskill.jl"]
+	path = software/trueskill.jl
+	url = git@gitlab.licar.exp.dc.uba.ar:gaming/trueskill.jl.git
