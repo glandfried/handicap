@@ -1,15 +1,14 @@
-include("../software/trueSkill.jl/src/TrueSkill.jl")
+include("../software/trueskill.jl/src/TrueSkill.jl")
 using .TrueSkill
 global const ttt = TrueSkill
 using Test
 using CSV
-#using JLD2
-#using Dates
-#using DataFrames
+using Dates
+using DataFrames
 
 @testset "Tests" begin
     data = CSV.read("../data/ogs/summary_filtered.csv")    
-    
+     
     prior_dict = Dict{String,ttt.Rating}()
     for h_key in Set([(row.handicap, row.width) for row in eachrow(data) ])
         prior_dict[string(h_key)] = ttt.Rating(0.,25.0/3.,0.,1.0/100)
