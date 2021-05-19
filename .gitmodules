@@ -28,3 +28,6 @@
 [submodule "software/trueskill.jl"]
 	path = software/trueskill.jl
 	url = git@gitlab.licar.exp.dc.uba.ar:gaming/trueskill.jl.git
+[submodule "software/ttt.jl"]
+	path = software/ttt.jl
+	url = git@github.com:glandfried/TrueSkillThroughTime.jl.git
