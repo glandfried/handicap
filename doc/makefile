@@ -5,11 +5,11 @@ talk:
 
 submodules: aux/tex/.git aux/images/.git 
 
-aux/tex/.git:
-	git submodule update --init aux/tex/
+auxiliar/tex/.git:
+	git submodule update --init auxiliar/tex/
 
-aux/images/.git:
-	git submodule update --init aux/images/
+auxiliar/images/.git:
+	git submodule update --init auxiliar/images/
 
 clean:
 	- rm -f *.log
