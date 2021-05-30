@@ -1,0 +1,60 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{todonotes}
+
+\title{Estimador de habilidad para la AAG (Asociación Argentina de Go)}
+\author{Gustavo Landfried, Tobías Carreira Munich, Martín Amigo}
+\date{Mayo 2021}
+
+\begin{document}
+
+\maketitle
+
+\section{Introducción}
+% Descripción del problema, qué es handicap, qué es komi, antecedentes, situación actual en la AAG, etc.
+
+\section{Implementación¿?}
+
+%introducción a los distintos modelos que pensamos:
+%ttt: ttt sin handicap ni komi
+%ttt-h: ttt con handicap como jugadores
+%ttt-hk: ttt con handicap y komi como jugadores
+%ttt con handicap como jugadores y komi como multiplicador
+
+%otros estimadores que se usan:
+%whr
+%aga-aago
+%ogs-glicko?
+%kba?nihon ki-in? egf?
+\section{Experimentación}
+
+\subsection{Metodología}
+% cómo comparamos modelos y por qué. Desarrollarlo? En el de TTT de gustavo está, lo cito? ponemos algo parecido?
+
+% experimentamos sobre ogs. y kgs! no?
+
+\subsection{Resultados}
+%optimización de gamma para cada uno? 0.16 siempre ...
+%comparación de los 4 nuestros
+\begin{itemize}
+    \item TTT directo: -197592
+    \item TTT con handicap como jugadores: -192830
+    \item TTT con handicap y komi como jugadores: -192684
+    \item TTT con handicap como jugadores y komi como multiplicador: ---
+ 
+\end{itemize}
+%reemplazar con un grafico
+
+
+Para enfatizar la magnitud de la diferencia entre estos modelos, cabe destacar que, dado que la metodología utilizada calcula el logaritmo de la evidencia, cada unidad de diferencia entre estos indicadores es en realidad un orden de magnitud de diferencia entre los indicadores de evidencia 'originales'. 
+% y? cómo sé si es "mucho"? qué importa que sean los originales?
+
+
+
+%comparación del mejor nuestro contra los otros
+
+
+\section{Conclusiones}
+%todavía no sabemos :P
+
+\end{document}
