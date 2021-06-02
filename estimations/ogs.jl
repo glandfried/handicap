@@ -10,14 +10,15 @@ using DataFrames
 # Conclusiones:
 #   1. El komi con regresion lineal mejora la estimación.
 #   2. Empeora cuando usamos regresi'on lineal para el handicap. Posibles razones:
-#       a. Quizás por demasida incertidumbre cuando la regresión se aleja del 0
-#       b. Quizás poque existe una interferencia entre komi y handicap (por mala asignación)
+#       a. Komi según tablero.
+#       b. Quizás por demasida incertidumbre cuando la regresión se aleja del 0
+#       c. Quizás poque existe una interferencia entre komi y handicap (por mala asignación)
 
 #
 # TODO:
 #   1. Se rompe con regresi'on cúbica.
-#   2. Analizar interacción entre komi y handicap
-#
+#   2. Komi según tabllero
+#   3. Analizar interacción entre komi y handicap
 
 
 println("Opening dataset")
@@ -114,14 +115,21 @@ ttt.log_evidence(h) #
 #######################################
 # Handicap y Komi linear regression
 
+prior_dict["_komi9_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+prior_dict["_komi9_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+prior_dict["_komi13_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+prior_dict["_komi13_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+prior_dict["_komi19_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+prior_dict["_komi19_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+
 prior_dict = Dict{String,ttt.Player}()
 prior_dict["_handicap9_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_handicap13_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_handicap19_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 
 
-events = [ [[string(r.white), "_komi1_", "_komi0_"],[string(r.black), r.width==9 ? "_handicap9_" : (r.width==13 ?  "_handicap13_" : "_handicap19_") ]] for r in eachrow(data) ]
-weights = [[[1.0, r.komi, 1.0],[1.0,  r.handicap ]] for r in eachrow(data) ]
+events = [ [[string(r.white), r.width==9 ? "_komi9_0_" : (r.width==13 ?  "_komi13_0_" : "_komi19_0_"), r.width==9 ? "_komi9_1_" : (r.width==13 ?  "_komi13_1_" : "_komi19_1_")],[string(r.black), r.width==9 ? "_handicap9_" : (r.width==13 ?  "_handicap13_" : "_handicap19_") ]] for r in eachrow(data) ]
+weights = [[[1.0, 1.0, r.komi],[1.0,  r.handicap ]] for r in eachrow(data) ]
 
 #events = [ r.handicap<2 ? [[string(r.white), "_komi1_", "_komi0_"],[string(r.black)]] : [[string(r.white), "_komi1_", "_komi0_"],[string(r.black), r.width==9 ? "_handicap9_" : (r.width==13 ?  "_handicap13_" : "_handicap19_") ]] for r in eachrow(data) 
 #weights = [ r.handicap<2 ? [[1.0, r.komi, 1.0],[1.0]] : [[1.0, r.komi, 1.0],[1.0,  r.handicap ]] for r in eachrow(data) ]
@@ -134,9 +142,18 @@ ttt.convergence(h, iterations=4)
 ttt.log_evidence(h) # -195080.19750577759
 
 lc = ttt.learning_curves(h)
-lc["_komi0_"][end][2]
-6.5*lc["_komi1_"][end][2]
-7.5*lc["_komi1_"][end][2]
+lc["_komi9_0_"][end][2]
+6.5*lc["_komi9_1_"][end][2]
+7.5*lc["_komi9_1_"][end][2]
+
+lc["_komi13_0_"][end][2]
+6.5*lc["_komi13_1_"][end][2]
+7.5*lc["_komi13_1_"][end][2]
+
+lc["_komi19_0_"][end][2]
+6.5*lc["_komi19_1_"][end][2]
+7.5*lc["_komi19_1_"][end][2]
+
 
 # ATENCI'ON!:
 #   El efecto del komi es negativo.
@@ -163,8 +180,8 @@ prior_dict["_handicap19_2_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_handicap19_3_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 
 
-events = [ [[string(r.white), "_komi1_", "_komi0_"],[string(r.black),r.width==9 ? "_handicap9_0_" : (r.width==13 ?  "_handicap13_0_" : "_handicap19_0_"),r.width==9 ? "_handicap9_1_" : (r.width==13 ?  "_handicap13_1_" : "_handicap19_1_"),r.width==9 ? "_handicap9_2_" : (r.width==13 ?  "_handicap13_2_" : "_handicap19_2_"), r.width==9 ? "_handicap9_3_" : (r.width==13 ?  "_handicap13_3_" : "_handicap19_3_") ]] for r in eachrow(data) ]
-weights = [[[1.0, r.komi, 1.0],[1.0, 1.0, r.handicap, r.handicap^2, r.handicap^3]] for r in eachrow(data) ]
+events = [ [[string(r.white), r.width==9 ? "_komi9_0_" : (r.width==13 ?  "_komi13_0_" : "_komi19_0_"),  r.width==9 ? "_komi9_1_" : (r.width==13 ?  "_komi13_1_" : "_komi19_1_")],[string(r.black),r.width==9 ? "_handicap9_0_" : (r.width==13 ?  "_handicap13_0_" : "_handicap19_0_"),r.width==9 ? "_handicap9_1_" : (r.width==13 ?  "_handicap13_1_" : "_handicap19_1_"),r.width==9 ? "_handicap9_2_" : (r.width==13 ?  "_handicap13_2_" : "_handicap19_2_"), r.width==9 ? "_handicap9_3_" : (r.width==13 ?  "_handicap13_3_" : "_handicap19_3_") ]] for r in eachrow(data) ]
+weights = [[[1.0, 1.0, r.komi],[1.0, 1.0, r.handicap, r.handicap^2, r.handicap^3]] for r in eachrow(data) ]
 
 #events = [ r.handicap<2 ? [[string(r.white), "_komi1_", "_komi0_"],[string(r.black)]] : [[string(r.white), "_komi1_", "_komi0_"],[string(r.black), r.width==9 ? "_handicap9_" : (r.width==13 ?  "_handicap13_" : "_handicap19_") ]] for r in eachrow(data) 
 #weights = [ r.handicap<2 ? [[1.0, r.komi, 1.0],[1.0]] : [[1.0, r.komi, 1.0],[1.0,  r.handicap ]] for r in eachrow(data) ]
