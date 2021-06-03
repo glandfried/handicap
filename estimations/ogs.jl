@@ -52,33 +52,43 @@ println(ttt_log_evidence)
 
 lc = ttt.learning_curves(h)
 
+df = DataFrame(id = String[], mu = Float64[], sigma = Float64[])
 for (k,v) in prior_dict
     if haskey(lc,k)
-        println(k,lc[k][end][2])
+        N = lc[k][end][2]
+        push!(df,[k,N.mu,N.sigma])
     end
 end
 
-
+CSV.write("output/ogs_ttt-h.csv", df; header=true)
 
 #######################################
-# Komi linear regression
+# Handicap y Komi linear regression
 
-prior_dict["_komi3_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-prior_dict["_komi2_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_komi1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_komi0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 
-# prior_dict = Dict{String,Player}()
-# for h_key in Set([(row.handicap, row.width) for row in eachrow(data) ])
-#     prior_dict[string(h_key)] = Player(Gaussian(0.0,6.0),0.0,0.0)
-# end
-# prior_dict["_komi3_"] = Player(Gaussian(0.0,6.0),0.0,0.0)
-# prior_dict["_komi2_"] = Player(Gaussian(0.0,6.0),0.0,0.0)
-# prior_dict["_komi1_"] = Player(Gaussian(0.0,6.0),0.0,0.0)
-# prior_dict["_komi0_"] = Player(Gaussian(0.0,6.0),0.0,0.0)
-# 
+
+prior_dict["_komi9_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+prior_dict["_komi9_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+prior_dict["_komi13_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+prior_dict["_komi13_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+prior_dict["_komi19_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+prior_dict["_komi19_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 
 # 1. Pendiente y ordenada al orgien
+
+function k0(w)
+    return w==9 ? "_komi9_0_" : (w==13 ?  "_komi13_0_" : "_komi19_0_")
+end
+function k1(w)
+    return w==9 ? "_komi9_1_" : (w==13 ?  "_komi13_1_" : "_komi19_1_")
+end
+
+# events = [ [[string(r.white), k0(r.width), k1(r.width)],  r.handicap<2 ? [string(r.black)] : [string(r.black), string((r.handicap,r.width))] ] for r in eachrow(data) ]
+# 
+# weights = [ [[1.0, 1,0, r.komi], r.handicap<2 ? [1.0] : [1.0,1.0]] for r in eachrow(data) ]
+
 
 events = [ r.handicap<2 ? [[string(r.white), "_komi1_", "_komi0_"],[string(r.black)]] : [[string(r.white), "_komi1_", "_komi0_"],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
 
@@ -95,20 +105,36 @@ lc["_komi0_"][end][2]
 6.5*lc["_komi1_"][end][2]
 7.5*lc["_komi1_"][end][2]
 
-# 2. Cuadrática
 
-events = [ r.handicap<2 ? [[string(r.white), "_komi2_", "_komi1_", "_komi0_"],[string(r.black)]] : [[string(r.white), "_komi2_", "_komi1_", "_komi0_"],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
-
-weights = [ r.handicap<2 ? [[1.0, r.komi^2, r.komi, 1.0],[1.0]] : [[1.0, r.komi^2, r.komi, 1.0],[1.0,1.0]] for r in eachrow(data) ]
+events = [ r.handicap<2 ? [[string(r.white), k1(r.width), k0(r.width)],[string(r.black)]] : [[string(r.white), k1(r.width), k0(r.width)],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
 
 h = missing
 GC.gc()
 h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=6.0,gamma=0.16,weights=weights)
 ttt.convergence(h, iterations=4)
-ttt.log_evidence(h) # -Inf
+ttt.log_evidence(h) # -192285.002466
 
-# 3. Cúbica
-## SE ROMPE con gamma = 0 y beta = 0 
+lc = ttt.learning_curves(h)
+lc["_komi19_0_"][end][2]
+6.5*lc["_komi19_1_"][end][2]
+7.5*lc["_komi19_1_"][end][2]
+10.5*lc["_komi19_1_"][end][2]
+
+lc["_komi13_0_"][end][2]
+6.5*lc["_komi13_1_"][end][2]
+7.5*lc["_komi13_1_"][end][2]
+
+lc["_komi9_0_"][end][2]
+6.5*lc["_komi9_1_"][end][2]
+7.5*lc["_komi9_1_"][end][2]
+
+
+# 2. Cuadrática tiene evidencie -Inf 
+
+# 3. Cúbica ## SE ROMPE con gamma = 0 y beta = 0 
+
+prior_dict["_komi3_"] = ttt.Player(ttt.Gaussian(0.0,6.0),1.0,0.0)
+prior_dict["_komi2_"] = ttt.Player(ttt.Gaussian(0.0,6.0),1.0,0.0)
 
 composition = [ r.handicap<2 ? [[string(r.white), "_komi3_", "_komi2_", "_komi1_", "_komi0_"],[string(r.black)]] : [[string(r.white), "_komi3_", "_komi2_", "_komi1_", "_komi0_"],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
 times = days
@@ -121,10 +147,7 @@ h = missing
 GC.gc()
 h = ttt.History(composition=composition, results=results, times = times , priors=priors , sigma=6.0,gamma=0.16,weights=weights)
 ttt.convergence(h, iterations=4)
-ttt.log_evidence(h) # 
-
-# events[5605], weights[5605]
-# https://stackoverflow.com/questions/56229927/with-julias-debugger-jl-how-can-i-enter-debug-mode-similar-to-pythons-pdb-se
+ttt.log_evidence(h) # -281933.1581893889
 
 #######################################
 # Handicap y Komi linear regression
@@ -174,41 +197,6 @@ lc["_komi19_0_"][end][2]
 2.0*lc["_handicap9_"][end][2]
 2.0*lc["_handicap19_"][end][2]
 
-# 3. Handicap cúbico
-## SE ROMPE
-
-prior_dict["_handicap9_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-prior_dict["_handicap9_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-prior_dict["_handicap9_2_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-prior_dict["_handicap9_3_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-
-prior_dict["_handicap13_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-prior_dict["_handicap13_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-prior_dict["_handicap13_2_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-prior_dict["_handicap13_3_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-
-prior_dict["_handicap19_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-prior_dict["_handicap19_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-prior_dict["_handicap19_2_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-prior_dict["_handicap19_3_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-
-
-events = [ [[string(r.white), r.width==9 ? "_komi9_0_" : (r.width==13 ?  "_komi13_0_" : "_komi19_0_"),  r.width==9 ? "_komi9_1_" : (r.width==13 ?  "_komi13_1_" : "_komi19_1_")],[string(r.black),r.width==9 ? "_handicap9_0_" : (r.width==13 ?  "_handicap13_0_" : "_handicap19_0_"),r.width==9 ? "_handicap9_1_" : (r.width==13 ?  "_handicap13_1_" : "_handicap19_1_"),r.width==9 ? "_handicap9_2_" : (r.width==13 ?  "_handicap13_2_" : "_handicap19_2_"), r.width==9 ? "_handicap9_3_" : (r.width==13 ?  "_handicap13_3_" : "_handicap19_3_") ]] for r in eachrow(data) ]
-weights = [[[1.0, 1.0, r.komi],[1.0, 1.0, r.handicap, r.handicap^2, r.handicap^3]] for r in eachrow(data) ]
-
-#events = [ r.handicap<2 ? [[string(r.white), "_komi1_", "_komi0_"],[string(r.black)]] : [[string(r.white), "_komi1_", "_komi0_"],[string(r.black), r.width==9 ? "_handicap9_" : (r.width==13 ?  "_handicap13_" : "_handicap19_") ]] for r in eachrow(data) 
-#weights = [ r.handicap<2 ? [[1.0, r.komi, 1.0],[1.0]] : [[1.0, r.komi, 1.0],[1.0,  r.handicap ]] for r in eachrow(data) ]
-
-h = missing
-GC.gc()
-h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=6.0,gamma=0.16,weights=weights)
-ttt.convergence(h, iterations=4)
-ttt.log_evidence(h) # 
-
-lc = ttt.learning_curves(h)
-lc["_komi0_"][end][2]
-6.5*lc["_komi1_"][end][2]
-7.5*lc["_komi1_"][end][2]
 
 
 #######################################
