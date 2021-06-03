@@ -1,5 +1,5 @@
 ttt.jl/.git:
-	git submodule update --init ./
+	git submodule update --init ttt.jl/
 
 # Submodules
 skill/.git:

@@ -8,18 +8,17 @@ using Dates
 using DataFrames
 
 # Conclusiones:
-#   1. El komi con regresion lineal mejora la estimación.
-#   2. Empeora cuando usamos regresi'on lineal para el handicap. Posibles razones:
+#   1. El komi con regresion lineal mejora la estimaci'on.
+#   2. La regresi'on c'ubica se rompe cuando los komis tienen beta = 0 y el jugador que recibe un komi de 30 pierde porque 30^3 = 2700, y la aproximación de la truncada se rompe porque tanto la densidad como la acumulada en el punto -2700 es 0.
+#   3. Empeora cuando usamos regresi'on lineal para el handicap. Posibles razones:
 #       a. Komi según tablero.
 #       b. Quizás por demasida incertidumbre cuando la regresión se aleja del 0
 #       c. Quizás poque existe una interferencia entre komi y handicap (por mala asignación)
 
 #
 # TODO:
-#   1. Se rompe con regresi'on cúbica.
-#   2. Komi según tabllero
-#   3. Analizar interacción entre komi y handicap
-
+#   1. Komi según tabllero
+#   2. Analizar interacción entre komi y handicap
 
 println("Opening dataset")
 data = CSV.read("../data/ogs/summary_filtered.csv", DataFrame)
@@ -67,6 +66,16 @@ prior_dict["_komi2_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_komi1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_komi0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 
+# prior_dict = Dict{String,Player}()
+# for h_key in Set([(row.handicap, row.width) for row in eachrow(data) ])
+#     prior_dict[string(h_key)] = Player(Gaussian(0.0,6.0),0.0,0.0)
+# end
+# prior_dict["_komi3_"] = Player(Gaussian(0.0,6.0),0.0,0.0)
+# prior_dict["_komi2_"] = Player(Gaussian(0.0,6.0),0.0,0.0)
+# prior_dict["_komi1_"] = Player(Gaussian(0.0,6.0),0.0,0.0)
+# prior_dict["_komi0_"] = Player(Gaussian(0.0,6.0),0.0,0.0)
+# 
+
 # 1. Pendiente y ordenada al orgien
 
 events = [ r.handicap<2 ? [[string(r.white), "_komi1_", "_komi0_"],[string(r.black)]] : [[string(r.white), "_komi1_", "_komi0_"],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
@@ -99,13 +108,16 @@ ttt.log_evidence(h) # -Inf
 # 3. Cúbica
 ## SE ROMPE con gamma = 0 y beta = 0 
 
-events = [ r.handicap<2 ? [[string(r.white), "_komi3_", "_komi2_", "_komi1_", "_komi0_"],[string(r.black)]] : [[string(r.white), "_komi3_", "_komi2_", "_komi1_", "_komi0_"],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
-
+composition = [ r.handicap<2 ? [[string(r.white), "_komi3_", "_komi2_", "_komi1_", "_komi0_"],[string(r.black)]] : [[string(r.white), "_komi3_", "_komi2_", "_komi1_", "_komi0_"],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
+times = days
 weights = [ r.handicap<2 ? [[1.0, r.komi^3, r.komi^2, r.komi, 1.0],[1.0]] : [[1.0, r.komi^3, r.komi^2, r.komi, 1.0],[1.0,1.0]] for r in eachrow(data) ]
+priors = prior_dict
+gamma = 0.16; sigma=6.0; mu=0.0; beta=1.0; p_draw=0.0
+online=false
 
 h = missing
 GC.gc()
-h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=6.0,gamma=0.16,weights=weights)
+h = ttt.History(composition=composition, results=results, times = times , priors=priors , sigma=6.0,gamma=0.16,weights=weights)
 ttt.convergence(h, iterations=4)
 ttt.log_evidence(h) # 
 
@@ -133,7 +145,6 @@ weights = [[[1.0, 1.0, r.komi],[1.0,  r.handicap ]] for r in eachrow(data) ]
 
 #events = [ r.handicap<2 ? [[string(r.white), "_komi1_", "_komi0_"],[string(r.black)]] : [[string(r.white), "_komi1_", "_komi0_"],[string(r.black), r.width==9 ? "_handicap9_" : (r.width==13 ?  "_handicap13_" : "_handicap19_") ]] for r in eachrow(data) 
 #weights = [ r.handicap<2 ? [[1.0, r.komi, 1.0],[1.0]] : [[1.0, r.komi, 1.0],[1.0,  r.handicap ]] for r in eachrow(data) ]
-
 
 h = missing
 GC.gc()
