@@ -36,7 +36,7 @@ end
 results = [row.black_win == 1 ? [0.,1.] : [1., 0.] for row in eachrow(data) ]
 
 # gamma = 0.12; iter 4; -193062.34822408648
-# gamma = 0.16; iter 4; -192830.49964918988
+# gamma = 0.16; iter 4; -192006.29855472202
 # gamma = 0.18; iter 4; -192991.47740192755
 
 events = [ r.handicap<2 ? [[string(r.white)],[string(r.black)]] : [[string(r.white)],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
@@ -57,6 +57,8 @@ for (k,v) in prior_dict
         println(k,lc[k][end][2])
     end
 end
+
+
 
 #######################################
 # Komi linear regression
