@@ -275,3 +275,13 @@ lc["(7.5, 9)"][end][2]
 
 lc["(2, 19)"][end][2]
 lc["(2, 9)"][end][2]
+
+df = DataFrame(id = String[], mu = Float64[], sigma = Float64[])
+for (k,v) in prior_dict
+    if haskey(lc,k)
+        N = lc[k][end][2]
+        push!(df,[k,N.mu,N.sigma])
+    end
+end
+
+CSV.write("output/ogs_ttt-h-k.csv", df; header=true)
