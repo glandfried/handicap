@@ -52,62 +52,18 @@ end
 CSV.write("output/ogs_ttt-h.csv", df; header=true)
 
 #######################################
-# komis between -10 y +10
-
-filter_komi = abs.(data.komi).<=10
-
-#######################################
-# Komi linear regression (MAL CALCULADO: un mismo factor para diferentes tableros)
-
-prior_dict["_komi1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-prior_dict["_komi0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-
-# 1. Pendiente y ordenada al orgien
-
-# events = [ [[string(r.white), k0(r.width), k1(r.width)],  r.handicap<2 ? [string(r.black)] : [string(r.black), string((r.handicap,r.width))] ] for r in eachrow(data) ]
-# 
-# weights = [ [[1.0, 1,0, r.komi], r.handicap<2 ? [1.0] : [1.0,1.0]] for r in eachrow(data) ]
-
-
-events = [ r.handicap<2 ? [[string(r.white), "_komi1_", "_komi0_"],[string(r.black)]] : [[string(r.white), "_komi1_", "_komi0_"],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
-
-weights = [ r.handicap<2 ? [[1.0, r.komi, 1.0],[1.0]] : [[1.0, r.komi, 1.0],[1.0,1.0]] for r in eachrow(data) ]
-
-h = missing
-GC.gc()
-h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=6.0,gamma=0.16, weights=weights)
-ttt.convergence(h, iterations=4)
-ttt.log_evidence(h) # -191775.92380327423
-exp(ttt.log_evidence(h)/length(h)) # 0.6291125153957773
-
-# Con filtro
-
-h = missing
-GC.gc()
-h = ttt.History(composition=events[filter_komi], results=results[filter_komi], times = days[filter_komi] , priors=prior_dict, sigma=6.0,gamma=0.16, weights=weights[filter_komi])
-ttt.convergence(h, iterations=4)
-exp(ttt.log_evidence(h)/length(h)) # 0.628529025046976
-
-lc = ttt.learning_curves(h)
-lc["_komi0_"][end][2]
-6.5*lc["_komi1_"][end][2]
-7.5*lc["_komi1_"][end][2]
-
-#######################################
 # Komi linear regression (BIEN CALCULADO: un factor por cada tipo de tablero)
 
 prior_dict = Dict{String,ttt.Player}()
 for h_key in Set([(row.handicap, row.width) for row in eachrow(data) ])
     prior_dict[string(h_key)] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 end
-
 prior_dict["_komi9_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_komi9_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_komi13_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_komi13_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_komi19_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_komi19_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-
 
 function k0(w)
     return w==9 ? "_komi9_0_" : (w==13 ?  "_komi13_0_" : "_komi19_0_")
@@ -117,9 +73,9 @@ function k1(w)
 end
 
 # Sin filtro
-events = [ r.handicap<2 ? [[string(r.white), k1(r.width), k0(r.width)],[string(r.black)]] : [[string(r.white), k1(r.width), k0(r.width)],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
+events = [ [[string(r.white), k1(r.width), k0(r.width)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
 
-weights = [ r.handicap<2 ? [[1.0, r.komi, 1.0],[1.0]] : [[1.0, r.komi, 1.0],[1.0,1.0]] for r in eachrow(data) ]
+weights = [ [[1.0, r.komi, 1.0], r.handicap<2 ? [1.0] :[1.0,1.0] ] for r in eachrow(data) ]
 
 h = missing
 GC.gc()
@@ -129,20 +85,21 @@ ttt.log_evidence(h) # iter 16: -191178 iter 10: -191341;  iter 4: -192285
 exp(ttt.log_evidence(h)/length(h)) # iter 16: 0.63002099; iter 10: 0.62977333; iter 4: 0.628339033
 
 lc = ttt.learning_curves(h)
-lc["_komi19_0_"][end][2]
-6.5*lc["_komi19_1_"][end][2]
-7.5*lc["_komi19_1_"][end][2]
-10.5*lc["_komi19_1_"][end][2] # 10.5 La equivalencia en 19
+if false
+    lc["_komi19_0_"][end][2]
+    6.5*lc["_komi19_1_"][end][2]
+    7.5*lc["_komi19_1_"][end][2]
+    10.5*lc["_komi19_1_"][end][2] # 10.5 La equivalencia en 19
 
-lc["_komi13_0_"][end][2] # UN EFECTO MUY GRANDE
-6.5*lc["_komi13_1_"][end][2] # 6.5 La equivalencia en 13
-7.5*lc["_komi13_1_"][end][2]
+    lc["_komi13_0_"][end][2] # UN EFECTO MUY GRANDE
+    6.5*lc["_komi13_1_"][end][2] # 6.5 La equivalencia en 13
+    7.5*lc["_komi13_1_"][end][2]
 
-lc["_komi9_0_"][end][2] # Apenas duplica el efecto de 19
-5.5*lc["_komi9_1_"][end][2] # 5.5 La equivalencia en 9
-6.5*lc["_komi9_1_"][end][2]
-7.5*lc["_komi9_1_"][end][2]
-
+    lc["_komi9_0_"][end][2] # Apenas duplica el efecto de 19
+    5.5*lc["_komi9_1_"][end][2] # 5.5 La equivalencia en 9
+    6.5*lc["_komi9_1_"][end][2]
+    7.5*lc["_komi9_1_"][end][2]
+end
 
 df = DataFrame(id = String[], mu = Float64[], sigma = Float64[])
 for (k,v) in prior_dict
@@ -153,29 +110,6 @@ for (k,v) in prior_dict
 end
 
 CSV.write("output/ogs_ttt-h-komi-regression.csv", df; header=true)
-
-## Con filtro
-
-h = missing
-GC.gc()
-h = ttt.History(composition=events[filter_komi], results=results[filter_komi], times = days[filter_komi] , priors=prior_dict, sigma=6.0, gamma=0.16, weights=weights[filter_komi])
-ttt.convergence(h, iterations=4)
-exp(ttt.log_evidence(h)/length(h)) # 0.6261113035863941
-
-lc = ttt.learning_curves(h)
-lc["_komi19_0_"][end][2]
-6.5*lc["_komi19_1_"][end][2]
-7.5*lc["_komi19_1_"][end][2]
-10.0*lc["_komi19_1_"][end][2] # EL VALOR MAXIMO NO ALCANZA
-
-lc["_komi13_0_"][end][2] # EL EFECTO ES AUN MÄS GRANDE -2
-6.5*lc["_komi13_1_"][end][2] # 6.5 La equivalencia en 13
-7.5*lc["_komi13_1_"][end][2]
-
-lc["_komi9_0_"][end][2] # Apenas duplica el efecto de 19
-5.5*lc["_komi9_1_"][end][2] # 5.5 La equivalencia en 9
-6.5*lc["_komi9_1_"][end][2]
-7.5*lc["_komi9_1_"][end][2]
 
 #######################################
 # Handicap y Komi linear regression
@@ -191,31 +125,31 @@ prior_dict["_handicap9_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_handicap13_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_handicap19_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 
-
-events = [ [[string(r.white), r.width==9 ? "_komi9_0_" : (r.width==13 ?  "_komi13_0_" : "_komi19_0_"), r.width==9 ? "_komi9_1_" : (r.width==13 ?  "_komi13_1_" : "_komi19_1_")],[string(r.black), r.width==9 ? "_handicap9_1_" : (r.width==13 ?  "_handicap13_1_" : "_handicap19_1_") ]] for r in eachrow(data) ]
+events = [ [[string(r.white), k0(r.width), k1(r.width)],[string(r.black), r.width==9 ? "_handicap9_1_" : (r.width==13 ?  "_handicap13_1_" : "_handicap19_1_") ]] for r in eachrow(data) ]
 weights = [[[1.0, 1.0, r.komi],[1.0,  r.handicap ]] for r in eachrow(data) ]
 
 h = missing
 GC.gc()
 h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=6.0,gamma=0.16,weights=weights)
 ttt.convergence(h, iterations=16)
-ttt.log_evidence(h) # Iter 16 -191218; -195080.19750577759
+ttt.log_evidence(h) # Iter 16 -191218;
 
 lc = ttt.learning_curves(h)
-lc["_komi9_0_"][end][2]
-5.5*lc["_komi9_1_"][end][2]
-6.5*lc["_komi9_1_"][end][2]
+if false
+    lc["_komi9_0_"][end][2]
+    5.5*lc["_komi9_1_"][end][2]
+    6.5*lc["_komi9_1_"][end][2]
 
-lc["_komi13_0_"][end][2]
-5.5*lc["_komi13_1_"][end][2]
-6.5*lc["_komi13_1_"][end][2]
-7.5*lc["_komi13_1_"][end][2]
+    lc["_komi13_0_"][end][2]
+    5.5*lc["_komi13_1_"][end][2]
+    6.5*lc["_komi13_1_"][end][2]
+    7.5*lc["_komi13_1_"][end][2]
 
-lc["_komi19_0_"][end][2]
-6.5*lc["_komi19_1_"][end][2]
-7.5*lc["_komi19_1_"][end][2]
-10.5*lc["_komi19_1_"][end][2]
-
+    lc["_komi19_0_"][end][2]
+    6.5*lc["_komi19_1_"][end][2]
+    7.5*lc["_komi19_1_"][end][2]
+    10.5*lc["_komi19_1_"][end][2]
+end
 
 df = DataFrame(id = String[], mu = Float64[], sigma = Float64[])
 for (k,v) in prior_dict
@@ -258,24 +192,26 @@ for gamma in [0.16]#gamma = 0.16
 end
 
 lc = ttt.learning_curves(h)
-lc["(0.5, 19)"][end][2]
-lc["(5.5, 19)"][end][2] 
-lc["(6.5, 19)"][end][2]
-lc["(7.5, 19)"][end][2] 
-lc["(9.5, 19)"][end][2] 
+if false
+    lc["(0.5, 19)"][end][2]
+    lc["(5.5, 19)"][end][2] 
+    lc["(6.5, 19)"][end][2]
+    lc["(7.5, 19)"][end][2] 
+    lc["(9.5, 19)"][end][2] 
 
-lc["(0.5, 13)"][end][2]
-lc["(5.5, 13)"][end][2]
-lc["(6.5, 13)"][end][2]
+    lc["(0.5, 13)"][end][2]
+    lc["(5.5, 13)"][end][2]
+    lc["(6.5, 13)"][end][2]
 
-lc["(0.5, 9)"][end][2]
-lc["(5.5, 9)"][end][2] 
-lc["(6.5, 9)"][end][2] 
-lc["(7.5, 9)"][end][2] 
+    lc["(0.5, 9)"][end][2]
+    lc["(5.5, 9)"][end][2] 
+    lc["(6.5, 9)"][end][2] 
+    lc["(7.5, 9)"][end][2] 
 
-lc["(2, 19)"][end][2]
-lc["(2, 9)"][end][2]
-
+    lc["(2, 19)"][end][2]
+    lc["(2, 9)"][end][2]
+end
+    
 df = DataFrame(id = String[], mu = Float64[], sigma = Float64[])
 for (k,v) in prior_dict
     if haskey(lc,k)
