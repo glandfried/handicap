@@ -13,7 +13,7 @@ data = CSV.read("../data/aago/aago.csv", DataFrame)
 # Index
 # 1. Base (0.5689183462323528)
 # 2. Handicap
-# 3. Handicap and komi (0.5891943624123013)
+# 3. Handicap and komi (0.5902489627623614)
 
 days = Dates.value.(data.date .- Date("2001-01-01"))
 results = [ r.result .== "black" ? [1.0,0.0] : [0.0,1.0]  for r in eachrow(data)]
