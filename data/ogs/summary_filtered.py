@@ -7,7 +7,7 @@ sys.path.append('../software/')
 
 csv_name = 'summary.csv'
 
-print("Dataframe metida")   
+print("Dataframe metida")
 df = pd.read_csv(csv_name)
 df = df[['id','black','white','order','outcome','handicap','komi','width','height', 'annulled','ranked','started','ended']]
 
@@ -16,7 +16,7 @@ fd = df[filtro]
 
 filtered = {}
 ##%% Selecciono las columnas que quiero y las filas con ciertas restricciones
-filtered['Annulled'] = sum(df.annulled != False)  
+filtered['Annulled'] = sum(df.annulled != False)
 df = df[df.annulled == False]
 filtered['Outcomes'] = sum(~((df.outcome == 'Resignation') | (df.outcome == 'Timeout') | (df.outcome.str.contains(' point'))))
 df = df[(df.outcome == 'Resignation') | (df.outcome == 'Timeout') | (df.outcome.str.contains(' point'))]
@@ -38,6 +38,8 @@ df.outcome[df.outcome.str.contains(' point',na=False)] = "Points"
 # Hago el order con formato lista para poder luego usar como argumento de las funciones de skill
 df["black_win"] = df.order.map(lambda x :  1 if x[1]=='1' else 0)
 df['black_win_not_komi'] =  np.sign((2*df.black_win-1)*df.points+(df.komi-6.5))
+
+df['started'] = df.started.map(lambda x : x[:10])
 
 df = df[['id','black','white','outcome','black_win','black_win_not_komi','handicap','komi', 'width','points','ranked','started','ended']]
 # Ordeno
