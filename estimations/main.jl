@@ -6,14 +6,58 @@ using CSV
 using JLD2
 using Dates
 using DataFrames
+using ArgParse
+
+function parse_commandline()
+    s = ArgParseSettings()
+    @add_arg_table s begin
+        "--source", "-s"
+            help = "La base de datos a ser usada. Puede ser 'ogs', 'kgs', 'aago', o la dirección del archivo"
+        "--model", "-m"
+            help = "El modelo a ser aplicado. Puede ser 'all', 'ttt', 'ttt-h' " #definir abreviaciones (e.g. ttt, ttt-h, etc.)
+            required = true
+    end
+    return parse_args(s)
+end
+
+# function calcular_modelo(sigma, gamma, iterations)
+#     #TODO:
+#     # - definir events según el modelo
+#     # - days, results, data, model, etc. son globales, no?
+#     # - nombrar mejor esta funcion
+#     # - incluir figuras/csv de salida acá? 
+#
+#     h = missing
+#     GC.gc()
+#     h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma)
+#     ttt.convergence(h, epsilon=0.01, iterations=iterations)
+#     ttt_log_evidence = ttt.log_evidence(h)
+#     lc = ttt.learning_curves(h)
+#
+#     return lc, ttt_log_evidence
+# end
+
+
+args = parse_commandline()
+
+if args["source"] == "ogs"
+    source = "../data/ogs/summary_filtered.csv"
+elseif args["source"] == "kgs"
+    source = "../data/kgs/KGS_filtered.csv"
+elseif args["source"] == "aago"
+    source = "../data/aago/aago.csv"
+else
+    source = args["source"]
+end
 
 println("Opening dataset")
-data = CSV.read("../data/ogs/summary_filtered.csv", DataFrame)
+data = CSV.read(source, DataFrame)
 
-days = Dates.value.(
-    Date.(map(m->m.match,
-        match.(r"(\d+)-(\d+)-(\d+)", data.started))
-        ) .- Date("1900-01-01"))
+# days = Dates.value.(
+#     Date.(map(m->m.match,
+#         match.(r"(\d+)-(\d+)-(\d+)", data.started))
+#         ) .- Date("1900-01-01"))
+days = Dates.value.(data.started .- Date("2001-01-01"))
 
 prior_dict = Dict{String,ttt.Player}()
 for h_key in Set([(row.handicap, row.width) for row in eachrow(data) ])
@@ -24,7 +68,7 @@ results = [row.black_win == 1 ? [0.,1.] : [1., 0.] for row in eachrow(data) ]
 
 # sigma = 10.; gamma = 0.12; iter 4; -193062.34822408648
 # sigma = 6.; gamma = 0.16; iter 4; -192006.29855472202 (0.6287623)
-# sigma = 6.; gamma = 0.16; iter 16; -191501.00772558292 
+# sigma = 6.; gamma = 0.16; iter 16; -191501.00772558292
 # sigma = 10; gamma = 0.16; iter 16: -192364.54726513493
 # sigma = 10.; gamma = 0.18; iter 4; -192991.47740192755
 
@@ -183,7 +227,7 @@ for gamma in [0.16]#gamma = 0.16
     GC.gc()
     h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=6.0,gamma=gamma)
     ts_log_evidence = ttt.log_evidence(h)
-    ttt.convergence(h, iterations=16) 
+    ttt.convergence(h, iterations=16)
     ttt_log_evidence = ttt.log_evidence(h) # Iter 16 -191294
     println("Gamma:")
     println(gamma)
@@ -194,24 +238,24 @@ end
 lc = ttt.learning_curves(h)
 if false
     lc["(0.5, 19)"][end][2]
-    lc["(5.5, 19)"][end][2] 
+    lc["(5.5, 19)"][end][2]
     lc["(6.5, 19)"][end][2]
-    lc["(7.5, 19)"][end][2] 
-    lc["(9.5, 19)"][end][2] 
+    lc["(7.5, 19)"][end][2]
+    lc["(9.5, 19)"][end][2]
 
     lc["(0.5, 13)"][end][2]
     lc["(5.5, 13)"][end][2]
     lc["(6.5, 13)"][end][2]
 
     lc["(0.5, 9)"][end][2]
-    lc["(5.5, 9)"][end][2] 
-    lc["(6.5, 9)"][end][2] 
-    lc["(7.5, 9)"][end][2] 
+    lc["(5.5, 9)"][end][2]
+    lc["(6.5, 9)"][end][2]
+    lc["(7.5, 9)"][end][2]
 
     lc["(2, 19)"][end][2]
     lc["(2, 9)"][end][2]
 end
-    
+
 df = DataFrame(id = String[], mu = Float64[], sigma = Float64[])
 for (k,v) in prior_dict
     if haskey(lc,k)
