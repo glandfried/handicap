@@ -10,10 +10,14 @@ using DataFrames
 println("Opening dataset")
 data = CSV.read("../data/ogs/summary_filtered.csv", DataFrame)
 
-days = Dates.value.(
-    Date.(map(m->m.match,
-        match.(r"(\d+)-(\d+)-(\d+)", data.started))
-        ) .- Date("1900-01-01"))
+# cambié el filter para que en el csv los días no tengan la hora, así están todos de
+# la misma forma y podemos usar el comando de más abajo
+# days = Dates.value.(
+#     Date.(map(m->m.match,
+#         match.(r"(\d+)-(\d+)-(\d+)", data.started))
+#         ) .- Date("1900-01-01"))
+days = Dates.value.(data.started .- Date("2001-01-01"))
+
 
 prior_dict = Dict{String,ttt.Player}()
 for h_key in Set([(row.handicap, row.width) for row in eachrow(data) ])
@@ -24,7 +28,7 @@ results = [row.black_win == 1 ? [0.,1.] : [1., 0.] for row in eachrow(data) ]
 
 # sigma = 10.; gamma = 0.12; iter 4; -193062.34822408648
 # sigma = 6.; gamma = 0.16; iter 4; -192006.29855472202 (0.6287623)
-# sigma = 6.; gamma = 0.16; iter 16; -191501.00772558292 
+# sigma = 6.; gamma = 0.16; iter 16; -191501.00772558292
 # sigma = 10; gamma = 0.16; iter 16: -192364.54726513493
 # sigma = 10.; gamma = 0.18; iter 4; -192991.47740192755
 
@@ -75,7 +79,7 @@ end
 # Sin filtro
 events = [ [[string(r.white), k1(r.width), k0(r.width)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
 
-weights = [ [[1.0, r.komi, 1.0], r.handicap<2 ? [1.0] :[1.0,1.0] ] for r in eachrow(data) ]
+weights = [ [[1.0, r.komi, 1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ]
 
 h = missing
 GC.gc()
@@ -183,7 +187,7 @@ for gamma in [0.16]#gamma = 0.16
     GC.gc()
     h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=6.0,gamma=gamma)
     ts_log_evidence = ttt.log_evidence(h)
-    ttt.convergence(h, iterations=16) 
+    ttt.convergence(h, iterations=16)
     ttt_log_evidence = ttt.log_evidence(h) # Iter 16 -191294
     println("Gamma:")
     println(gamma)
@@ -194,24 +198,24 @@ end
 lc = ttt.learning_curves(h)
 if false
     lc["(0.5, 19)"][end][2]
-    lc["(5.5, 19)"][end][2] 
+    lc["(5.5, 19)"][end][2]
     lc["(6.5, 19)"][end][2]
-    lc["(7.5, 19)"][end][2] 
-    lc["(9.5, 19)"][end][2] 
+    lc["(7.5, 19)"][end][2]
+    lc["(9.5, 19)"][end][2]
 
     lc["(0.5, 13)"][end][2]
     lc["(5.5, 13)"][end][2]
     lc["(6.5, 13)"][end][2]
 
     lc["(0.5, 9)"][end][2]
-    lc["(5.5, 9)"][end][2] 
-    lc["(6.5, 9)"][end][2] 
-    lc["(7.5, 9)"][end][2] 
+    lc["(5.5, 9)"][end][2]
+    lc["(6.5, 9)"][end][2]
+    lc["(7.5, 9)"][end][2]
 
     lc["(2, 19)"][end][2]
     lc["(2, 9)"][end][2]
 end
-    
+
 df = DataFrame(id = String[], mu = Float64[], sigma = Float64[])
 for (k,v) in prior_dict
     if haskey(lc,k)

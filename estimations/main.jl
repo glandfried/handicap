@@ -8,6 +8,11 @@ using Dates
 using DataFrames
 using ArgParse
 
+#TODO:
+#   - armar tests
+#   - definir events_weights para los demás modelos
+#   - funciones que armen figuras (en pdf)
+
 function parse_commandline()
     s = ArgParseSettings()
     @add_arg_table s begin
@@ -20,23 +25,62 @@ function parse_commandline()
     return parse_args(s)
 end
 
-# function calcular_modelo(sigma, gamma, iterations)
-#     #TODO:
-#     # - definir events según el modelo
-#     # - days, results, data, model, etc. son globales, no?
-#     # - nombrar mejor esta funcion
-#     # - incluir figuras/csv de salida acá? 
-#
-#     h = missing
-#     GC.gc()
-#     h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma)
-#     ttt.convergence(h, epsilon=0.01, iterations=iterations)
-#     ttt_log_evidence = ttt.log_evidence(h)
-#     lc = ttt.learning_curves(h)
-#
-#     return lc, ttt_log_evidence
-# end
+function read_data(args)
+    data = CSV.read(source, DataFrame)
+    data
+end
 
+function get_days(data)
+    days = Dates.value.(data.started .- Date("2001-01-01"))
+    days
+end
+
+function init_priors(data)
+    prior_dict = Dict{String,ttt.Player}()
+    for h_key in Set([(row.handicap, row.width) for row in eachrow(data) ])
+        prior_dict[string(h_key)] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+    end
+    prior_dict
+end
+
+function get_results(data)
+    results = [row.black_win == 1 ? [0.,1.] : [1., 0.] for row in eachrow(data) ]
+    results
+end
+
+function events_weights(data, model)
+
+    if model == "ttt-h"
+        events = [ [[string(r.white)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))] ] for r in eachrow(data) ]
+        weights = [ [[1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ] #neutro
+    end
+    return events, weights
+end
+
+function lc_evidence(data, days, prior_dict, results, sigma, gamma, iterations, model)
+
+    events, weights = events_weights(data, model)
+
+    h = missing
+    GC.gc()
+    h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma)
+    ttt.convergence(h, epsilon=0.01, iterations=iterations)
+    ttt_log_evidence = ttt.log_evidence(h)
+    lc = ttt.learning_curves(h)
+
+    return lc, ttt_log_evidence
+end
+
+function generate_csv(output, prior_dict, lc)
+    df = DataFrame(id = String[], mu = Float64[], sigma = Float64[])
+    for (k,v) in prior_dict
+        if haskey(lc,k)
+            N = lc[k][end][2]
+            push!(df,[k,N.mu,N.sigma])
+        end
+    end
+    CSV.write(output, df; header=true)
+end
 
 args = parse_commandline()
 
@@ -49,6 +93,21 @@ elseif args["source"] == "aago"
 else
     source = args["source"]
 end
+
+data = read_data(source)
+days = get_days(data)
+prior_dict = init_priors(data)
+results = get_results(data)
+
+sigma = 6.0
+gamma = 0.16
+iterations = 16
+model = args["model"]
+lc, evidence = lc_evidence(data, days, prior_dict, results, sigma, gamma, iterations, model)
+generate_csv("output/ogs_ttt-h.csv", prior_dict, lc)
+
+
+##############################################################################
 
 println("Opening dataset")
 data = CSV.read(source, DataFrame)
