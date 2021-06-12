@@ -25,7 +25,7 @@ function parse_commandline()
     return parse_args(s)
 end
 
-function read_data(args)
+function read_data(source)
     data = CSV.read(source, DataFrame)
     data
 end
@@ -50,7 +50,7 @@ end
 
 function events_weights(data, model)
 
-    if model == "ttt-h"
+    if model == "h"
         events = [ [[string(r.white)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))] ] for r in eachrow(data) ]
         weights = [ [[1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ] #neutro
     end
@@ -82,6 +82,7 @@ function generate_csv(output, prior_dict, lc)
     CSV.write(output, df; header=true)
 end
 
+#=
 args = parse_commandline()
 
 if args["source"] == "ogs"
@@ -94,6 +95,7 @@ else
     source = args["source"]
 end
 
+source
 data = read_data(source)
 days = get_days(data)
 prior_dict = init_priors(data)
@@ -102,7 +104,7 @@ results = get_results(data)
 sigma = 6.0
 gamma = 0.16
 iterations = 16
-model = args["model"]
+model = "ttt-h" #args["model"]
 lc, evidence = lc_evidence(data, days, prior_dict, results, sigma, gamma, iterations, model)
 generate_csv("output/ogs_ttt-h.csv", prior_dict, lc)
 
@@ -324,3 +326,4 @@ for (k,v) in prior_dict
 end
 
 CSV.write("output/ogs_ttt-h-k.csv", df; header=true)
+=#
