@@ -19,5 +19,12 @@ df = df[((df.reason== "resignation") | (df.reason== "points") | (df.reason== "ti
 filtered['Unrated'] = sum((df.unrated!=0))
 df = df[df.unrated==0]
 
+#para que quede compatible con los otros
+df.rename(columns = {'date': 'started'}, inplace = True)
+df['black_win'] = df['result'] == "black"
+df.rename(columns = {'black_player_id': 'black'}, inplace = True)
+df.rename(columns = {'white_player_id': 'white'}, inplace = True)
+df['width'] = 19
+
 df = df.reset_index()
 df.to_csv("aago_filtered.csv", index=False)

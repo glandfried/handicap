@@ -1,3 +1,4 @@
+#Identico a ogs.jl modificando ogs por aago
 include("../software/ttt.jl/src/TrueSkill.jl")
 using .TrueSkill
 global ttt = TrueSkill
@@ -8,12 +9,14 @@ using Dates
 using DataFrames
 
 println("Opening dataset")
-data = CSV.read("../data/ogs/summary_filtered.csv", DataFrame)
+data = CSV.read("../data/aago/aago_filtered.csv", DataFrame)
 
 days = Dates.value.(data.started .- Date("2001-01-01"))
 
+width = 19 #width es siempre 19, no?
+
 prior_dict = Dict{String,ttt.Player}()
-for h_key in Set([(row.handicap, row.width) for row in eachrow(data) ])
+for h_key in Set([(row.handicap, width) for row in eachrow(data) ])
     prior_dict[string(h_key)] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 end
 
@@ -25,7 +28,7 @@ results = [row.black_win == 1 ? [0.,1.] : [1., 0.] for row in eachrow(data) ]
 # sigma = 10; gamma = 0.16; iter 16: -192364.54726513493
 # sigma = 10.; gamma = 0.18; iter 4; -192991.47740192755
 
-events = [ r.handicap<2 ? [[string(r.white)],[string(r.black)]] : [[string(r.white)],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
+events = [ r.handicap<2 ? [[string(r.white)],[string(r.black)]] : [[string(r.white)],[string(r.black),string((r.handicap,width))]] for r in eachrow(data) ]
 
 h = missing
 GC.gc()
@@ -46,14 +49,14 @@ for (k,v) in prior_dict
     end
 end
 
-CSV.write("output/ogs_ttt-h.csv", df; header=true)
-CSV.write("../tests/expected/ogs_ttt-h.csv", df; header=true)
+CSV.write("output/aago_ttt-h.csv", df; header=true)
+CSV.write("../tests/expected/aago_ttt-h.csv", df; header=true)
 
 #######################################
 # Komi linear regression (BIEN CALCULADO: un factor por cada tipo de tablero)
 
 prior_dict = Dict{String,ttt.Player}()
-for h_key in Set([(row.handicap, row.width) for row in eachrow(data) ])
+for h_key in Set([(row.handicap, width) for row in eachrow(data) ])
     prior_dict[string(h_key)] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 end
 prior_dict["_komi9_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
@@ -71,7 +74,7 @@ function k1(w)
 end
 
 # Sin filtro
-events = [ [[string(r.white), k1(r.width), k0(r.width)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
+events = [ [[string(r.white), k1(width), k0(width)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,width))]] for r in eachrow(data) ]
 
 weights = [ [[1.0, r.komi, 1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ]
 
@@ -107,8 +110,8 @@ for (k,v) in prior_dict
     end
 end
 
-CSV.write("output/ogs_ttt-h-komi-regression.csv", df; header=true)
-CSV.write("../tests/expected/ogs_ttt-h-komi-regression.csv", df; header=true)
+CSV.write("output/aago_ttt-h-komi-regression.csv", df; header=true)
+CSV.write("../tests/expected/aago_ttt-h-komi-regression.csv", df; header=true)
 
 
 #######################################
@@ -125,7 +128,7 @@ prior_dict["_handicap9_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_handicap13_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 prior_dict["_handicap19_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 
-events = [ [[string(r.white), k0(r.width), k1(r.width)],[string(r.black), r.width==9 ? "_handicap9_1_" : (r.width==13 ?  "_handicap13_1_" : "_handicap19_1_") ]] for r in eachrow(data) ]
+events = [ [[string(r.white), k0(width), k1(width)],[string(r.black), width==9 ? "_handicap9_1_" : (width==13 ?  "_handicap13_1_" : "_handicap19_1_") ]] for r in eachrow(data) ]
 weights = [[[1.0, 1.0, r.komi],[1.0,  r.handicap ]] for r in eachrow(data) ]
 
 h = missing
@@ -159,22 +162,22 @@ for (k,v) in prior_dict
     end
 end
 
-CSV.write("output/ogs_ttt-h_regression-komi-regression.csv", df; header=true)
-CSV.write("../tests/expected/ogs_ttt-h_regression-komi-regression.csv", df; header=true)
+CSV.write("output/aago_ttt-h_regression-komi-regression.csv", df; header=true)
+CSV.write("../tests/expected/aago_ttt-h_regression-komi-regression.csv", df; header=true)
 
 
 #######################################
 # Komi a lo bestia
 
 prior_dict = Dict{String,ttt.Player}()
-for h_key in Set([(row.handicap, row.width) for row in eachrow(data) ])
+for h_key in Set([(row.handicap, width) for row in eachrow(data) ])
     prior_dict[string(h_key)] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 end
-for h_key in Set([(row.komi, row.width) for row in eachrow(data) ])
+for h_key in Set([(row.komi, width) for row in eachrow(data) ])
     prior_dict[string(h_key)] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
 end
 
-events = [ r.handicap<2 ? [[string(r.white), string((r.komi,r.width))],[string(r.black)]] : [[string(r.white), string((r.komi,r.width))],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
+events = [ r.handicap<2 ? [[string(r.white), string((r.komi,width))],[string(r.black)]] : [[string(r.white), string((r.komi,width))],[string(r.black),string((r.handicap,width))]] for r in eachrow(data) ]
 
 # Komi; sigma = 6.0; gamma = 0.14; iter 4; -191779.79446627648
 # Komi; sigma = 6.0; gamma = 0.16; iter 4; -191788.50468685792; 0.62909338
@@ -222,5 +225,5 @@ for (k,v) in prior_dict
     end
 end
 
-CSV.write("output/ogs_ttt-h-k.csv", df; header=true)
-CSV.write("../tests/expected/ogs_ttt-h-k.csv", df; header=true)
+CSV.write("output/aago_ttt-h-k.csv", df; header=true)
+CSV.write("../tests/expected/aago_ttt-h-k.csv", df; header=true)
