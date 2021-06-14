@@ -17,24 +17,42 @@ end
 
 @testset "All" begin
     data = read_data("../data/aago/aago_filtered.csv")
-    println("Data loaded")
+    days, results = set_arguments(data)
 
-    days = get_days(data)
-    prior_dict = init_priors(data)
-    results = get_results(data)
-    sigma = 6.0
-    gamma = 0.16
-    iterations = 16
+    #### Handicap ###############
+
     model = "h"
-    println("Arguments setted")
-
-    lc, evidence = lc_evidence(data, days, prior_dict, results, sigma, gamma, iterations, model)
-    println("Evidence: ")
+    lc, evidence, dict = lc_evidence(data, days, results, model)
+    println("Evidence h: ")
     println(evidence)
 
-    generate_csv("output/ogs_ttt-h.csv", prior_dict, lc)
+    generate_csv("output/aago_ttt-h.csv", dict, lc)
     @testset "h" begin
-        @test compare_csv("output/ogs_ttt-h.csv", "expected/aago_ttt-h.csv")
+        @test compare_csv("output/aago_ttt-h.csv", "expected/aago_ttt-h.csv")
+    end
+
+    #### Handicap y Komi ########
+
+    model = "h-k"
+    lc, evidence, dict = lc_evidence(data, days, results, model)
+    println("Evidence h-k: ")
+    println(evidence)
+
+    generate_csv("output/aago_ttt-h-k.csv", dict, lc)
+    @testset "h-k" begin
+        @test compare_csv("output/aago_ttt-h-k.csv", "expected/aago_ttt-h-k.csv")
+    end
+
+    #### Handicap y Komi-con-regresion-lineal ########
+
+    model = "h-kreg"
+    lc, evidence, dict = lc_evidence(data, days, results, model)
+    println("Evidence h-kreg: ")
+    println(evidence)
+
+    generate_csv("output/aago_ttt-h-kreg.csv", dict, lc)
+    @testset "h-kreg" begin
+        @test compare_csv("output/aago_ttt-h-kreg.csv", "expected/aago_ttt-h-komi-regression.csv")
     end
 
 end

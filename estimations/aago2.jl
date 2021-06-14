@@ -75,8 +75,8 @@ end
 
 # Sin filtro
 events = [ [[string(r.white), k1(width), k0(width)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,width))]] for r in eachrow(data) ]
-
 weights = [ [[1.0, r.komi, 1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ]
+
 
 h = missing
 GC.gc()
@@ -84,6 +84,8 @@ h = ttt.History(composition=events, results=results, times = days , priors=prior
 ttt.convergence(h, iterations=16)
 ttt.log_evidence(h) # iter 16: -191178 iter 10: -191341;  iter 4: -192285
 exp(ttt.log_evidence(h)/length(h)) # iter 16: 0.63002099; iter 10: 0.62977333; iter 4: 0.628339033
+println("Evidence h-kreg:")
+println(ttt.log_evidence(h))
 
 lc = ttt.learning_curves(h)
 if false
@@ -183,18 +185,17 @@ events = [ r.handicap<2 ? [[string(r.white), string((r.komi,width))],[string(r.b
 # Komi; sigma = 6.0; gamma = 0.16; iter 4; -191788.50468685792; 0.62909338
 # Komi; sigma = 6.0; gamma = 0.18; iter 4; -191966.61722868486
 
-for gamma in [0.16]#gamma = 0.16
-    h = missing
-    GC.gc()
-    h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=6.0,gamma=gamma)
-    ts_log_evidence = ttt.log_evidence(h)
-    ttt.convergence(h, iterations=16)
-    ttt_log_evidence = ttt.log_evidence(h) # Iter 16 -191294
-    println("Gamma:")
-    println(gamma)
-    println("Evidencia con handicap y komi:")
-    println(ttt_log_evidence, ", ", exp(ttt_log_evidence/length(h)))
-end
+gamma = 0.16
+h = missing
+GC.gc()
+h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=6.0,gamma=gamma)
+ts_log_evidence = ttt.log_evidence(h)
+ttt.convergence(h, iterations=16)
+ttt_log_evidence = ttt.log_evidence(h) # Iter 16 -191294
+println("Gamma:")
+println(gamma)
+println("Evidencia con handicap y komi:")
+println(ttt_log_evidence, ", ", exp(ttt_log_evidence/length(h)))
 
 lc = ttt.learning_curves(h)
 if false

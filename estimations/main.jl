@@ -9,8 +9,10 @@ using DataFrames
 using ArgParse
 
 #TODO:
-#   - armar tests
+#   - como comparo evidencia?
 #   - definir events_weights para los demás modelos
+#   - parametrizar sigma, gamma, iterations segun la base
+#   - funcion para optimizar gamma
 #   - funciones que armen figuras (en pdf)
 
 function parse_commandline()
@@ -25,6 +27,13 @@ function parse_commandline()
     return parse_args(s)
 end
 
+function default_config() #debería depender de la base de datos usada
+    sigma = 6.0
+    gamma = 0.16
+    iterations = 16
+    sigma, gamma, iterations
+end
+
 function read_data(source)
     data = CSV.read(source, DataFrame)
     data
@@ -35,11 +44,27 @@ function get_days(data)
     days
 end
 
-function init_priors(data)
+function init_priors(data, model)
     prior_dict = Dict{String,ttt.Player}()
-    for h_key in Set([(row.handicap, row.width) for row in eachrow(data) ])
-        prior_dict[string(h_key)] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+    if model == "h" || model == "h-k" || model == "h-kreg"
+        for h_key in Set([(row.handicap, row.width) for row in eachrow(data) ])
+            prior_dict[string(h_key)] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+        end
     end
+    if model == "h-k"
+        for h_key in Set([(row.komi, row.width) for row in eachrow(data) ])
+            prior_dict[string(h_key)] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+        end
+    end
+    if model == "h-kreg"
+        prior_dict["_komi9_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+        prior_dict["_komi9_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+        prior_dict["_komi13_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+        prior_dict["_komi13_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+        prior_dict["_komi19_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+        prior_dict["_komi19_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+    end
+
     prior_dict
 end
 
@@ -48,18 +73,40 @@ function get_results(data)
     results
 end
 
+function set_arguments(data)
+    days = get_days(data)
+    results = get_results(data)
+    days, results
+end
+
 function events_weights(data, model)
 
     if model == "h"
         events = [ [[string(r.white)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))] ] for r in eachrow(data) ]
         weights = [ [[1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ] #neutro
+    elseif model == "h-k"
+        events = [ r.handicap<2 ? [[string(r.white), string((r.komi,r.width))],[string(r.black)]] : [[string(r.white), string((r.komi,r.width))],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
+        weights = [ [[1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ] #neutro
+    elseif model == "h-kreg"
+        events = [ [[string(r.white), k1(r.width), k0(r.width)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
+        weights = [ [[1.0, r.komi, 1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ]
     end
     return events, weights
 end
 
-function lc_evidence(data, days, prior_dict, results, sigma, gamma, iterations, model)
+function k0(w)
+    return w==9 ? "_komi9_0_" : (w==13 ?  "_komi13_0_" : "_komi19_0_")
+end
 
+function k1(w)
+    return w==9 ? "_komi9_1_" : (w==13 ?  "_komi13_1_" : "_komi19_1_")
+end
+
+function lc_evidence(data, days, results, model)
+
+    prior_dict = init_priors(data, model)
     events, weights = events_weights(data, model)
+    sigma, gamma, iterations = default_config()
 
     h = missing
     GC.gc()
@@ -68,7 +115,7 @@ function lc_evidence(data, days, prior_dict, results, sigma, gamma, iterations, 
     ttt_log_evidence = ttt.log_evidence(h)
     lc = ttt.learning_curves(h)
 
-    return lc, ttt_log_evidence
+    return lc, ttt_log_evidence, prior_dict
 end
 
 function generate_csv(output, prior_dict, lc)
