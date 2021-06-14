@@ -111,7 +111,7 @@ function lc_evidence(data, days, results, model)
     h = missing
     GC.gc()
     h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma)
-    ttt.convergence(h, epsilon=0.01, iterations=iterations)
+    ttt.convergence(h, iterations=iterations)
     ttt_log_evidence = ttt.log_evidence(h)
     lc = ttt.learning_curves(h)
 
