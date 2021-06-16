@@ -80,13 +80,13 @@ function set_arguments(data)
 end
 
 function events_weights(data, model)
-
+    weights = []
     if model == "h"
         events = [ [[string(r.white)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))] ] for r in eachrow(data) ]
-        weights = [ [[1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ] #neutro
+        #weights = [ [[1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ] #neutro
     elseif model == "h-k"
         events = [ r.handicap<2 ? [[string(r.white), string((r.komi,r.width))],[string(r.black)]] : [[string(r.white), string((r.komi,r.width))],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
-        weights = [ [[1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ] #neutro
+        #weights = [ [[1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ] #falla
     elseif model == "h-kreg"
         events = [ [[string(r.white), k1(r.width), k0(r.width)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
         weights = [ [[1.0, r.komi, 1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ]
@@ -108,15 +108,24 @@ function lc_evidence(data, days, results, model)
     events, weights = events_weights(data, model)
     sigma, gamma, iterations = default_config()
 
+    run_and_converge(events, results, days, prior_dict, sigma, gamma, iterations, weights, model)
+end
+
+function run_and_converge(events, results, days, prior_dict, sigma, gamma, iterations, weights, model) #repensar nombre :/
     h = missing
     GC.gc()
-    h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma)
+    if model == "h" || model == "h-k"
+        h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma)
+    else
+        h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma, weights = weights)
+    end
     ttt.convergence(h, iterations=iterations)
     ttt_log_evidence = ttt.log_evidence(h)
     lc = ttt.learning_curves(h)
 
     return lc, ttt_log_evidence, prior_dict
 end
+
 
 function generate_csv(output, prior_dict, lc)
     df = DataFrame(id = String[], mu = Float64[], sigma = Float64[])
