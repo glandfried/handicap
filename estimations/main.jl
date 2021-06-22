@@ -12,8 +12,11 @@ using ArgParse
 #   - como comparo evidencia?
 #   - definir events_weights para los demás modelos
 #   - parametrizar sigma, gamma, iterations segun la base
+#   - cambiar algunos nombres?
 #   - funcion para optimizar gamma
 #   - funciones que armen figuras (en pdf)
+#   - capaz model podría ser una tupla de booleanos que dicen si
+# usa regresion para h y k respectivamente
 
 function parse_commandline()
     s = ArgParseSettings()
@@ -27,10 +30,20 @@ function parse_commandline()
     return parse_args(s)
 end
 
-function default_config() #debería depender de la base de datos usada
-    sigma = 6.0
-    gamma = 0.16
-    iterations = 16
+function default_config(base) #debería depender de la base de datos usada
+    if base == "ogs"
+        sigma = 6.0
+        gamma = 0.16
+        iterations = 16
+    elseif base == "kgs"
+        sigma = 6.0
+        gamma = 0.02
+        iterations = 16
+    elseif base == "aago"
+        sigma = 6.0
+        gamma = 0.16
+        iterations = 16
+    end            
     sigma, gamma, iterations
 end
 
@@ -56,7 +69,7 @@ function init_priors(data, model)
             prior_dict[string(h_key)] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
         end
     end
-    if model == "h-kreg"
+    if model == "h-kreg" || model == "hreg-kreg"
         prior_dict["_komi9_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
         prior_dict["_komi9_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
         prior_dict["_komi13_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
@@ -64,7 +77,11 @@ function init_priors(data, model)
         prior_dict["_komi19_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
         prior_dict["_komi19_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
     end
-
+    if model == "hreg-kreg"
+        prior_dict["_handicap9_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+        prior_dict["_handicap13_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+        prior_dict["_handicap19_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+    end
     prior_dict
 end
 
@@ -90,6 +107,9 @@ function events_weights(data, model)
     elseif model == "h-kreg"
         events = [ [[string(r.white), k1(r.width), k0(r.width)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
         weights = [ [[1.0, r.komi, 1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ]
+    elseif model == "hreg-kreg"
+        events = [ [[string(r.white), k0(r.width), k1(r.width)],[string(r.black), r.width==9 ? "_handicap9_1_" : (r.width==13 ?  "_handicap13_1_" : "_handicap19_1_") ]] for r in eachrow(data) ]
+        weights = [[[1.0, 1.0, r.komi],[1.0,  r.handicap ]] for r in eachrow(data) ]
     end
     return events, weights
 end
@@ -102,11 +122,10 @@ function k1(w)
     return w==9 ? "_komi9_1_" : (w==13 ?  "_komi13_1_" : "_komi19_1_")
 end
 
-function lc_evidence(data, days, results, model)
-
+function lc_evidence(data, days, results, model, base)
     prior_dict = init_priors(data, model)
     events, weights = events_weights(data, model)
-    sigma, gamma, iterations = default_config()
+    sigma, gamma, iterations = default_config(base)
 
     run_and_converge(events, results, days, prior_dict, sigma, gamma, iterations, weights, model)
 end
@@ -125,7 +144,6 @@ function run_and_converge(events, results, days, prior_dict, sigma, gamma, itera
 
     return lc, ttt_log_evidence, prior_dict
 end
-
 
 function generate_csv(output, prior_dict, lc)
     df = DataFrame(id = String[], mu = Float64[], sigma = Float64[])

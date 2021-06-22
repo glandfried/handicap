@@ -15,6 +15,7 @@ function compare_csv(csv1, csv2)
     df1 == df2
 end
 
+base = "aago"
 
 @testset "All" begin
     data = read_data("../data/aago/aago_filtered.csv")
@@ -33,7 +34,7 @@ end
     #### Handicap ###############
 
     model = "h"
-    lc, evidence, dict = lc_evidence(data, days, results, model)
+    lc, evidence, dict = lc_evidence(data, days, results, model, base)
     println("Evidence h: ")
     println(evidence)
 
@@ -45,7 +46,7 @@ end
     #### Handicap y Komi ########
 
     model = "h-k"
-    lc, evidence, dict = lc_evidence(data, days, results, model)
+    lc, evidence, dict = lc_evidence(data, days, results, model, base)
     println("Evidence h-k: ")
     println(evidence)
 
@@ -57,13 +58,25 @@ end
     #### Handicap y Komi-con-regresion-lineal ########
 
     model = "h-kreg"
-    lc, evidence, dict = lc_evidence(data, days, results, model)
+    lc, evidence, dict = lc_evidence(data, days, results, model, base)
     println("Evidence h-kreg: ")
     println(evidence)
 
     generate_csv("output/aago_ttt-h-kreg.csv", dict, lc)
     @testset "h-kreg" begin
         @test compare_csv("output/aago_ttt-h-kreg.csv", "expected/aago_ttt-h-komi-regression.csv")
+    end
+
+    #### Handicap y Komi, ambos con regresion lineal ########
+
+    model = "hreg-kreg"
+    lc, evidence, dict = lc_evidence(data, days, results, model, base)
+    println("Evidence hreg-kreg: ")
+    println(evidence)
+
+    generate_csv("output/aago_ttt-hreg-kreg.csv", dict, lc)
+    @testset "hreg-kreg" begin
+        @test compare_csv("output/aago_ttt-hreg-kreg.csv", "expected/aago_ttt-h_regression-komi-regression.csv")
     end
 
     #### Un test más pormenorizado #########
@@ -107,7 +120,7 @@ end
         expected_evidence = ttt.log_evidence(h)
         expected_lc = ttt.learning_curves(h)
 
-        sigma, gamma, iterations = default_config()
+        sigma, gamma, iterations = default_config(base)
         @testset "arguments" begin
             @test (sigma == 6.0) && (gamma == 0.16) && (iterations == 16)
         end
