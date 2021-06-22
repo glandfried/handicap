@@ -24,7 +24,7 @@ end
 data = read_data("../data/aago/aago_filtered.csv")
 days, results = set_arguments(data)
 model = "h-kreg"
-result = optimize(g->objective(first(g), data, days, results, model), [1.0], LBFGS())
+result = optimize(g->objective(g, data, days, results, model), 0.0, 5.0)
 println(result)
 println("El mejor gamma es:")
 min = Optim.minimizer(result)

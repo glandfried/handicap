@@ -30,7 +30,7 @@ function parse_commandline()
     return parse_args(s)
 end
 
-function default_config(base) #debería depender de la base de datos usada
+function default_config(base)
     if base == "ogs"
         sigma = 6.0
         gamma = 0.16
@@ -43,7 +43,7 @@ function default_config(base) #debería depender de la base de datos usada
         sigma = 6.0
         gamma = 0.16
         iterations = 16
-    end            
+    end
     sigma, gamma, iterations
 end
 
