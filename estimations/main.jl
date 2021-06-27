@@ -57,30 +57,30 @@ function get_days(data)
     days
 end
 
+static_prior = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+
 function init_priors(data, model)
     prior_dict = Dict{String,ttt.Player}()
     if model == "h" || model == "h-k" || model == "h-kreg"
         for h_key in Set([(row.handicap, row.width) for row in eachrow(data) ])
-            prior_dict[string(h_key)] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+            prior_dict[string(h_key)] = static_prior
         end
     end
     if model == "h-k"
         for h_key in Set([(row.komi, row.width) for row in eachrow(data) ])
-            prior_dict[string(h_key)] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+            prior_dict[string(h_key)] = static_prior
         end
     end
     if model == "h-kreg" || model == "hreg-kreg"
-        prior_dict["_komi9_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-        prior_dict["_komi9_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-        prior_dict["_komi13_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-        prior_dict["_komi13_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-        prior_dict["_komi19_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-        prior_dict["_komi19_0_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+        for width in unique(data.width)
+            prior_dict[k1(width)] = static_prior
+            prior_dict[k0(width)] = static_prior
+        end
     end
     if model == "hreg-kreg"
-        prior_dict["_handicap9_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-        prior_dict["_handicap13_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
-        prior_dict["_handicap19_1_"] = ttt.Player(ttt.Gaussian(0.0,6.0),0.0,0.0)
+        for width in unique(data.width)
+            prior_dict[h1(width)] = static_prior
+        end
     end
     prior_dict
 end
@@ -99,29 +99,38 @@ end
 function events_weights(data, model)
     weights = []
     if model == "h"
-        events = [ [[string(r.white)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))] ] for r in eachrow(data) ]
+        events = [ [
+            [string(r.white)],
+            r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))]
+            ] for r in eachrow(data) ]
         #weights = [ [[1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ] #neutro
     elseif model == "h-k"
-        events = [ r.handicap<2 ? [[string(r.white), string((r.komi,r.width))],[string(r.black)]] : [[string(r.white), string((r.komi,r.width))],[string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
+        events = [
+            r.handicap<2 ?
+                [[string(r.white), string((r.komi,r.width))],[string(r.black)]] :
+                [[string(r.white), string((r.komi,r.width))],
+            [string(r.black),string((r.handicap,r.width))]
+        ] for r in eachrow(data) ]
         #weights = [ [[1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ] #falla
     elseif model == "h-kreg"
-        events = [ [[string(r.white), k1(r.width), k0(r.width)], r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))]] for r in eachrow(data) ]
+        events = [ [
+            [string(r.white), k1(r.width), k0(r.width)],
+            r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))]
+        ] for r in eachrow(data) ]
         weights = [ [[1.0, r.komi, 1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ]
     elseif model == "hreg-kreg"
-        events = [ [[string(r.white), k0(r.width), k1(r.width)],[string(r.black), r.width==9 ? "_handicap9_1_" : (r.width==13 ?  "_handicap13_1_" : "_handicap19_1_") ]] for r in eachrow(data) ]
+        events = [ [
+            [string(r.white), k0(r.width), k1(r.width)],
+            [string(r.black), h1(r.width) ]
+        ] for r in eachrow(data) ]
         weights = [[[1.0, 1.0, r.komi],[1.0,  r.handicap ]] for r in eachrow(data) ]
     end
     return events, weights
 end
 
-function k0(w)
-    return w==9 ? "_komi9_0_" : (w==13 ?  "_komi13_0_" : "_komi19_0_")
-end
-
-function k1(w)
-    return w==9 ? "_komi9_1_" : (w==13 ?  "_komi13_1_" : "_komi19_1_")
-end
-
+k0(size :: Integer) = "_komi$(size)_0_"
+k1(size :: Integer) = "_komi$(size)_1_"
+h1(size :: Integer) = "_handicap$(size)_1_"
 function lc_evidence(data, days, results, model, base)
     prior_dict = init_priors(data, model)
     events, weights = events_weights(data, model)
