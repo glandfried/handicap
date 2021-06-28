@@ -8,9 +8,12 @@
 test: generate-expected
 	cd tests; julia tests.jl
 
-generate-expected: estimations/aago2.jl
+generate-expected: software/ttt.jl/.git estimations/aago2.jl
 	cd estimations; julia aago2.jl
 	touch $@
+
+software/ttt.jl/.git:
+    make -C software
 
 estimations/tsh.csv: dataset software/skill/.git
 	make -C estimations

@@ -1,4 +1,69 @@
-# handicap
+# Estimacion de habilidades con handicap y komi en go
+
+## Cronograma
+
+- Semana 28/6 a 2/7: avanzar presentacion
+- Lunes 5?: reunion con AAGO
+
+## Datos
+
+- Tener datos crudos originales, a partir de los cuales armar el pipeline: Gustavo
+- Unificar nombres de las columnas, incorporar a pipeline (en makefile)
+- En principio, solo filtrar partidas claramente invalidas (ambos perdieron o ambos ganaron): plantear opciones para la reunion. Martin y Tobias
+- En OGS necesitamos buscar datos hasta 2018 (en el repo esta hasta 2013): Gustavo
+- En KGS hay un filtro previo, hay que buscar la base no filtrada: Gustavo
+
+## Repositorios
+
+- Buscar trabajar modularmente
+- Que sea facil bajarse el repositorio, tirar un par de comandos y que ande
+- Ir hacia un esquema de un sub repositorio por base de datos, con scripts para actualizarlo (basado en https://github.com/JeffSackmann/tennis_atp/)
+
+## Modelos
+
+Tenemos 4 modelos:
+
+- Handicap por cada opcion
+- Handicap y komi por cada opcion
+- Handicap por opcion, komi regresion
+- Handicap y komi regresion
+
+Uniendo bases tenemos 3 modelos:
+
+- sin factores adicionales
+- con factor Base de Datos individual
+- con factor rankeado individual (KGS no tiene columna ranked)
+
+## Evaluacion de modelos
+
+Al unir, podemos ver dos metricas:
+
+- viendo solo la evidencia de la gente de AAGO
+- viendo toda la evidencia
+
+## Estimaciones
+
+Siempre nos interesan las estimaciones de handicap y komi.
+Cuando esta la gente de AAGO, nos interesa tener sus curvas de aprendizaje.
+
+## Presentacion
+
+Explicar intuitivamente TS y TTT.
+Explicar los distintos modelos para go.
+Mostrar resultados preliminares sobre OGS.
+
+## Script
+
+- Armar script que corra todas las opciones
+- Validar codigo (testing)
+- Validar resultados (estar seguros de que no hay errores en el procedimiento y estamos conformes con esto)
+
+## Graficar
+
+Ilustrar conclusiones
+
+
+# Revisar:
 
 ## Agenda
 
