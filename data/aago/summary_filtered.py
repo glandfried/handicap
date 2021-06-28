@@ -8,7 +8,7 @@ sys.path.append('../software/')
 csv_name = 'aago.csv'
 
 df = pd.read_csv(csv_name)
-sum(df.event_id>0)
+sum(df.event_id>0) #qué hace esto?
 
 filtered = {}
 ##%% Selecciono las columnas que quiero y las filas con ciertas restricciones
@@ -28,3 +28,5 @@ df['width'] = 19
 
 df = df.reset_index()
 df.to_csv("aago_filtered.csv", index=False)
+df_light = df[['black','white','started','black_win','width','komi','handicap']]
+df_light.to_csv("aago_light.csv", index=False)

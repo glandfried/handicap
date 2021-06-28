@@ -33,3 +33,5 @@ df = df.sort_values(by=['started', 'id'])
 
 df = df.reset_index()
 df.to_csv("./KGS_filtered.csv", index=False)
+df_light = df[['black','white','started','black_win','width','komi','handicap']]
+df_light.to_csv("kgs_light.csv", index=False)
