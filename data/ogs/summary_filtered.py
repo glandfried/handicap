@@ -53,3 +53,5 @@ fd.to_csv("filtered_data.csv", index=False)
 
 df = df.reset_index()
 df.to_csv("summary_filtered.csv", index=False)
+df_light = df[['black','white','started','black_win','width','komi','handicap']]
+df_light.to_csv("ogs_light.csv", index=False)
