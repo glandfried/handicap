@@ -1,7 +1,7 @@
 all: submodules talk clean
 
 talk:
-	pdflatex talk.tex
+	pdflatex -interaction=nonstopmode talk.tex
 
 submodules: aux/tex/.git aux/images/.git 
 

@@ -1,22 +1,17 @@
 # Estimacion de habilidades con handicap y komi en go
 
-## Cronograma
-
-- Semana 28/6 a 2/7: avanzar presentacion
-- Lunes 5?: reunion con AAGO
-
 ## Datos
 
-- Tener datos crudos originales, a partir de los cuales armar el pipeline: Gustavo
+- OGS: Martín Amigo
+- KGS: Tobías Carreira Munich
+- AAG0: Gustavo
 - Unificar nombres de las columnas, incorporar a pipeline (en makefile)
-- En principio, solo filtrar partidas claramente invalidas (ambos perdieron o ambos ganaron): plantear opciones para la reunion. Martin y Tobias
-- En OGS necesitamos buscar datos hasta 2018 (en el repo esta hasta 2013): Gustavo
-- En KGS hay un filtro previo, hay que buscar la base no filtrada: Gustavo
+- En principio, solo filtrar partidas claramente invalidas (ambos perdieron o ambos ganaron).
 
 ## Repositorios
 
-- Buscar trabajar modularmente
-- Que sea facil bajarse el repositorio, tirar un par de comandos y que ande
+- Trabajar modularmente
+- Que sea fácil bajarse el repositorio, tirar un par de comandos y que ande
 - Ir hacia un esquema de un sub repositorio por base de datos, con scripts para actualizarlo (basado en https://github.com/JeffSackmann/tennis_atp/)
 
 ## Modelos
@@ -61,6 +56,36 @@ Mostrar resultados preliminares sobre OGS.
 ## Graficar
 
 Ilustrar conclusiones
+
+## Paper
+
+IEEE Transaction on Games (nueva, apuesta)
+Journal of Sprots Economics (de todo un poco)
+Bayesian Analysis (Muy técnico, open access pero "voluntario")
+https://waset.org/computers-and-games-conference (Donde publicó el estimador WHR)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Revisar:

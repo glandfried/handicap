@@ -5,7 +5,7 @@
   \setbeamertemplate{navigation symbols}{}
  }
  
-\input{./auxiliar/tex/diapo_encabezado.tex}
+\input{auxiliar/tex/diapo_encabezado.tex}
 \usepackage{todonotes}% INCOMPATIBLE con Tikz
 
 %\input{./auxiliar/tex/tikzlibrarybayesnet.code.tex}
@@ -23,12 +23,12 @@
 \begin{document}
 \color{black!85}
 \small
-\setbeamercolor{background canvas}{bg=gray!8}
+%\setbeamercolor{background canvas}{bg=gray!8}
 
 
 \begin{frame}[plain]
 \begin{center}
- \Huge Handicap en Go
+ \Huge Habilidad en Go
 \end{center}
 \end{frame}
 
@@ -41,7 +41,7 @@
 \begin{frame}[plain]
 \begin{textblock}{160}(0,0)
 \begin{center}
- \Large Problema
+ \Large Problema 1 (Handicap y Komi)
 \end{center}
 \end{textblock}
  \vspace{0.75cm} \pause
@@ -74,6 +74,16 @@
  
 \end{frame}
 
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Resultado intuitivo motivador \\ \large Secci\'on metodolog\'ia
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Figura}: Motivar la lectura (el inter\'es sobre el algoritmo),  mostrando que si selecciono las partidas que yo considero que tuvieron un sub-asignaci\'on de handicap, entonces la cantidad de partidas a favor del blanco aumenta}
+ 
+\end{frame}
 
 \begin{frame}[plain]
  \centering
@@ -85,7 +95,7 @@
 \begin{frame}[plain]
 \begin{textblock}{160}(0,0)
 \begin{center}
- \Large Base de datos \\ \large Secci\'on metodolog\'ia
+ \Large Base de datos
 \end{center}
 \end{textblock}
 
@@ -101,63 +111,186 @@
 
 \end{frame}
 
-\begin{frame}[plain]
-\begin{textblock}{160}(0,0)
-\begin{center}
- \Large Resultado intuitivo motivador \\ \large Secci\'on metodolog\'ia
-\end{center}
-\end{textblock}
-
-\todo[inline, color=black!16]{\textbf{Figura}: Motivar la lectura (el inter\'es sobre el algoritmo),  mostrando que si selecciono las partidas que yo considero que tuvieron un sub-asignaci\'on de handicap, entonces la cantidad de partidas a favor del blanco aumenta}
- 
-\end{frame}
-
-\begin{frame}[plain]
-\begin{textblock}{160}(0,0)
-\begin{center}
- \Large Modelo gr\'afico \\ \large Secci\'on metodolog\'ia
-\end{center}
-\end{textblock}
-
-\todo[inline, color=black!16]{\textbf{Modelo gr\'afico}, introducir la metodolog\'ia y la soluci\'on gen\'erica}
-
-\end{frame}
-
-\begin{frame}[plain]
-\begin{textblock}{160}(0,0)
-\begin{center}
- \Large Interpretabilidad del valor de habilidad \\ \large Secci\'on metodolog\'ia
-\end{center}
-\end{textblock}
-
-\todo[inline, color=black!16]{\textbf{Figura (te\'orica)}, mostrar como cambia la probabilidad de ganar en funci\'on de la diferencia de habilidad (sin y con incertidumbre, y con la diferencia medida en escalas)}
-
-\end{frame}
 
 
 \begin{frame}[plain]
 \begin{textblock}{160}(0,0)
 \begin{center}
- \Large El h\'andicap como unidad de medida \\ \large Secci\'on metodolog\'ia
+ \Large Modelo básico
 \end{center}
 \end{textblock}
 
-\todo[inline, color=black!16]{\textbf{Figura} Explicar como reesclar las habilidades para elegir el $\beta$ }
+ \begin{figure}[H]     
+     \centering
+     \begin{subfigure}[b]{0.75\textwidth}
+       \includegraphics[width=\textwidth]{graph/trueskill.pdf} 
+     \end{subfigure}
+   \end{figure} 
+  
+\end{frame}
 
- \textbf{Preguntas abiertas: 1) El valor del handicap 2) Hay relaci\'on lineal?}
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Modelo con handicap
+\end{center}
+\end{textblock}
+
+ \begin{figure}[H]     
+     \centering
+     \begin{subfigure}[b]{0.75\textwidth}
+       \includegraphics[width=\textwidth]{graph/truehandicap.pdf} 
+     \end{subfigure}
+   \end{figure} 
+  
+\end{frame}
+
+
+% \begin{frame}[plain]
+% \begin{textblock}{160}(0,0)
+% \begin{center}
+%  \Large Interpretabilidad del valor de habilidad \\ \large Secci\'on metodolog\'ia
+% \end{center}
+% \end{textblock}
+% 
+% \todo[inline, color=black!16]{\textbf{Figura (te\'orica)}, mostrar como cambia la probabilidad de ganar en funci\'on de la diferencia de habilidad (sin y con incertidumbre, y con la diferencia medida en escalas)}
+% 
+% \end{frame}
+
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Efecto del h\'andicap
+\end{center}
+\end{textblock}
+
+   \begin{figure}[H]     
+     \centering
+     \begin{subfigure}[b]{0.75\textwidth}
+       \includegraphics[width=\textwidth]{../figures/ogs/ogs_estimado_handicap.pdf} 
+     \end{subfigure}
+   \end{figure} 
+   
+   \pause
+   
+   \centering
+   
+   Parece que hay relación lineal
 
 \end{frame}
 
 \begin{frame}[plain]
 \begin{textblock}{160}(0,0)
 \begin{center}
- \Large Komi (factor por segundo) \\ \large Secci\'on metodolog\'ia
+ \Large Modelo regresión
 \end{center}
 \end{textblock}
 
-\todo[inline, color=black!16]{\textbf{Opciones} a) no considerar el komi, b) un factor komi cada bloques de puntos centrados en 7 c) un \'unico factor komi (pendiente), multiplicado por el valor del komi, m\'as un factor por segundo (ordenada al origen), d) corregir (sacar) komi y agregar factor por segundo}
+Un único factor multiplicado por el valor del handicap. 
+
+Necesitamos un modelo de pesos.
 
 \end{frame}
+
+
+
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Modelo pesos
+\end{center}
+\end{textblock}
+
+   \begin{figure}[H]     
+     \centering
+     \begin{subfigure}[b]{0.75\textwidth}
+       \includegraphics[width=\textwidth]{graph/weight.pdf} 
+     \end{subfigure}
+   \end{figure} 
+
+\end{frame}
+
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Komi 
+\end{center}
+\end{textblock}
+
+  \begin{figure}[H]     
+     \centering
+     \begin{subfigure}[b]{0.5\textwidth}
+       \includegraphics[width=\textwidth]{../figures/ogs/komi.pdf} 
+     \end{subfigure}
+   \end{figure} 
+\pause
+
+La regresión es importante sobre todo en Komi que hay muchos valores distintos de komi
+
+\end{frame}
+
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Komi (factor por segundo)
+\end{center}
+\end{textblock}
+
+h: handicap
+
+k: komi
+
+r: regresión
+
+\begin{table}
+\begin{tabular}{|c|c|c|} \hline
+  & \color{blue}{h} & hr\\ \hline
+ k  & \color{orange}{h-k} &  \cancel{hr-k} \\ \hline
+ kr &  \color{red}{h-kr} & \color{green}{hr-kr} \\ \hline
+\end{tabular}
+\end{table}
+
+
+\end{frame}
+
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Handicap con komi
+\end{center}
+\end{textblock}
+
+\begin{figure}[H]     
+     \centering
+     \begin{subfigure}[b]{0.5\textwidth}
+       \includegraphics[width=\textwidth]{../figures/ogs/ogs_estimado_handicap_con_komi.pdf} 
+     \end{subfigure}
+   \end{figure} 
+
+\end{frame}
+
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Komi
+\end{center}
+\end{textblock}
+
+\begin{figure}[H]     
+     \centering
+     \begin{subfigure}[b]{0.5\textwidth}
+       \includegraphics[width=\textwidth]{../figures/ogs/ogs_estimado_komi.pdf} 
+     \end{subfigure}
+   \end{figure} 
+
+\end{frame}
+
 
 \begin{frame}[plain]
 \begin{textblock}{160}(0,0)
@@ -172,66 +305,16 @@
 
 
 \begin{frame}[plain]
- \centering
- \LARGE Resultados
- 
-\end{frame}
-
-
-\begin{frame}[plain]
-\begin{textblock}{160}(0,0)
-\begin{center}
- \Large Validaci\'on \\ \large Secci\'on resultados
-\end{center}
-\end{textblock}
-
- \todo[inline, color=black!16]{\textbf{Figura de validaci\'on} Diferencia de habilidad vs probabilidad emp\'irica de ganar. Mostrar que la curva emp\'irica, dada la incertidumbre subyacente de las estimaciones, se ajusta a la curva te\'orica con misma incertidumbre.}
- 
-\end{frame}
-
-\begin{frame}[plain]
-\begin{textblock}{160}(0,0)
-\begin{center}
- \Large Arte (curvas de aprendizaje) \\ \large Secci\'on resultados
-\end{center}
-\end{textblock}
-
-\todo[inline, color=black!16]{\textbf{Figura art\'istica} Mostrar una selecci\'on de curvas de aprendizaje para mostrar como lucen.}
-
-\end{frame}
-
-\begin{frame}[plain]
-\begin{textblock}{160}(0,0)
-\begin{center}
- \Large Estimaciones handicap \\ \large Secci\'on resultados
-\end{center}
-\end{textblock}
-
-\todo[inline, color=black!16]{\textbf{Figura} Mostrar estimaciones finales (usando tau 0 no va a haber historia)}
-
-\end{frame}
-
-\begin{frame}[plain]
-\begin{textblock}{160}(0,0)
-\begin{center}
- \Large Arte y mapeo a tradici\'on \\ \large Secci\'on resultados
-\end{center}
-\end{textblock}
-
-\todo[inline, color=black!16]{\textbf{Figura 1} Curvas de aprendizaje re-escaladas, \textbf{Figura 2} Curvas de aprendizaje en escalas tradiciones}
-
-\end{frame}
-
-\begin{frame}[plain]
 \begin{textblock}{160}(0,0)
 \begin{center}
  \Large Komi \\ \large Secci\'on resultados
 \end{center}
 \end{textblock}
 
-\todo[inline, color=black!16]{\textbf{Tabla} de evincias comparando opciones. \textbf{Figura} si es necesario}
+\todo[inline, color=black!16]{\textbf{Tabla} de evidencias comparando opciones. \textbf{Figura} si es necesario}
 
 \end{frame}
+
 
 
 \begin{frame}[plain]
@@ -247,45 +330,103 @@
 
 
 \begin{frame}[plain]
- \centering
- \LARGE Discusiones / Conlcusiones
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large El h\'andicap como unidad de medida
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Figura} Explicar como reesclar las habilidades para elegir el $\beta$ }
+
+\end{frame}
+
+
+% 
+% \begin{frame}[plain]
+%  \centering
+%  \LARGE Resultados
+%  
+% \end{frame}
+% 
+% 
+% \begin{frame}[plain]
+% \begin{textblock}{160}(0,0)
+% \begin{center}
+%  \Large Validaci\'on \\ \large Secci\'on resultados
+% \end{center}
+% \end{textblock}
+% 
+%  \todo[inline, color=black!16]{\textbf{Figura de validaci\'on} Diferencia de habilidad vs probabilidad emp\'irica de ganar. Mostrar que la curva emp\'irica, dada la incertidumbre subyacente de las estimaciones, se ajusta a la curva te\'orica con misma incertidumbre.}
+%  
+% \end{frame}
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Arte (curvas de aprendizaje) \\ \large Secci\'on resultados
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Figura art\'istica} Mostrar una selecci\'on de curvas de aprendizaje para mostrar como lucen.}
+
+\end{frame}
+% 
+% \begin{frame}[plain]
+% \begin{textblock}{160}(0,0)
+% \begin{center}
+%  \Large Estimaciones handicap \\ \large Secci\'on resultados
+% \end{center}
+% \end{textblock}
+% 
+% \todo[inline, color=black!16]{\textbf{Figura} Mostrar estimaciones finales (usando tau 0 no va a haber historia)}
+% 
+% \end{frame}
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Arte y mapeo a tradici\'on \\ \large Secci\'on resultados
+\end{center}
+\end{textblock}
+
+\todo[inline, color=black!16]{\textbf{Figura 1} Curvas de aprendizaje re-escaladas, \textbf{Figura 2} Curvas de aprendizaje en escalas tradiciones}
+
+\end{frame}
+
+
+\begin{frame}[plain]
+\begin{textblock}{160}(0,0)
+\begin{center}
+ \Large Problema 2 (Convergencia y Comparabilidad)
+\end{center}
+\end{textblock}
+ \vspace{0.75cm} \pause
+ 
+  La base de datos de la AAGo es muy chica, lo que limita la información disponible para estimar las habilidades (convergencia).
+  
+ \vspace{0.3cm} \pause
+ 
+ Además, las estimaciones hechas al interior de una base de datos la AAGo no son comparables con las estimaciones obenidas en otras bases de datos (comparabilidad).
+ 
+ \vspace{0.3cm} \pause
+ 
+ El estimador utilizado (TTT), al propagar la información por toda la red de partidas, permite solucionar ambos problemas mediante la identificación de jugadores que participen en más de una base de datos.
+ 
+ \vspace{0.3cm} \pause
+ 
+ Para implementar esta solución, hicimos una encuesta en la AAG0, y obtuvimos respuesta de 28 personas, que ofrecieron sus identificadores en las bases de datos OGS y KGS.
+ 
+ \vspace{0.3cm} \pause
+ 
+ Las estimaciones realizadas en esta meta-base de datos permitirán mejorar sustancialmente las estimaciones de la AAGo y hacer comparables las estimaciones entre las diferenres bases de datos.
  
 \end{frame}
 
+
+
 \begin{frame}[plain]
- 
- \begin{itemize}
-  \item[\textbf{19 Junio}]
-  \begin{itemize}
-   \item[$\circ$] Correr full TTT-hk (handicap-komi) las 3 versiones
-  \end{itemize}
-  
-  \item[\textbf{26 Junio}] 
-  \begin{itemize}
-   \item[$\circ$] Comparar las versiones de TTT-hk
-   \item[$\circ$] KS, WHR correr grilla de par\'ametros, con mejor versi\'on hk (intentar glicko y AGA)
-  \end{itemize}
-  
-  \item[\textbf{3 Julio}]
-  \begin{itemize}
-   \item[$\circ$] KS, WHR correr las otras versi\'on hk con mejor par\'amtros (intentar glicko y AGA).
-   \end{itemize}
-  
-  \item[\textbf{10 Julio}] 
-  \begin{itemize}
-   \item[$\circ$] Nueva base. Correr algoritmos sobre KGS 
-  \end{itemize}
-  
-  \item[\textbf{17 Julio}] 
-  \begin{itemize}
-   \item[$\circ$] Revisar todas las figuras 
-  \end{itemize}
-  
-  \item[\textbf{31 Julio}]
-  \begin{itemize}
-   \item[$\circ$] Escritura
-  \end{itemize}
- \end{itemize}
+ \centering
+ \LARGE Discusiones / Conlcusiones
  
 \end{frame}
 
