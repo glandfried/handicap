@@ -1,5 +1,11 @@
 # Estimacion de habilidades con handicap y komi en go
 
+## Agenda
+
+- Terminar procesos de bajada de bases de datos: Tobias y Martín
+- Empezar presentación: Gustavo
+- Analizar datos para la presentación: correr y armar nuevas figuras
+
 ## Datos
 
 - OGS: Martín Amigo
@@ -7,6 +13,7 @@
 - AAG0: Gustavo
 - Unificar nombres de las columnas, incorporar a pipeline (en makefile)
 - En principio, solo filtrar partidas claramente invalidas (ambos perdieron o ambos ganaron).
+- OGS y KGS: automatizar y documentar procesos de bajada, integración y actualización.
 
 ## Repositorios
 
@@ -43,9 +50,9 @@ Cuando esta la gente de AAGO, nos interesa tener sus curvas de aprendizaje.
 
 ## Presentacion
 
-Explicar intuitivamente TS y TTT.
-Explicar los distintos modelos para go.
-Mostrar resultados preliminares sobre OGS.
+- Explicar intuitivamente TS y TTT.
+- Explicar los distintos modelos para go.
+- Mostrar resultados preliminares sobre OGS.
 
 ## Script
 
