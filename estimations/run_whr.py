@@ -6,19 +6,6 @@ from functools import reduce
 from math import log2
 
 
-# Cargo y pre proceso
-# TODO: generalizar esto
-df = pd.read_csv('../data/aago/aago.csv')
-
-df['winner'] = df['result'].apply(lambda result: 'B' if result == 'black' else 'W')
-df['black'] = df['black_player_id']
-df['white'] = df['white_player_id']
-
-df['date'] = df['date'].apply(date.fromisoformat)
-first_day = df['date'].min()
-df['day'] = df['date'].apply(lambda d: (d - first_day).days + 1)
-
-
 class WHRRunner:
     def __init__(self, dynamic_factor, handicap_elo, matches):
         self.whr = whole_history_rating.Base({'w2': dynamic_factor})
@@ -27,8 +14,7 @@ class WHRRunner:
         self.matches = matches
 
     def match_evidence(self, match):
-        black_probability, white_probability = self.whr.probability_future_match(match['black'], match['white'],
-                                                                                 match['handicap'] * self.handicap_elo)
+        black_probability, white_probability = self.whr.probability_future_match(match['black'], match['white'], match['handicap'] * self.handicap_elo)
         return black_probability if match['winner'] == 'B' else white_probability
 
     def optimize_players(self, match):
@@ -42,8 +28,7 @@ class WHRRunner:
         for index, match in self.matches.iterrows():
             self.optimize_players(match)
             self.evidence.append(self.match_evidence(match))
-            self.whr.create_game(match['black'], match['white'], match['winner'],
-                                 match['day'], match['handicap'] * self.handicap_elo)
+            self.whr.create_game(match['black'], match['white'], match['winner'], match['day'], match['handicap'] * self.handicap_elo)
             self.optimize_players(match)
             if index % 100 == 0:
                 self.whr.auto_iterate(time_limit=10, precision=10E-3)
@@ -56,6 +41,19 @@ class WHRRunner:
 
 
 if __name__ == "__main__":
+    # Cargo y pre proceso
+    # TODO: generalizar esto
+    df = pd.read_csv('../data/aago/aago.csv')
+
+    df['winner'] = df['result'].apply(lambda result: 'B' if result == 'black' else 'W')
+    df['black'] = df['black_player_id']
+    df['white'] = df['white_player_id']
+
+    df['date'] = df['date'].apply(date.fromisoformat)
+    first_day = df['date'].min()
+    df['day'] = df['date'].apply(lambda d: (d - first_day).days + 1)
+
+
     # TODO: hiperparámetros a optimizar
     DYNAMIC_FACTOR = 0.14
     HANDICAP_ELO = 50
@@ -64,5 +62,5 @@ if __name__ == "__main__":
     runner = WHRRunner(DYNAMIC_FACTOR, HANDICAP_ELO, df)
     runner.iterate()
 
-    print(runner.log_evidence())
-    print(runner.cross_entropy())
+    print(runner.log_evidence()) #-3005.4174301774988
+    print(runner.cross_entropy()) #0.8979436600470567
