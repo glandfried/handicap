@@ -8,7 +8,7 @@ sys.path.append('../software/')
 csv_name = 'aago.csv'
 
 df = pd.read_csv(csv_name)
-sum(df.event_id>0) #qué hace esto?
+sum(df.event_id>0)
 
 filtered = {}
 ##%% Selecciono las columnas que quiero y las filas con ciertas restricciones
@@ -17,7 +17,7 @@ df = df[((df.result=="black") | (df.result=="white"))]
 filtered['Reason'] = sum(~((df.reason== "resignation") | (df.reason== "points") | (df.reason== "timeout") | (df.reason== "unknown")))
 df = df[((df.reason== "resignation") | (df.reason== "points") | (df.reason== "timeout") | (df.reason== "unknown"))]
 filtered['Unrated'] = sum((df.unrated!=0))
-df = df[df.unrated==0]
+df = df[df.unrated==0] #qué es esto?
 
 #para que quede compatible con los otros
 df.rename(columns = {'date': 'started'}, inplace = True)
