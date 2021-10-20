@@ -3,7 +3,7 @@ from whr import whole_history_rating
 import pandas as pd
 from datetime import date
 from functools import reduce
-from math import log2
+from math import log2, exp
 
 
 class WHRRunner:
@@ -12,18 +12,18 @@ class WHRRunner:
         self.evidence = []
         self.handicap_elo = handicap_elo
         self.matches = matches
-
+    
     def match_evidence(self, match):
         black_probability, white_probability = self.whr.probability_future_match(match['black'], match['white'], match['handicap'] * self.handicap_elo)
         return black_probability if match['winner'] == 'B' else white_probability
-
+    
     def optimize_players(self, match):
         self.optimize_player(match['black'])
         self.optimize_player(match['white'])
-
+    
     def optimize_player(self, player):
         self.whr.player_by_name(player).run_one_newton_iteration()
-
+    
     def iterate(self):
         for index, match in self.matches.iterrows():
             self.optimize_players(match)
@@ -32,10 +32,10 @@ class WHRRunner:
             self.optimize_players(match)
             if index % 100 == 0:
                 self.whr.auto_iterate(time_limit=10, precision=10E-3)
-
+    
     def cross_entropy(self):
         return -self.log_evidence()/len(self.evidence)
-
+    
     def log_evidence(self):
         return reduce(lambda x, acc: x + acc, [log2(e) for e in self.evidence])
 
@@ -62,5 +62,7 @@ if __name__ == "__main__":
     runner = WHRRunner(DYNAMIC_FACTOR, HANDICAP_ELO, df)
     runner.iterate()
 
+    print(exp(runner.log_evidence()/df.shape[0])) # 0.407
     print(runner.log_evidence()) #-3005.4174301774988
     print(runner.cross_entropy()) #0.8979436600470567
+
