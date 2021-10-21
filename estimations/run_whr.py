@@ -8,13 +8,19 @@ from math import log2, exp
 
 class WHRRunner:
     def __init__(self, dynamic_factor, handicap_elo, matches):
+        """
+        @param dynamic_factor: número que indica cuanta varianza hay entre las habilidades de un jugador en el tiempo
+        @param handicap_elo: número que indica la habilidad que aporta una piedra de handicap, medido en unidades de elo
+        @param matches: DataFrame con columnas 'black', 'white', 'handicap', 'winner', 'day'
+        """
         self.whr = whole_history_rating.Base({'w2': dynamic_factor})
         self.evidence = []
         self.handicap_elo = handicap_elo
         self.matches = matches
     
     def match_evidence(self, match):
-        black_probability, white_probability = self.whr.probability_future_match(match['black'], match['white'], match['handicap'] * self.handicap_elo)
+        black_probability, white_probability = self.whr.probability_future_match(match['black'], match['white'],
+                                                                                 match['handicap'] * self.handicap_elo)
         return black_probability if match['winner'] == 'B' else white_probability
     
     def optimize_players(self, match):
