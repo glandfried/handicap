@@ -4,6 +4,9 @@ import pandas as pd
 from functools import reduce
 from math import log, exp
 from argparse import ArgumentParser, FileType
+from sys import stdin
+
+COLUMNS = ['black', 'white', 'handicap', 'winner', 'day']
 
 
 class WHRRunner:
@@ -64,11 +67,17 @@ class WHRRunner:
 
 def read_args():
     parser = ArgumentParser(description='Corre el modelo WHR sobre un dataset en CSV.')
-    parser.add_argument('dataset', type=FileType('r'), help='CSV con columnas: black, white, handicap, winner, day')
+    parser.add_argument('dataset', type=FileType('r'), default=stdin, nargs='?',
+                        help='CSV con columnas: black, white, handicap, winner, day')
     parser.add_argument('-l', '--learning_curves', dest='learning_curves_file', type=FileType('w'), required=True)
     parser.add_argument('-r', '--results', dest='results_file', type=FileType('w'), required=True)
     parser.add_argument('-i', '--auto_iter_rate', dest='auto_iter_rate', type=int, default=100,
                         help='Cantidad de partidos entre iteraciones del algoritmo de Newton')
+    parser.add_argument('-d', '--dynamic_factor', dest='dynamic_factor', type=float, default=14.0,
+                        help='Factor dinámico que indica cuánto puede cambiar la habilidad en el tiempo,'
+                             ' en unidades de Elo^2/dia')
+    parser.add_argument('-e', '--handicap_elo', dest='handicap_elo', type=float, default=50.0,
+                        help='Habilidad agregada por cada piedra de handicap a favor, en unidades de Elo')
     return parser.parse_args()
 
 
@@ -76,12 +85,7 @@ if __name__ == "__main__":
     args = read_args()
     df = pd.read_csv(args.dataset)
 
-    # TODO: hiperparámetros a optimizar
-    DYNAMIC_FACTOR = 0.14
-    HANDICAP_ELO = 50
-    # TODO: el handicap lo pide en unidades de elo, hay que buscar un multiplicador que tenga sentido
-    # TODO: se podría agregar komi restándolo al handicap
-    runner = WHRRunner(DYNAMIC_FACTOR, HANDICAP_ELO, df, args.auto_iter_rate)
+    runner = WHRRunner(args.dynamic_factor, args.handicap_elo, df, args.auto_iter_rate)
     runner.iterate()
 
     runner.learning_curves().to_csv(args.learning_curves_file, index=False)
