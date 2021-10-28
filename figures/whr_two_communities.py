@@ -18,10 +18,12 @@ def two_communities(players, intra_matches_number, inter_matches_first_community
     return pd.DataFrame(intra_matches + inter_matches, columns=COLUMNS)
 
 
-def different_intra_experiment(max_intra, show=False):
+def different_intra_experiment(max_intra, inter_first, inter_second, show=False):
     results = []
-    for intra in range(1, max_intra+1):
-        runner = WHRRunner(14.0, 0, two_communities(3, intra, 80, 20), 100000)
+    intra_range = range(1, max_intra+1)
+    for intra in intra_range:
+        dataset = two_communities(3, intra, inter_first, inter_second)
+        runner = WHRRunner(14.0, 0, dataset, len(dataset))
         runner.iterate()
         lc = runner.learning_curves()
         lc['intra'] = [intra] * len(lc)
@@ -38,14 +40,18 @@ def different_intra_experiment(max_intra, show=False):
     plt.legend()
     plt.grid()
     plt.suptitle('Estimación de habilidad con distinta cantidad de partidas intra comunitarias', fontsize=12)
-    plt.title('Partidas inter comunitarias: 8 de 10 para la mejor comunidad ', fontsize=8)
+    plt.title(f'Partidas inter comunitarias: {inter_first} de {inter_first + inter_second} para la mejor comunidad ',
+              fontsize=8)
     plt.xlabel('# partidas intra comunidad')
     plt.ylabel('habilidad (elo)')
+    plt.xticks(intra_range)
+    plt.ylim([-150, 150])
     if show:
         plt.show()
     else:
-        plt.savefig('figures/two_communities.png')
+        plt.savefig(f'figures/two_communities_{inter_first}-{inter_first + inter_second}.png')
 
 
 if __name__ == '__main__':
-    different_intra_experiment(20)
+    different_intra_experiment(20, 8, 2)
+    different_intra_experiment(20, 80, 20)
