@@ -23,7 +23,7 @@ def different_intra_experiment(max_intra, inter_first, inter_second, show=False)
     intra_range = range(1, max_intra+1)
     for intra in intra_range:
         dataset = two_communities(3, intra, inter_first, inter_second)
-        runner = WHRRunner(14.0, 0, dataset, len(dataset))
+        runner = WHRRunner(dataset, 0, 14.0, len(dataset))
         runner.iterate()
         lc = runner.learning_curves()
         lc['intra'] = [intra] * len(lc)
@@ -49,7 +49,7 @@ def different_intra_experiment(max_intra, inter_first, inter_second, show=False)
     if show:
         plt.show()
     else:
-        plt.savefig(f'figures/two_communities_{inter_first}-{inter_first + inter_second}.png')
+        plt.savefig(f'figures/two_communities_{inter_first}-{inter_first + inter_second}.pdf')
 
 
 if __name__ == '__main__':

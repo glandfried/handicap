@@ -10,7 +10,7 @@ COLUMNS = ['black', 'white', 'handicap', 'winner', 'day']
 
 
 class WHRRunner:
-    def __init__(self, dynamic_factor, handicap_elo, matches, auto_iter_rate):
+    def __init__(self, matches, handicap_elo, dynamic_factor, auto_iter_rate):
         """
         @param dynamic_factor: número que indica cuanta varianza hay entre las habilidades de un jugador en el tiempo
         @param handicap_elo: número que indica la habilidad que aporta una piedra de handicap, medido en unidades de elo
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     args = read_args()
     df = pd.read_csv(args.dataset)
 
-    runner = WHRRunner(args.dynamic_factor, args.handicap_elo, df, args.auto_iter_rate)
+    runner = WHRRunner(df, args.handicap_elo, args.dynamic_factor, args.auto_iter_rate)
     runner.iterate()
 
     runner.learning_curves().to_csv(args.learning_curves_file, index=False)
