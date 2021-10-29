@@ -1,4 +1,4 @@
-all: history.csv history.adapted.csv
+all: history.csv history.adapted.csv 
 
 history.csv:
 	wget https://github.com/glandfried/tennis_atp/releases/download/atp/history.csv.zip
