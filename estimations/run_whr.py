@@ -57,8 +57,11 @@ class WHRRunner:
         return reduce(lambda x, acc: x + acc, [log(e) for e in self.evidence])
 
     def learning_curves(self):
+        def natural_rating2_to_elo2(nr):
+            return nr * ((400 / log(10))**2)
+
         data = [
-            (player, day, mean, variance)
+            (player, day, mean, natural_rating2_to_elo2(variance / 100))
             for player in self.whr.players.keys()
             for (day, mean, variance) in self.whr.ratings_for_player(player)
         ]
