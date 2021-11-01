@@ -31,8 +31,8 @@ def different_intra_experiment(max_intra, inter_first, inter_second, show=False)
     df = pd.concat(results)
     players = [
         ("Representante mejor comunidad", "c0p0"),
-        ("Otro mejor comunidad", "c1p0"),
-        ("Representante peor comunidad", "c0p1"),
+        ("Otro mejor comunidad", "c0p1"),
+        ("Representante peor comunidad", "c1p0"),
         ("Otro peor comunidad", "c1p1")
     ]
     plt.figure()
@@ -44,8 +44,7 @@ def different_intra_experiment(max_intra, inter_first, inter_second, show=False)
               fontsize=8)
     plt.xlabel('# partidas intra comunidad')
     plt.ylabel('habilidad (elo)')
-    plt.xticks(intra_range)
-    plt.ylim([-150, 150])
+    plt.ylim([-250, 250])
     if show:
         plt.show()
     else:
@@ -53,5 +52,6 @@ def different_intra_experiment(max_intra, inter_first, inter_second, show=False)
 
 
 if __name__ == '__main__':
-    different_intra_experiment(20, 8, 2)
-    different_intra_experiment(20, 80, 20)
+    different_intra_experiment(40, 8, 2)
+    different_intra_experiment(40, 80, 20)
+    different_intra_experiment(40, 800, 200)
