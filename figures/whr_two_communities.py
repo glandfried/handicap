@@ -1,7 +1,7 @@
 from estimations.run_whr import WHRRunner, COLUMNS
 import pandas as pd
 import matplotlib.pyplot as plt
-from learning_curve import plot
+from figures.learning_curve import plot
 
 
 def two_communities(players, intra_matches_number, inter_matches_first_community, inter_matches_second_community):
