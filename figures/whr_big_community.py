@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     data = pd.DataFrame([
         datum(repetitions)
-        for repetitions in range(10, 51, 10)
+        for repetitions in range(10, 81, 10)
         for _ in range(10)
     ], columns=['repetitions', 'ecm_sqrt', 'log_probability'])
 
