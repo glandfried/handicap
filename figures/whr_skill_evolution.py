@@ -31,7 +31,7 @@ def result(elo1, elo2):
     return 'B' if random() < logistic(elo1, elo2) else 'W'
 
 
-def run(opponents_diff, repetitions, player_matches=5):
+def run(opponents_diff, repetitions, dynamic_factor, player_matches=10):
     opponents_true_skill = range(-int(MAXIMUM * 0.7), int(MAXIMUM * 0.7), opponents_diff)
     opponents_number = len(opponents_true_skill)
     pretrain = [
@@ -55,23 +55,25 @@ def run(opponents_diff, repetitions, player_matches=5):
         for o in near_opponents(player_skill[day])
     ]
     df = pd.DataFrame(pretrain + history, columns=COLUMNS)
-    runner = WHRRunner(df, 0.0, 14.0)
+    runner = WHRRunner(df, 0.0, dynamic_factor)
     runner.iterate()
     lc = runner.learning_curves()
-    opponents_lc = lc[lc['player'] != "p"]
+    # opponents_lc = lc[lc['player'] != "p"]
     player_lc = lc[lc['player'] == "p"].sort_values('day')
     return player_lc
 
 
-def plot_lcs(player_lcs):
+def plot_lcs(player_lcs, subcase):
     plt.figure()
     plt.plot(range(1, N+1), [skill(i, MIDDLE, MAXIMUM, SLOPE) for i in range(N)], label="Habilidad real")
     for lc in player_lcs:
         plot(lc, 'day', [('Habilidad estimada', 'p')])
     plt.grid()
-    plt.savefig('figures/whr_skill_evolution.pdf')
+    plt.savefig(f'figures/whr_skill_evolution_{subcase}.pdf')
     plt.show()
 
 
 if __name__ == '__main__':
-    plot_lcs([run(20, 40) for _ in range(10)])
+    plot_lcs([run(20, 40, 14.0) for _ in range(10)], 'dynamic_14')
+    plot_lcs([run(20, 40, 36.0) for _ in range(10)], 'dynamic_36')
+    plot_lcs([run(20, 40, 64.0) for _ in range(10)], 'dynamic_64')
