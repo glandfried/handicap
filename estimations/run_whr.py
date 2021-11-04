@@ -2,7 +2,7 @@
 from whr import whole_history_rating
 import pandas as pd
 from functools import reduce
-from math import log, exp
+from math import log, exp, inf
 from argparse import ArgumentParser, FileType
 from sys import stdin
 
@@ -10,7 +10,7 @@ COLUMNS = ['black', 'white', 'handicap', 'winner', 'day']
 
 
 class WHRRunner:
-    def __init__(self, matches, handicap_elo, dynamic_factor, auto_iter_rate):
+    def __init__(self, matches, handicap_elo=0.0, dynamic_factor=14.0, auto_iter_rate=inf, auto_iter_time=inf):
         """
         @param dynamic_factor: número que indica cuanta varianza hay entre las habilidades de un jugador en el tiempo
         @param handicap_elo: número que indica la habilidad que aporta una piedra de handicap, medido en unidades de elo
@@ -21,6 +21,7 @@ class WHRRunner:
         self.handicap_elo = handicap_elo
         self.matches = matches
         self.auto_iter_rate = auto_iter_rate
+        self.auto_iter_time = auto_iter_time
     
     def match_evidence(self, match):
         black_probability, white_probability = self.whr.probability_future_match(match['black'], match['white'],
@@ -45,7 +46,7 @@ class WHRRunner:
                 self.whr.auto_iterate(time_limit=10, precision=10E-3)
         # La incertidumbre se calcula al iterar
         # Si no se itera al final, puede haber jugadores sin incertidumbre
-        self.whr.auto_iterate(time_limit=10, precision=10E-3)
+        self.whr.auto_iterate(time_limit=self.auto_iter_time, precision=10E-3)
     
     def cross_entropy(self):
         return -self.log_evidence()/len(self.evidence)

@@ -1,10 +1,11 @@
 from math import exp
-from numpy.random import normal
+from random import random
 import pandas as pd
 import matplotlib.pyplot as plt
-from estimations.run_whr import WHRRunner, COLUMNS
 from bisect import bisect_left
-from learning_curve import plot
+
+from estimations.run_whr import WHRRunner, COLUMNS
+from figures.learning_curve import plot
 
 MIDDLE = 500
 MAXIMUM = 800
@@ -17,22 +18,26 @@ def skill(experience, middle, maximum, slope):
     return maximum / (1 + exp(slope * (-experience + middle))) - maximum/2
 
 
-def performance(skills, size=1):
-    return normal(scale=PERFORMANCE_SCALE, size=size) + skills
+# def performance(skills, size=1):
+#     return normal(scale=PERFORMANCE_SCALE, size=size) + skills
+def logistic(elo1, elo2):
+    gamma1 = 10 ** (elo1/400.0)
+    gamma2 = 10 ** (elo2/400.0)
+    return gamma1 / (gamma1 + gamma2)
 
 
-def result(skill1, skill2):
-    # TODO: probar usando logit en vez de probit, viendo el calculo exacto que hace el paquete
-    return 'B' if performance(skill1) > performance(skill2) else 'W'
+def result(elo1, elo2):
+    # return 'B' if performance(skill1) > performance(skill2) else 'W'
+    return 'B' if random() < logistic(elo1, elo2) else 'W'
 
 
-def main(opponents_diff, repetitions):
-    opponents_true_skill = range(-MAXIMUM//2, MAXIMUM//2, opponents_diff)
+def run(opponents_diff, repetitions, player_matches=5):
+    opponents_true_skill = range(-int(MAXIMUM * 0.7), int(MAXIMUM * 0.7), opponents_diff)
     opponents_number = len(opponents_true_skill)
     pretrain = [
         (f"o{p1}", f"o{p2}", 0, result(opponents_true_skill[p1], opponents_true_skill[p2]), 0)
         for p1 in range(opponents_number)
-        for p2 in range(opponents_number)
+        for p2 in range(p1 + 1, min(p1 + 1 + player_matches, opponents_number))
         for _ in range(repetitions)
         if p1 != p2
     ]
@@ -50,20 +55,23 @@ def main(opponents_diff, repetitions):
         for o in near_opponents(player_skill[day])
     ]
     df = pd.DataFrame(pretrain + history, columns=COLUMNS)
-    runner = WHRRunner(df, 0.0, 14.0, 10000)
+    runner = WHRRunner(df, 0.0, 14.0)
     runner.iterate()
     lc = runner.learning_curves()
     opponents_lc = lc[lc['player'] != "p"]
     player_lc = lc[lc['player'] == "p"].sort_values('day')
-    # print(opponents_lc.sort_values('mean'))
+    return player_lc
+
+
+def plot_lcs(player_lcs):
     plt.figure()
     plt.plot(range(1, N+1), [skill(i, MIDDLE, MAXIMUM, SLOPE) for i in range(N)], label="Habilidad real")
-    plot(player_lc, 'day', [('Habilidad estimada', 'p')])
+    for lc in player_lcs:
+        plot(lc, 'day', [('Habilidad estimada', 'p')])
     plt.grid()
-    plt.legend()
     plt.savefig('figures/whr_skill_evolution.pdf')
     plt.show()
 
 
 if __name__ == '__main__':
-    main(20, 4)
+    plot_lcs([run(20, 40) for _ in range(10)])
