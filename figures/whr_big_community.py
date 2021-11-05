@@ -30,8 +30,7 @@ def result_logit(elo1, elo2):
     return 'B' if random() < logistic(elo1, elo2) else 'W'
 
 
-def run(opponents_diff, repetitions, result_fn, player_matches=10):
-    opponents_true_skill = range(-MAXIMUM, MAXIMUM, opponents_diff)
+def create_community_dataset(opponents_true_skill, repetitions, result_fn, player_matches=10):
     opponents_number = len(opponents_true_skill)
     pretrain = [
         (f"o{p1}", f"o{p2}", 0, result_fn(opponents_true_skill[p1], opponents_true_skill[p2]), 0)
@@ -41,7 +40,12 @@ def run(opponents_diff, repetitions, result_fn, player_matches=10):
         if p1 != p2
     ]
 
-    df = pd.DataFrame(pretrain, columns=COLUMNS)
+    return pd.DataFrame(pretrain, columns=COLUMNS)
+
+
+def run(opponents_diff, repetitions, result_fn, player_matches=10):
+    opponents_true_skill = range(-MAXIMUM, MAXIMUM, opponents_diff)
+    df = create_community_dataset(opponents_true_skill, repetitions, result_fn, player_matches)
     runner = WHRRunner(df, 0.0, 14.0)
     runner.iterate()
     lc = runner.learning_curves()
