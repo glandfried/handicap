@@ -52,18 +52,18 @@ def plot(df, inter_first, inter_second):
     plt.xlabel('# partidas intra comunidad')
     plt.ylabel('habilidad (elo)')
     plt.ylim([-250, 250])
-    plt.savefig(f'figures/two_communities_{inter_first}-{inter_first + inter_second}.pdf')
+    plt.savefig(f'figures/whr/two_communities_{inter_first}-{inter_first + inter_second}.pdf')
 
 
 def run_all():
     for inter_first, inter_second in inter_community_matches:
         different_intra_experiment(40, inter_first, inter_second)\
-            .to_csv(f'estimations/two_communities_{inter_first}-{inter_second}.csv')
+            .to_csv(f'estimations/whr/two_communities_{inter_first}-{inter_second}.csv')
 
 
 def plot_all():
     for inter_first, inter_second in inter_community_matches:
-        df = pd.read_csv(f'estimations/two_communities_{inter_first}-{inter_second}.csv')
+        df = pd.read_csv(f'estimations/whr/two_communities_{inter_first}-{inter_second}.csv')
         plot(df, inter_first, inter_second)
 
 

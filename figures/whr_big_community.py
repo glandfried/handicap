@@ -72,7 +72,7 @@ def plot_confidence(df, col, model):
     plt.legend()
     plt.xlabel('Número de repeticiones de las partidas')
     plt.ylabel(col)
-    plt.savefig(f'figures/whr_big_community_{col}_{model}.pdf')
+    plt.savefig(f'figures/whr/big_community_{col}_{model}.pdf')
 
 
 def run_all(result_fn, model):
@@ -82,14 +82,14 @@ def run_all(result_fn, model):
 
     pd.DataFrame([
         datum(repetitions)
-        for repetitions in range(10, 81, 10)
-        for _ in range(10)
+        for repetitions in range(10, 101, 10)
+        for _ in range(20)
     ], columns=['repetitions', 'ecm_sqrt', 'log_probability'])\
-        .to_csv(f'estimations/whr_big_community_{model}.csv')
+        .to_csv(f'estimations/whr/big_community_{model}.csv')
 
 
 def plot_all(model):
-    df = pd.read_csv(f'estimations/whr_big_community_{model}.csv')
+    df = pd.read_csv(f'estimations/whr/big_community_{model}.csv')
     plot_confidence(df, 'ecm_sqrt', model)
     plot_confidence(df, 'log_probability', model)
 
