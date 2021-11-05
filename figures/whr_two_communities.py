@@ -1,7 +1,11 @@
-from estimations.run_whr import WHRRunner, COLUMNS
 import pandas as pd
 import matplotlib.pyplot as plt
-from figures.learning_curve import plot
+from argparse import ArgumentParser
+
+from estimations.run_whr import WHRRunner, COLUMNS
+from figures.learning_curve import plot as plot_lc
+
+inter_community_matches = [(8, 2), (80, 20), (800, 200)]
 
 
 def two_communities(players, intra_matches_number, inter_matches_first_community, inter_matches_second_community):
@@ -28,7 +32,10 @@ def different_intra_experiment(max_intra, inter_first, inter_second, show=False)
         lc = runner.learning_curves()
         lc['intra'] = [intra] * len(lc)
         results.append(lc)
-    df = pd.concat(results)
+    return pd.concat(results)
+
+
+def plot(df, inter_first, inter_second):
     players = [
         ("Representante mejor comunidad", "c0p0"),
         ("Otro mejor comunidad", "c0p1"),
@@ -36,7 +43,7 @@ def different_intra_experiment(max_intra, inter_first, inter_second, show=False)
         ("Otro peor comunidad", "c1p1")
     ]
     plt.figure()
-    plot(df, 'intra', players)
+    plot_lc(df, 'intra', players)
     plt.legend()
     plt.grid()
     plt.suptitle('Estimación de habilidad con distinta cantidad de partidas intra comunitarias', fontsize=12)
@@ -45,13 +52,29 @@ def different_intra_experiment(max_intra, inter_first, inter_second, show=False)
     plt.xlabel('# partidas intra comunidad')
     plt.ylabel('habilidad (elo)')
     plt.ylim([-250, 250])
-    if show:
-        plt.show()
-    else:
-        plt.savefig(f'figures/two_communities_{inter_first}-{inter_first + inter_second}.pdf')
+    plt.savefig(f'figures/two_communities_{inter_first}-{inter_first + inter_second}.pdf')
+
+
+def run_all():
+    for inter_first, inter_second in inter_community_matches:
+        different_intra_experiment(40, inter_first, inter_second)\
+            .to_csv(f'estimations/two_communities_{inter_first}-{inter_second}.csv')
+
+
+def plot_all():
+    for inter_first, inter_second in inter_community_matches:
+        df = pd.read_csv(f'estimations/two_communities_{inter_first}-{inter_second}.csv')
+        plot(df, inter_first, inter_second)
 
 
 if __name__ == '__main__':
-    different_intra_experiment(40, 8, 2)
-    different_intra_experiment(40, 80, 20)
-    different_intra_experiment(40, 800, 200)
+    parser = ArgumentParser(description='Corre el modelo WHR sobre un dataset en CSV.')
+    parser.add_argument('-r', '--run', dest='run', default=False, action='store_true')
+    parser.add_argument('-p', '--plot', dest='plot', default=False, action='store_true')
+    args = parser.parse_args()
+    if args.run:
+        print("Running")
+        run_all()
+    if args.plot:
+        print("Plotting")
+        plot_all()
