@@ -1,8 +1,8 @@
 from random import random
 import pandas as pd
 import matplotlib.pyplot as plt
-from numpy import sqrt, log, sum
-from scipy.stats import norm
+import matplotlib.ticker as ticker
+from numpy import sqrt
 from numpy.random import normal
 from argparse import ArgumentParser
 
@@ -10,6 +10,16 @@ from estimations.run_whr import WHRRunner, COLUMNS
 
 MAXIMUM = 400
 PERFORMANCE_SCALE = 200
+
+EXPERIMENTS_PARAMS = [
+    (r, i)
+    for r in range(10, 101, 10)
+    for i in range(20)
+]
+
+
+def save_file_name(model, repetitions, i):
+    return f'estimations/whr/big_community/{model}_rep{repetitions}_{i}.csv'
 
 
 def performance_probit(skills, size=1):
@@ -46,7 +56,7 @@ def create_community_dataset(opponents_true_skill, repetitions, result_fn, playe
 def run(opponents_diff, repetitions, result_fn, player_matches=10):
     opponents_true_skill = range(-MAXIMUM, MAXIMUM, opponents_diff)
     df = create_community_dataset(opponents_true_skill, repetitions, result_fn, player_matches)
-    runner = WHRRunner(df, 0.0, 14.0)
+    runner = WHRRunner(df)
     runner.iterate()
     lc = runner.learning_curves()
     lc['skill'] = opponents_true_skill
@@ -58,14 +68,14 @@ def ecm_sqrt(df):
     return sqrt(((df['skill'] - df['mean']) ** 2).mean())
 
 
-def log_probability_skills(df):
-    evidence_skills = [
-        norm.pdf(row['skill'],
-                 loc=row['mean'],
-                 scale=sqrt(row['variance']))
-        for _, row in df.iterrows()
+def neigh_distances(df):
+    def distance(p1, p2):
+        return df[df['player'] == p2]['mean'].iloc[0] - df[df['player'] == p1]['mean'].iloc[0]
+
+    return [
+        distance(f"o{i}", f"o{i+1}")
+        for i in range(len(df)-1)
     ]
-    return sum(log(evidence_skills))
 
 
 def plot_confidence(df, col, model):
@@ -79,23 +89,40 @@ def plot_confidence(df, col, model):
     plt.savefig(f'figures/whr/big_community_{col}_{model}.pdf')
 
 
-def run_all(result_fn, model):
-    def datum(repetitions):
-        res = run(40, repetitions, result_fn)
-        return repetitions, ecm_sqrt(res), log_probability_skills(res)
+def histogram(df, col, model):
+    df_filter = (df['repetitions'] % 30) == 10
+    axs = df[df_filter].hist(column=col, by='repetitions', layout=(2, 2),
+                             sharex=True, density=True).ravel()
+    for ax in axs:
+        ax.grid(True, axis='x')
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(40))
+        ax.yaxis.set_ticks([])
+    axs[0].get_figure().savefig(f'figures/whr/big_community_{col}_{model}.pdf')
 
-    pd.DataFrame([
-        datum(repetitions)
-        for repetitions in range(10, 101, 10)
-        for _ in range(20)
-    ], columns=['repetitions', 'ecm_sqrt', 'log_probability'])\
-        .to_csv(f'estimations/whr/big_community_{model}.csv')
+
+def run_all(result_fn, model):
+    for repetitions, i in EXPERIMENTS_PARAMS:
+        run(40, repetitions, result_fn).to_csv(save_file_name(model, repetitions, i), index=False)
 
 
 def plot_all(model):
-    df = pd.read_csv(f'estimations/whr/big_community_{model}.csv')
-    plot_confidence(df, 'ecm_sqrt', model)
-    plot_confidence(df, 'log_probability', model)
+    dfs = [
+        (repetitions, pd.read_csv(save_file_name(model, repetitions, i)))
+        for repetitions, i in EXPERIMENTS_PARAMS
+    ]
+
+    ecm_dfs = pd.DataFrame([
+        (repetitions, ecm_sqrt(df))
+        for repetitions, df in dfs
+    ], columns=['repetitions', 'ecm_sqrt'])
+    plot_confidence(ecm_dfs, 'ecm_sqrt', model)
+
+    neigh_distance_dfs = pd.DataFrame([
+        (repetitions, d)
+        for repetitions, df in dfs
+        for d in neigh_distances(df)
+    ], columns=['repetitions', 'neigh_distance'])
+    histogram(neigh_distance_dfs, 'neigh_distance', model)
 
 
 if __name__ == '__main__':

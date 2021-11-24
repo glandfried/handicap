@@ -46,7 +46,7 @@ def run(opponents_diff, repetitions, dynamic_factor, result_fn, player_matches=1
 def save_lcs(player_lcs, subcase):
     for run_number, lc in enumerate(player_lcs):
         lc['run_number'] = run_number
-    pd.concat(player_lcs).to_csv(f'estimations/whr/skill_evolution_{subcase}.csv')
+    pd.concat(player_lcs).to_csv(f'estimations/whr/skill_evolution_{subcase}.csv', index=False)
 
 
 def plot_lcs(subcase):
