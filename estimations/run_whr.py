@@ -62,9 +62,9 @@ class WHRRunner:
             return nr * ((400 / log(10))**2)
 
         data = [
-            (player, day, mean, natural_rating2_to_elo2(variance / 100))
-            for player in self.whr.players.keys()
-            for (day, mean, variance) in self.whr.ratings_for_player(player)
+            (name, d.day, d.elo, natural_rating2_to_elo2(d.uncertainty))
+            for name, player in self.whr.players.items()
+            for d in player.days
         ]
         return pd.DataFrame(data, columns=['player', 'day', 'mean', 'variance'])
 

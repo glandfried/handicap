@@ -3,7 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from numpy import sqrt
+import math
 from numpy.random import normal
+from scipy.stats import norm
 from argparse import ArgumentParser
 
 from estimations.run_whr import WHRRunner, COLUMNS
@@ -100,6 +102,21 @@ def histogram(df, col, model):
     axs[0].get_figure().savefig(f'figures/whr/big_community_{col}_{model}.pdf')
 
 
+def real_estimated_skills(dfs, model):
+    # Cada fila tiene 'skill' la habilidad real, 'mean' y 'variance' de la normal estimada
+    fig, axs = plt.subplots(len(dfs), sharex=True, figsize=(12, 12))
+    for (rep, df), ax in zip(dfs, axs):
+        for i, row in df.iterrows():
+            loc = row['mean']
+            scale = math.sqrt(row['variance'])
+            d = 3 * scale
+            x = range(int(loc - d), int(loc + d))
+            line, = ax.plot(x, norm.pdf(x, loc, scale))
+            ax.axvline(row['skill'], color=line.get_color())
+            ax.set_title(rep)
+    fig.savefig(f'figures/whr/big_community_estimations_{model}.pdf')
+
+
 def run_all(result_fn, model):
     for repetitions, i in EXPERIMENTS_PARAMS:
         run(40, repetitions, result_fn).to_csv(save_file_name(model, repetitions, i), index=False)
@@ -110,6 +127,12 @@ def plot_all(model):
         (repetitions, pd.read_csv(save_file_name(model, repetitions, i)))
         for repetitions, i in EXPERIMENTS_PARAMS
     ]
+    re_dfs = [
+        (repetitions, df[df['player'].isin([f'o{i}' for i in range(0, 20, 2)])])
+        for i, (repetitions, df) in enumerate(dfs)
+        if (repetitions % 30) == 10 and (i % 20) == 0
+    ]
+    real_estimated_skills(re_dfs, model)
 
     ecm_dfs = pd.DataFrame([
         (repetitions, ecm_sqrt(df))
