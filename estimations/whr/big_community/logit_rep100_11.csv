@@ -1,21 +1,21 @@
 player,day,mean,variance,skill
-o0,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cabef8ba8>>,189.09397255844078,-400
-o1,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cabef8b70>>,157.90740750821217,-360
-o2,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cabdcb898>>,138.37572461549374,-320
-o3,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cac317588>>,125.29047184586109,-280
-o4,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cac4ca278>>,114.03101966247671,-240
-o5,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cac362f28>>,107.14576041404237,-200
-o6,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cac15ac18>>,102.88295782373679,-160
-o7,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cabf89908>>,97.10061685148831,-120
-o8,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cac1f95f8>>,93.29203401408928,-80
-o9,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cabbfc7b8>>,90.38128358990187,-40
-o10,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cac38b6d8>>,90.34838833850935,0
-o11,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cac2d6208>>,93.00052707969633,40
-o12,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cabc06e48>>,96.20022094062406,80
-o13,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cac1c1ba8>>,100.73616783381165,120
-o14,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cabbe1898>>,107.87442962057712,160
-o15,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cabb60588>>,111.77842232729743,200
-o16,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cabba2278>>,126.90912657952467,240
-o17,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cac336f28>>,142.10382911611256,280
-o18,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cabe97c18>>,151.35208508049973,320
-o19,0,<bound method PlayerDay.elo of <whr.playerday.PlayerDay object at 0x7f7cabcc3908>>,171.1232548935001,360
+o0,0,-373.7500469139944,176.46077805703513,-400
+o1,0,-338.6801225638566,155.8561097963492,-360
+o2,0,-285.25650357623715,135.63016588201165,-320
+o3,0,-265.46834220773064,127.28799550848433,-280
+o4,0,-196.3666532788353,113.33275961898617,-240
+o5,0,-204.45843524913792,110.95301414699313,-200
+o6,0,-125.24473829062417,101.26464334818684,-160
+o7,0,-107.57509433872384,97.76013232311954,-120
+o8,0,-55.98457040158227,93.4517898482715,-80
+o9,0,-20.423621928546094,90.32783644097573,-40
+o10,0,27.39869138631882,90.2462608551649,0
+o11,0,64.53986537019044,92.97830617034059,40
+o12,0,105.97864517386522,96.55591886648195,80
+o13,0,149.4081488961145,101.55448779917793,120
+o14,0,177.04279501195282,106.36580513432057,160
+o15,0,207.90443431479642,113.04158662471849,200
+o16,0,253.22707410343588,122.86951086340476,240
+o17,0,294.0736144615918,136.03940261317575,280
+o18,0,326.1999719258625,150.18963209270476,320
+o19,0,350.7965793625021,165.81514376803335,360
