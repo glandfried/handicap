@@ -10,11 +10,15 @@ COLUMNS = ['black', 'white', 'handicap', 'winner', 'day']
 
 
 class WHRRunner:
-    def __init__(self, matches, handicap_elo=0.0, dynamic_factor=14.0, auto_iter_rate=inf, auto_iter_time=inf):
+    def __init__(self, matches, handicap_elo=0.0, dynamic_factor=14.0,
+                 auto_iter_rate=inf, auto_iter_time=inf, day_batch=False):
         """
         @param dynamic_factor: número que indica cuanta varianza hay entre las habilidades de un jugador en el tiempo
         @param handicap_elo: número que indica la habilidad que aporta una piedra de handicap, medido en unidades de elo
         @param matches: DataFrame con columnas 'black', 'white', 'handicap', 'winner', 'day'
+        @param auto_iter_rate: número de partidas antes de volver a converger. Ignorado si day_batch es verdadero
+        @param auto_iter_time: tiempo que se le da a WHR para converger
+        @param day_batch: si es verdadero, se convergerá una vez por día de juego
         """
         self.whr = whole_history_rating.Base({'w2': dynamic_factor})
         self.evidence = []
@@ -22,6 +26,7 @@ class WHRRunner:
         self.matches = matches
         self.auto_iter_rate = auto_iter_rate
         self.auto_iter_time = auto_iter_time
+        self.day_batch = day_batch
     
     def match_evidence(self, match):
         black_probability, white_probability = self.whr.probability_future_match(match['black'], match['white'],
@@ -41,17 +46,38 @@ class WHRRunner:
         else:
             self.matches.append(new_matches)
 
-        for index, match in new_matches.iterrows():
-            self.optimize_players(match)
-            self.evidence.append(self.match_evidence(match))
-            self.whr.create_game(match['black'], match['white'], match['winner'],
-                                 match['day'], match['handicap'] * self.handicap_elo)
-            self.optimize_players(match)
-            if index % self.auto_iter_rate == 0:
-                self.whr.auto_iterate(time_limit=10, precision=10E-3)
+        if self.day_batch:
+            self.day_batch_iterate(new_matches)
+        else:
+            self.periodic_iterate(new_matches)
         # La incertidumbre se calcula al iterar
         # Si no se itera al final, puede haber jugadores sin incertidumbre
+        self.converge()
+
+    def converge(self):
         self.whr.auto_iterate(time_limit=self.auto_iter_time, precision=10E-3)
+
+    def day_batch_iterate(self, matches):
+        previous_day = 0
+        for index, match in matches.iterrows():
+            if previous_day != match['day']:
+                self.converge()
+            previous_day = match['day']
+
+            self.process_match(match)
+
+    def periodic_iterate(self, matches):
+        for index, match in matches.iterrows():
+            self.optimize_players(match)
+            self.process_match(match)
+            self.optimize_players(match)
+            if index % self.auto_iter_rate == 0:
+                self.converge()
+
+    def process_match(self, match):
+        self.evidence.append(self.match_evidence(match))
+        self.whr.create_game(match['black'], match['white'], match['winner'],
+                             match['day'], match['handicap'] * self.handicap_elo)
     
     def cross_entropy(self):
         return -self.log_evidence()/len(self.evidence)
