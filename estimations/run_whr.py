@@ -35,8 +35,13 @@ class WHRRunner:
     def optimize_player(self, player):
         self.whr.player_by_name(player).run_one_newton_iteration()
     
-    def iterate(self):
-        for index, match in self.matches.iterrows():
+    def iterate(self, new_matches=None):
+        if new_matches is None:
+            new_matches = self.matches
+        else:
+            self.matches.append(new_matches)
+
+        for index, match in new_matches.iterrows():
             self.optimize_players(match)
             self.evidence.append(self.match_evidence(match))
             self.whr.create_game(match['black'], match['white'], match['winner'],

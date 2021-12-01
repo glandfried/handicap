@@ -1,7 +1,7 @@
 from math import exp
 import pandas as pd
 import matplotlib.pyplot as plt
-from bisect import bisect_left
+from random import seed
 
 from estimations.run_whr import WHRRunner, COLUMNS
 from figures.learning_curve import plot
@@ -19,24 +19,27 @@ def skill(experience, middle, maximum, slope):
 
 
 def run(opponents_diff, repetitions, dynamic_factor, result_fn, player_matches=10):
-    opponents_true_skill = range(-int(MAXIMUM * 0.7), int(MAXIMUM * 0.7), opponents_diff)
+    opponents_true_skill = range(-int(MAXIMUM * 0.7), int(MAXIMUM * 0.7)+1, opponents_diff)
     pretrain_df = create_community_dataset(opponents_true_skill, repetitions, result_fn, player_matches)
     player_skill = [skill(i, MIDDLE, MAXIMUM, SLOPE) for i in range(N + 1)]
 
+    runner = WHRRunner(pretrain_df, dynamic_factor=dynamic_factor)
+    runner.iterate()
+    opponents_skill = runner.learning_curves().sort_values('mean')
+
     def near_opponents(s):
-        binary_searched = bisect_left(opponents_true_skill, s)
-        return [min(binary_searched, len(opponents_true_skill)-1)]
+        binary_searched = opponents_skill['mean'].searchsorted(s)  # bisect_left(opponents_true_skill, s)
+        return [opponents_skill.iloc[min(binary_searched, len(opponents_true_skill)-1)]]
 
     history = [
-        ("p", f"o{o}", 0, result_fn(
+        ("p", opponent['name'], 0, result_fn(
             player_skill[day],
-            opponents_true_skill[o]), day)
+            opponent['mean']), day)
         for day in range(1, N+1)
-        for o in near_opponents(player_skill[day])
+        for opponent in near_opponents(player_skill[day])
     ]
-    df = pd.concat([pretrain_df, pd.DataFrame(history, columns=COLUMNS)])
-    runner = WHRRunner(df, 0.0, dynamic_factor)
-    runner.iterate()
+
+    runner.iterate(new_matches=pd.DataFrame(history, columns=COLUMNS))
     lc = runner.learning_curves()
 
     player_lc = lc[lc['player'] == "p"].sort_values('day')
@@ -61,6 +64,7 @@ def plot_lcs(subcase):
 
 
 if __name__ == '__main__':
+    seed(1234)
     parser = ArgumentParser(description='Corre el modelo WHR sobre un dataset en CSV.')
     parser.add_argument('-r', '--run', dest='run', default=False, action='store_true')
     parser.add_argument('-p', '--plot', dest='plot', default=False, action='store_true')
@@ -68,8 +72,8 @@ if __name__ == '__main__':
     if args.run:
         print("Running")
         for w2 in [14.0, 36.0, 64.0, 100.0]:
-            save_lcs([run(20, 40, w2, result_logit) for _ in range(10)], f'dynamic_{w2}_logit')
-            save_lcs([run(20, 40, w2, result_probit) for _ in range(10)], f'dynamic_{w2}_probit')
+            save_lcs([run(20, 60, w2, result_logit) for _ in range(10)], f'dynamic_{w2}_logit')
+            save_lcs([run(20, 60, w2, result_probit) for _ in range(10)], f'dynamic_{w2}_probit')
     if args.plot:
         print("Plotting")
         for w2 in [14.0, 36.0, 64.0, 100.0]:
