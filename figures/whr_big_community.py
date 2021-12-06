@@ -1,4 +1,4 @@
-from random import random
+from random import random, seed
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -56,7 +56,7 @@ def create_community_dataset(opponents_true_skill, repetitions, result_fn, playe
 
 
 def run(opponents_diff, repetitions, result_fn, player_matches=10):
-    opponents_true_skill = range(-MAXIMUM, MAXIMUM, opponents_diff)
+    opponents_true_skill = range(-MAXIMUM, MAXIMUM + 1, opponents_diff)
     df = create_community_dataset(opponents_true_skill, repetitions, result_fn, player_matches)
     runner = WHRRunner(df)
     runner.iterate()
@@ -149,6 +149,7 @@ def plot_all(model):
 
 
 if __name__ == '__main__':
+    seed(1234)
     parser = ArgumentParser(description='Corre el modelo WHR sobre un dataset en CSV.')
     parser.add_argument('-r', '--run', dest='run', default=False, action='store_true')
     parser.add_argument('-p', '--plot', dest='plot', default=False, action='store_true')
