@@ -19,6 +19,7 @@ player.days.append(playerday)
 
 player.update_uncertainty()
 
-print('Prior mean:', playerday.elo)
-print('Prior variance:', natural_rating2_to_elo2(playerday.uncertainty))
-print('Prior stderr:', sqrt(natural_rating2_to_elo2(playerday.uncertainty)))
+if __name__ == '__main__':
+    print('Prior mean:', playerday.elo)
+    print('Prior variance:', natural_rating2_to_elo2(playerday.uncertainty))
+    print('Prior stderr:', sqrt(natural_rating2_to_elo2(playerday.uncertainty)))

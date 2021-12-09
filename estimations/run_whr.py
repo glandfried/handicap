@@ -1,12 +1,37 @@
 # pip install whole-history-rating
 from whr import whole_history_rating
+from estimations.whr_prior import playerday as prior
 import pandas as pd
 from functools import reduce
-from math import log, exp, inf
+from math import log, exp, inf, sqrt
 from argparse import ArgumentParser, FileType
 from sys import stdin
+from scipy.stats import norm
 
 COLUMNS = ['black', 'white', 'handicap', 'winner', 'day']
+
+
+def natural_rating2_to_elo2(nr):
+    return nr * ((400 / log(10)) ** 2)
+
+
+def logistic_likelihood(diff_elo):
+    return 1 / (1 + 10 ** (-diff_elo / 400))
+
+
+def integrate(mean, stddev, likelihood, steps=51, sigmas=6):
+    A = -steps//2
+    B = A + steps
+    total_p = 0.0
+    dx = 2 * sigmas * stddev / float(steps)
+    ret = 0.0
+    for i in range(A, B):
+        mu = mean + i * dx
+        p = norm.pdf(mu, mean, stddev) * dx
+        total_p += p
+        ret += p * likelihood(mu)
+    # assert(abs(1.0 - total_p) < 10e-8)
+    return ret
 
 
 class WHRRunner:
@@ -27,11 +52,15 @@ class WHRRunner:
         self.auto_iter_rate = auto_iter_rate
         self.auto_iter_time = auto_iter_time
         self.day_batch = day_batch
-    
+
     def match_evidence(self, match):
-        black_probability, white_probability = self.whr.probability_future_match(match['black'], match['white'],
-                                                                                 match['handicap'] * self.handicap_elo)
-        return black_probability if match['winner'] == 'B' else white_probability
+        black_estimate = self.player_estimate(match['black'])
+        white_estimate = self.player_estimate(match['white'])
+
+        mean = black_estimate.elo - white_estimate.elo + match['handicap']
+        stddev = sqrt(natural_rating2_to_elo2(black_estimate.uncertainty + white_estimate.uncertainty))
+        black_probability = integrate(mean, stddev, logistic_likelihood)
+        return black_probability if match['winner'] == 'B' else 1 - black_probability
     
     def optimize_players(self, match):
         self.optimize_player(match['black'])
@@ -88,10 +117,14 @@ class WHRRunner:
     def log_evidence(self):
         return reduce(lambda x, acc: x + acc, [log(e) for e in self.evidence])
 
-    def learning_curves(self):
-        def natural_rating2_to_elo2(nr):
-            return nr * ((400 / log(10))**2)
+    def player_estimate(self, name):
+        player = self.whr.player_by_name(name)
+        if len(player.days) > 0:
+            return player.days[-1]
+        else:
+            return prior
 
+    def learning_curves(self):
         data = [
             (name, d.day, d.elo, natural_rating2_to_elo2(d.uncertainty))
             for name, player in self.whr.players.items()
