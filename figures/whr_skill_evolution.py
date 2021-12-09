@@ -32,7 +32,7 @@ def run(opponents_diff, repetitions, dynamic_factor, result_fn, player_matches=1
         return [opponents_skill.iloc[min(binary_searched, len(opponents_true_skill)-1)]]
 
     history = [
-        ("p", opponent['name'], 0, result_fn(
+        ("p", opponent['player'], 0, result_fn(
             player_skill[day],
             opponent['mean']), day)
         for day in range(1, N+1)
