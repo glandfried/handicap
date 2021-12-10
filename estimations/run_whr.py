@@ -7,6 +7,7 @@ from math import log, exp, inf, sqrt
 from argparse import ArgumentParser, FileType
 from sys import stdin
 from scipy.stats import norm
+from datetime import datetime as dt
 
 COLUMNS = ['black', 'white', 'handicap', 'winner', 'day']
 
@@ -55,7 +56,9 @@ class WHRRunner:
 
     def match_evidence(self, match):
         black_estimate = self.player_estimate(match['black'])
+        black_estimate.player.update_uncertainty()
         white_estimate = self.player_estimate(match['white'])
+        white_estimate.player.update_uncertainty()
 
         mean = black_estimate.elo - white_estimate.elo + match['handicap']
         stddev = sqrt(natural_rating2_to_elo2(black_estimate.uncertainty + white_estimate.uncertainty))
@@ -139,25 +142,45 @@ def read_args():
                         help='CSV con columnas: black, white, handicap, winner, day')
     parser.add_argument('-l', '--learning_curves', dest='learning_curves_file', type=FileType('w'), required=True)
     parser.add_argument('-r', '--results', dest='results_file', type=FileType('w'), required=True)
-    parser.add_argument('-i', '--auto_iter_rate', dest='auto_iter_rate', type=int, default=100,
-                        help='Cantidad de partidos entre iteraciones del algoritmo de Newton')
     parser.add_argument('-d', '--dynamic_factor', dest='dynamic_factor', type=float, default=14.0,
                         help='Factor dinámico que indica cuánto puede cambiar la habilidad en el tiempo,'
                              ' en unidades de Elo^2/dia')
     parser.add_argument('-e', '--handicap_elo', dest='handicap_elo', type=float, default=50.0,
                         help='Habilidad agregada por cada piedra de handicap a favor, en unidades de Elo')
+    parser.add_argument('-i', '--auto_iter_rate', dest='auto_iter_rate', type=int, default=100,
+                        help='Cantidad de partidos entre iteraciones del algoritmo de Newton')
+    parser.add_argument('-t', '--auto_iter_time', dest='auto_iter_time', type=float, default=inf,
+                        help='Tiempo que se le da para converger (por defecto, infinito)')
+    parser.add_argument('-b', '--day_batch', dest='day_batch', action='store_true',
+                        help='Cantidad de partidos entre iteraciones del algoritmo de Newton')
     return parser.parse_args()
+
+
+def run(dataset, learning_curves_file, results_file, handicap_elo=0.0, dynamic_factor=14.0,
+        auto_iter_rate=inf, auto_iter_time=inf, day_batch=False):
+    df = pd.read_csv(dataset)
+
+    runner = WHRRunner(df,
+                       handicap_elo=handicap_elo,
+                       dynamic_factor=dynamic_factor,
+                       auto_iter_rate=auto_iter_rate,
+                       auto_iter_time=auto_iter_time,
+                       day_batch=day_batch)
+    start_time = dt.now()
+    runner.iterate()
+    end_time = dt.now()
+
+    runner.learning_curves().to_csv(learning_curves_file, index=False)
+
+    print("geometric_mean:", runner.geometric_mean(), file=results_file)  # 0.5369 en AAGO
+    print("log_evidence:", runner.log_evidence(), file=results_file)  # -2081.4123902144534 en AAGO
+    print("cross_entropy:", runner.cross_entropy(), file=results_file)  # 0.6218740335268759 en AAGO
+    print("runtime:", (end_time - start_time).total_seconds(), file=results_file)
 
 
 if __name__ == "__main__":
     args = read_args()
-    df = pd.read_csv(args.dataset)
-
-    runner = WHRRunner(df, args.handicap_elo, args.dynamic_factor, args.auto_iter_rate)
-    runner.iterate()
-
-    runner.learning_curves().to_csv(args.learning_curves_file, index=False)
-
-    print("geometric_mean:", runner.geometric_mean(), file=args.results_file)  # 0.5369 en AAGO
-    print("log_evidence:", runner.log_evidence(), file=args.results_file)  # -2081.4123902144534 en AAGO
-    print("cross_entropy:", runner.cross_entropy(), file=args.results_file)  # 0.6218740335268759 en AAGO
+    print("Argumentos:")
+    for arg in vars(args):
+        print(f"{arg}: {getattr(args, arg)}")
+    run(**vars(args))
