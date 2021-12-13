@@ -8,7 +8,7 @@ DIR = "estimations/whr/aago/"
 
 os.makedirs(DIR, exist_ok=True)
 
-HANDICAP_ELOS = range(0, 351, 50)
+HANDICAP_ELOS = range(0, 251, 25)
 DYNAMIC_FACTORS = map(lambda w: w**2, range(1, 11))
 
 EXPERIMENTS = list(product(HANDICAP_ELOS, DYNAMIC_FACTORS))
