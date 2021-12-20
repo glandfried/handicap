@@ -178,6 +178,14 @@ def run(dataset, learning_curves_file, results_file, handicap_elo=0.0, dynamic_f
     print("runtime:", (end_time - start_time).total_seconds(), file=results_file)
 
 
+def parse_results(file):
+    res = dict()
+    for line in file.readlines():
+        parsed = line.replace('\n', '').split(': ')
+        res[parsed[0]] = parsed[1]
+    return res
+
+
 if __name__ == "__main__":
     args = read_args()
     print("Argumentos:")
