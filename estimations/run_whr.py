@@ -41,7 +41,7 @@ class WHRRunner:
         """
         @param dynamic_factor: número que indica cuanta varianza hay entre las habilidades de un jugador en el tiempo
         @param handicap_elo: número que indica la habilidad que aporta una piedra de handicap, medido en unidades de elo
-        @param matches: DataFrame con columnas 'black', 'white', 'handicap', 'winner', 'day'
+        @param matches: DataFrame con columnas 'id', 'black', 'white', 'handicap', 'winner', 'day'
         @param auto_iter_rate: número de partidas antes de volver a converger. Ignorado si day_batch es verdadero
         @param auto_iter_time: tiempo que se le da a WHR para converger
         @param day_batch: si es verdadero, se convergerá una vez por día de juego
@@ -135,6 +135,12 @@ class WHRRunner:
         ]
         return pd.DataFrame(data, columns=['player', 'day', 'mean', 'variance'])
 
+    def matches_evidence(self):
+        return pd.DataFrame([
+            (match['id'], evidence)
+            for (match, evidence) in zip(self.matches, self.evidence)
+        ], columns=['id', 'evidence'])
+
 
 def read_args():
     parser = ArgumentParser(description='Corre el modelo WHR sobre un dataset en CSV.')
@@ -156,7 +162,7 @@ def read_args():
     return parser.parse_args()
 
 
-def run(dataset, learning_curves_file, results_file, handicap_elo=0.0, dynamic_factor=14.0,
+def run(dataset, handicap_elo=0.0, dynamic_factor=14.0,
         auto_iter_rate=inf, auto_iter_time=inf, day_batch=False):
     df = pd.read_csv(dataset)
 
@@ -170,12 +176,14 @@ def run(dataset, learning_curves_file, results_file, handicap_elo=0.0, dynamic_f
     runner.iterate()
     end_time = dt.now()
 
-    runner.learning_curves().to_csv(learning_curves_file, index=False)
+    return runner, (end_time - start_time).total_seconds()
 
-    print("geometric_mean:", runner.geometric_mean(), file=results_file)  # 0.5369 en AAGO
-    print("log_evidence:", runner.log_evidence(), file=results_file)  # -2081.4123902144534 en AAGO
-    print("cross_entropy:", runner.cross_entropy(), file=results_file)  # 0.6218740335268759 en AAGO
-    print("runtime:", (end_time - start_time).total_seconds(), file=results_file)
+
+def save_results(file, runner, runtime):
+    print("geometric_mean:", runner.geometric_mean(), file=file)  # 0.5369 en AAGO
+    print("log_evidence:", runner.log_evidence(), file=file)  # -2081.4123902144534 en AAGO
+    print("cross_entropy:", runner.cross_entropy(), file=file)  # 0.6218740335268759 en AAGO
+    print("runtime:", runtime, file=file)
 
 
 def parse_results(file):
@@ -186,9 +194,16 @@ def parse_results(file):
     return res
 
 
-if __name__ == "__main__":
+def main():
     args = read_args()
     print("Argumentos:")
     for arg in vars(args):
         print(f"{arg}: {getattr(args, arg)}")
-    run(**vars(args))
+    runner, runtime = run(**vars(args))
+
+    runner.learning_curves().to_csv(args.learning_curves_file, index=False)
+    save_results(args.results_file, runner, runtime)
+
+
+if __name__ == "__main__":
+    main()

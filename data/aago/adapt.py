@@ -11,5 +11,5 @@ df['date'] = df['date'].apply(date.fromisoformat)
 first_day = df['date'].min()
 df['day'] = df['date'].apply(lambda d: (d - first_day).days + 1)
 
-columns = ['black', 'white', 'handicap', 'komi', 'winner', 'day']
+columns = ['id', 'black', 'white', 'handicap', 'komi', 'winner', 'day']
 df.sort_values('day').to_csv('./aago.adapted.csv', columns=columns, index=False)
