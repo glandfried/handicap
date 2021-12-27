@@ -9,18 +9,8 @@ from estimations.run_whr import parse_results
 DIR = 'figures/whr/aago/'
 
 
-def get_results(handicap_elo, dynamic_factor, prop):
-    with open(results_path(handicap_elo, dynamic_factor)) as f:
-        results = parse_results(f)
-        return float(results[prop]) if prop in results else None
-
-
 def plot_property(prop, prop_title):
-    data = pd.DataFrame([
-        (handicap_elo, dynamic_factor, get_results(handicap_elo, dynamic_factor, prop))
-        for handicap_elo, dynamic_factor in EXPERIMENTS
-        if get_results(handicap_elo, dynamic_factor, prop) is not None
-    ], columns=['handicap_elo', 'dynamic_factor', prop])
+    data = pd.read_csv(results_path())
 
     fig, ax = plt.subplots(figsize=(12, 9))
     sns.heatmap(data.pivot(index='handicap_elo', columns='dynamic_factor', values=prop),

@@ -138,7 +138,7 @@ class WHRRunner:
     def matches_evidence(self):
         return pd.DataFrame([
             (match['id'], evidence)
-            for (match, evidence) in zip(self.matches, self.evidence)
+            for ((_, match), evidence) in zip(self.matches.iterrows(), self.evidence)
         ], columns=['id', 'evidence'])
 
 

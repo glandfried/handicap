@@ -1,7 +1,6 @@
 from estimations.run_whr import run
 from itertools import product
 import os
-import pandas as pd
 from tqdm import tqdm
 import logging
 
@@ -29,39 +28,36 @@ def evidence_path(handicap_elo, dynamic_factor):
 
 
 def run_with(handicap_elo, dynamic_factor):
-    lc_filename = lc_path(dynamic_factor, handicap_elo)
-    evidence_filename = evidence_path(dynamic_factor, handicap_elo)
-    # if not os.path.exists(lc_filename) or os.path.getsize(lc_filename) == 0:
-    try:
-        logging.info(f'Corriendo con handicap {handicap_elo} y w2 {dynamic_factor}')
-        with open(AAGO_CSV) as aago_csv:
-            runner, runtime = run(aago_csv,
-                                  handicap_elo=handicap_elo,
-                                  dynamic_factor=dynamic_factor,
-                                  day_batch=True)
-            runner.learning_curves().to_csv(lc_filename, index=False)
-            runner.matches_evidence().to_csv(evidence_filename, index=False)
-            return {
-                "geometric_mean:": runner.geometric_mean(),
-                "log_evidence": runner.log_evidence(),
-                "runtime": runtime
-            }
-    except AttributeError as err:
-        logging.error(f'Handicap: {handicap_elo}, w2: {dynamic_factor}, error: {err}')
+    lc_filename = lc_path(handicap_elo, dynamic_factor)
+    evidence_filename = evidence_path(handicap_elo, dynamic_factor)
+    if not os.path.exists(lc_filename):
+        try:
+            logging.info(f'Corriendo con handicap {handicap_elo} y w2 {dynamic_factor}')
+            with open(AAGO_CSV) as aago_csv:
+                runner, runtime = run(aago_csv,
+                                      handicap_elo=handicap_elo,
+                                      dynamic_factor=dynamic_factor,
+                                      day_batch=True)
+                runner.learning_curves().to_csv(lc_filename, index=False)
+                runner.matches_evidence().to_csv(evidence_filename, index=False)
+                return {
+                    "geometric_mean:": runner.geometric_mean(),
+                    "log_evidence": runner.log_evidence(),
+                    "runtime": runtime
+                }
+        except AttributeError as err:
+            logging.error(f'Handicap: {handicap_elo}, w2: {dynamic_factor}, error: {err}')
 
 
 def main():
     logging.basicConfig(format='[%(levelname)s] %(asctime)s - %(message)s',
                         filename=os.path.join(DIR, 'log.log'),
                         level=logging.INFO)
-    res_df = pd.read_csv(results_path())
     for handicap_elo, dynamic_factor in tqdm(EXPERIMENTS):
         stats = run_with(handicap_elo, dynamic_factor)
         if stats is not None:
             stats['handicap_elo'] = handicap_elo
             stats['dynamic_factor'] = dynamic_factor
-            res_df.append(stats)
-            res_df.to_csv(results_path(), index=False)
 
 
 if __name__ == '__main__':
