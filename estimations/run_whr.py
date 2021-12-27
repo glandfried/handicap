@@ -48,6 +48,7 @@ class WHRRunner:
         """
         self.whr = whole_history_rating.Base({'w2': dynamic_factor})
         self.evidence = []
+        self.priors = []
         self.handicap_elo = handicap_elo
         self.matches = matches
         self.auto_iter_rate = auto_iter_rate
@@ -56,12 +57,10 @@ class WHRRunner:
 
     def match_evidence(self, match):
         black_estimate = self.player_estimate(match['black'])
-        black_estimate.player.update_uncertainty()
         white_estimate = self.player_estimate(match['white'])
-        white_estimate.player.update_uncertainty()
 
-        mean = black_estimate.elo - white_estimate.elo + match['handicap']
-        stddev = sqrt(natural_rating2_to_elo2(black_estimate.uncertainty + white_estimate.uncertainty))
+        mean = black_estimate['mean'] - white_estimate['mean'] + match['handicap'] * self.handicap_elo
+        stddev = sqrt(black_estimate['variance'] + white_estimate['variance'])
         black_probability = integrate(mean, stddev, logistic_likelihood)
         return black_probability if match['winner'] == 'B' else 1 - black_probability
     
@@ -108,6 +107,7 @@ class WHRRunner:
 
     def process_match(self, match):
         self.evidence.append(self.match_evidence(match))
+        self.priors.append((self.player_estimate(match['black']), self.player_estimate(match['white'])))
         self.whr.create_game(match['black'], match['white'], match['winner'],
                              match['day'], match['handicap'] * self.handicap_elo)
     
@@ -122,10 +122,12 @@ class WHRRunner:
 
     def player_estimate(self, name):
         player = self.whr.player_by_name(name)
+        player.update_uncertainty()
         if len(player.days) > 0:
-            return player.days[-1]
+            estimate = player.days[-1]
         else:
-            return prior
+            estimate = prior
+        return {'mean': estimate.elo, 'variance': natural_rating2_to_elo2(estimate.uncertainty)}
 
     def learning_curves(self):
         data = [
@@ -137,9 +139,9 @@ class WHRRunner:
 
     def matches_evidence(self):
         return pd.DataFrame([
-            (match['id'], evidence)
-            for ((_, match), evidence) in zip(self.matches.iterrows(), self.evidence)
-        ], columns=['id', 'evidence'])
+            (match['id'], black['mean'], black['variance'], white['mean'], white['variance'], evidence)
+            for ((_, match), (black, white), evidence) in zip(self.matches.iterrows(), self.priors, self.evidence)
+        ], columns=['id', 'black_mean', 'black_variance' 'white_mean', 'white_variance', 'evidence'])
 
 
 def read_args():
