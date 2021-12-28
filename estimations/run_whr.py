@@ -138,10 +138,12 @@ class WHRRunner:
         return pd.DataFrame(data, columns=['player', 'day', 'mean', 'variance'])
 
     def matches_evidence(self):
-        return pd.DataFrame([
+        data = [
             (match['id'], black['mean'], black['variance'], white['mean'], white['variance'], evidence)
             for ((_, match), (black, white), evidence) in zip(self.matches.iterrows(), self.priors, self.evidence)
-        ], columns=['id', 'black_mean', 'black_variance' 'white_mean', 'white_variance', 'evidence'])
+        ]
+        columns = ['id', 'black_mean', 'black_variance', 'white_mean', 'white_variance', 'evidence']
+        return pd.DataFrame(data, columns=columns)
 
 
 def read_args():
