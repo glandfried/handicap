@@ -30,7 +30,7 @@ def evidence_path(handicap_elo, dynamic_factor):
 def run_with(handicap_elo, dynamic_factor):
     lc_filename = lc_path(handicap_elo, dynamic_factor)
     evidence_filename = evidence_path(handicap_elo, dynamic_factor)
-    if True:  # not os.path.exists(lc_filename):
+    if not os.path.exists(lc_filename) or os.path.getsize(lc_filename) == 0:
         try:
             logging.info(f'Corriendo con handicap {handicap_elo} y w2 {dynamic_factor}')
             with open(AAGO_CSV) as aago_csv:
