@@ -23,7 +23,7 @@ end
 
 data = read_data("../data/aago/aago_filtered.csv")
 days, results = set_arguments(data)
-model = "h-kreg"
+model = "hreg-kreg"
 result = optimize(g->objective(g, data, days, results, model), 0.0, 5.0)
 println(result)
 println("El mejor gamma es:")

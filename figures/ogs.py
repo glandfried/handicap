@@ -1,6 +1,7 @@
 import os
 name = os.path.basename(__file__).split(".py")[0]
 #
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from matplotlib import collections  as mc
 ###--------------
@@ -26,20 +27,34 @@ ttt_hr_kr = pd.read_csv('../estimations/output/ogs_ttt-h_regression-komi-regress
 
 ttt_h_kr = pd.read_csv('../estimations/output/ogs_ttt-h-komi-regression.csv')
 
+import matplotlib.pyplot as plt
+
+patch_ttt_h = mpatches.Patch(color=colors[0], label='ttt_h')
+patch_ttt_h_k = mpatches.Patch(color=colors[1], label='ttt_h_k')
+patch_ttt_hr_kr = mpatches.Patch(color=colors[2], label='ttt_hr_kr')
+patch_ttt_h_kr = mpatches.Patch(color=colors[3], label='ttt_h_kr')
+
 # HANDICAP 19
 
 filtro = ttt_h["s"] == 19
 mu = np.array([x for y, x in sorted(zip(ttt_h["h"][filtro],ttt_h.loc[filtro,:].mu)) if y < 9 ])
 sigma = np.array([x for y, x in sorted(zip(ttt_h["h"][filtro],ttt_h.loc[filtro,:].sigma)) if y < 9 ])
 
-plt.plot(range(2,9), mu,color=colors[0]) 
+plt.plot(range(2,9), mu,color=colors[0])
+plt.xlabel("Handicap", size=16)
+plt.ylabel("Skill", size=16)
 plt.scatter(range(2,9), mu,color=colors[0]) 
 for i in range(len(mu)):
     plt.plot([i+2,i+2], [mu[i]-sigma[i],mu[i]+sigma[i]], color=colors[0])
 
+name = "ogs/ogs_estimado_handicap.pdf"
+plt.savefig(name,pad_inches =0,transparent =True,frameon=True)
+bash_cmd = "pdfcrop --margins '0 0 0 0' {0} {0}".format(name)
+os.system(bash_cmd)
+
 filtro = (ttt_h_k["s"] == 19) & (ttt_h_k["t"] == "h")
 mu = np.array([x for y, x in sorted(zip(ttt_h_k["h"][filtro],ttt_h_k.loc[filtro,:].mu)) if y < 9 ])
-sigma = np.array([x for y, x in sorted(zip(ttt_h_k["h" [filtro],ttt_h_k.loc[filtro,:].sigma)) if y < 9 ])
+sigma = np.array([x for y, x in sorted(zip(ttt_h_k["h"][filtro],ttt_h_k.loc[filtro,:].sigma)) if y < 9 ])
 
 plt.plot(range(2,9), mu,color=colors[1]) 
 plt.scatter(range(2,9), mu,color=colors[1]) 
@@ -54,20 +69,32 @@ plt.scatter(range(2,9), mu,color=colors[2])
 for i in range(len(mu)):
     plt.plot([i+2,i+2], [mu[i]-sigma[i],mu[i]+sigma[i]], color=colors[2])
 
-plt.show()
+
+filtro = [ True if  ("19)" in h) and int(h.split(",")[0].split("(")[1]) < 9 else False for h in ttt_h_kr.id]
+sorted(ttt_h_kr.id[filtro], key= lambda x: int(x.split(",")[0].split("(")[1]) )
+mu = np.array([x for y, x in sorted(zip(ttt_h_kr.id[filtro],ttt_h_kr.loc[filtro,:].mu),  key= lambda x: int(x[0].split(",")[0].split("(")[1]))])
+sigma = np.array([x for y, x in sorted(zip(ttt_h_kr.id[filtro],ttt_h_kr.loc[filtro,:].sigma), key= lambda x: int(x[0].split(",")[0].split("(")[1]))])
+
+plt.plot(range(2,9), mu,color=colors[3]) 
+plt.scatter(range(2,9), mu,color=colors[3]) 
+for i in range(len(mu)):
+    plt.plot([i+2,i+2], [mu[i]-sigma[i],mu[i]+sigma[i]], color=colors[3])
+
+
+plt.legend(handles=[patch_ttt_h, patch_ttt_h_k, patch_ttt_hr_kr, patch_ttt_h_kr])
+
+#plt.show()
+
+name = "ogs/ogs_estimado_handicap_con_komi.pdf"
+plt.savefig(name,pad_inches =0,transparent =True,frameon=True)
+bash_cmd = "pdfcrop --margins '0 0 0 0' {0} {0}".format(name)
+os.system(bash_cmd)
+
 
 # Komi 19
 
+plt.close()
 komi = np.arange(0,10)+0.5
-
-filtro = (ttt_h_k["s"] == 19) & (ttt_h_k["t"] == "k")
-np.array([y for y, x in sorted(zip(ttt_h_k["h"][filtro],ttt_h_k.loc[filtro,:].mu)) if (y in komi) ])
-mu = np.array([x for y, x in sorted(zip(ttt_h_k["h"][filtro],ttt_h_k.loc[filtro,:].mu)) if (y in komi)])
-sigma = np.array([x for y, x in sorted(zip(ttt_h_k["h"] [filtro],ttt_h_k.loc[filtro,:].sigma)) if (y in komi) ])
-plt.plot(komi , mu, color=colors[1]) 
-plt.scatter(komi , mu,color=colors[1]) 
-for i in range(len(komi)):
-    plt.plot([komi[i],komi[i]], [mu[i]-sigma[i],mu[i]+sigma[i]], color=colors[1])
 
 filtro = ttt_hr_kr.id == "_komi19_1_" 
 mu1 = np.array([ (i+0.5)*float(ttt_hr_kr[filtro].mu) for i in range(0,10)])
@@ -97,10 +124,28 @@ for i in range(len(komi)):
     plt.plot([komi[i],komi[i]], [mu[i]-sigma[i],mu[i]+sigma[i]], color=colors[3])
 
 
+filtro = (ttt_h_k["s"] == 19) & (ttt_h_k["t"] == "k")
+np.array([y for y, x in sorted(zip(ttt_h_k["h"][filtro],ttt_h_k.loc[filtro,:].mu)) if (y in komi) ])
+mu = np.array([x for y, x in sorted(zip(ttt_h_k["h"][filtro],ttt_h_k.loc[filtro,:].mu)) if (y in komi)])
+sigma = np.array([x for y, x in sorted(zip(ttt_h_k["h"] [filtro],ttt_h_k.loc[filtro,:].sigma)) if (y in komi) ])
+plt.plot(komi , mu, color=colors[1]) 
+plt.xlabel("Komi", size=16)
+plt.ylabel("Skill", size=16)
+plt.scatter(komi , mu,color=colors[1]) 
+for i in range(len(komi)):
+    plt.plot([komi[i],komi[i]], [mu[i]-sigma[i],mu[i]+sigma[i]], color=colors[1])
+
+
+
 plt.axhline(y=0.0, color='gray', linestyle='-')
-plt.show()
+plt.legend(handles=[patch_ttt_h_k, patch_ttt_hr_kr, patch_ttt_h_kr])
+
+#plt.show()
+
+name = "ogs/ogs_estimado_komi.pdf"
+plt.savefig(name,pad_inches =0,transparent =True,frameon=True)
+bash_cmd = "pdfcrop --margins '0 0 0 0' {0} {0}".format(name)
+os.system(bash_cmd)
+
 
 ###--------------
-plt.savefig("pdf/"+name+".pdf",pad_inches =0,transparent =True,frameon=True)
-bash_cmd = "pdfcrop --margins '0 0 0 0' pdf/{0}.pdf pdf/{0}.pdf".format(name)
-os.system(bash_cmd)

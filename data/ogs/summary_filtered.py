@@ -40,7 +40,7 @@ df["black_win"] = df.order.map(lambda x :  1 if x[1]=='1' else 0)
 
 df['started'] = df.started.map(lambda x : x[:10])
 
-df = df[['id','black','white','outcome','black_win','black_win_not_komi','handicap','komi', 'width','points','ranked','started','ended']]
+df = df[['id','black','white','outcome','black_win','handicap','komi', 'width','points','ranked','started','ended']]
 # Ordeno
 df.sort_values(by=['ended','started','id'])
 
