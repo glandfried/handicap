@@ -14,8 +14,8 @@ filtered = {}
 ##%% Selecciono las columnas que quiero y las filas con ciertas restricciones
 filtered['Result'] = sum(~ ((df.result=="black") | (df.result=="white")))
 df = df[((df.result=="black") | (df.result=="white"))]
-filtered['Reason'] = sum(~((df.reason== "resignation") | (df.reason== "points") | (df.reason== "timeout") | (df.reason== "unknown")))
-df = df[((df.reason== "resignation") | (df.reason== "points") | (df.reason== "timeout") | (df.reason== "unknown"))]
+filtered['Reason'] = sum(~((df.reason== "resignation") | (df.reason== "points") | (df.reason== "timeout") | (df.reason== "unknown") | (df.reason== "other")))
+df = df[((df.reason== "resignation") | (df.reason== "points") | (df.reason== "timeout") | (df.reason== "unknown") | (df.reason== "other"))]
 filtered['Unrated'] = sum((df.unrated!=0))
 df = df[df.unrated==0] #qué es esto?
 
@@ -30,3 +30,6 @@ df = df.reset_index()
 df.to_csv("aago_filtered.csv", index=False)
 df_light = df[['black','white','started','black_win','width','komi','handicap']]
 df_light.to_csv("aago_light.csv", index=False)
+df_raago = df[['black','white','started','black_win','width','komi','handicap','event_id']]
+df_raago=df_raago.sort_values(by='event_id')
+df_raago.to_csv("aago_raago.csv", index=False)
