@@ -34,10 +34,10 @@ def mu_sigma(player_id, ev_id):
 
 
 games_filename = "handicap/data/aago/aago_raago.csv"
-categories_filename = "aga-validation/archivos/aago_validation/categories.csv"
-estimations_filename = "aga-validation/archivos/aago_validation/raago.csv"
-events_filename = "aga-validation/archivos/aago_validation/events.csv"
-in_filename = "aga-validation/archivos/aago_validation/in.csv"
+categories_filename = "handicap/validation/aga/archivos/aago_validation/categories.csv"
+estimations_filename = "handicap/validation/aga/archivos/aago_validation/raago.csv"
+events_filename = "handicap/validation/aga/archivos/aago_validation/events.csv"
+in_filename = "handicap/validation/aga/archivos/aago_validation/in.csv"
 
 create_in_file(in_filename)
 
@@ -80,27 +80,45 @@ players = {}
 log_evidence = 0
 
 with open(in_filename, 'r') as file:
-    file.readline()
-    for line in file:
-        [black,white,started,black_win,width,komi,handicap,event_id,end_date] = line.split(",")
-        if not (black in players):
-            players[black] = mu_sigma(black, event_id)
-        if not (white in players):
-            players[white] = mu_sigma(white, event_id)
-        # a esta altura ambos estan definidos en players
-        # obtengo mus y sigmas
-        if black_win:
-            winner_mu, winner_sigma = players[black]
-            loser_mu, loser_sigma = players[white]
-        else:
-            winner_mu, winner_sigma = players[white]
-            loser_mu, loser_sigma = players[black]
-        #calculo evidencia
-        actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi))
-        log_evidence += math.log(actual_evidence)
-        print(log_evidence)
-        # actualizo players con la estimacion de raago posterior a esta partida
-        b_mu, b_sigma = estimations_dict[event_id, black]
-        players[black] = float(b_mu), float(b_sigma)
-        w_mu, w_sigma = estimations_dict[event_id, white]
-        players[white] = float(w_mu), float(w_sigma)
+    with open('handicap/validation/aga/scripts/log_evidence.txt', 'w') as log_file :
+        with open('handicap/validation/aga/scripts/log_ev.csv', 'w') as log_csv :
+            print("evidence,handicap,komi,w_mu,w_cat,l_mu,l_cat", file=log_csv)
+            file.readline()
+            for line in file:
+                [black,white,started,black_win,width,komi,handicap,event_id,end_date] = line.split(",")
+                print(event_id)
+                if not (black in players):
+                    print('.black not in players:', file=log_file)
+                    print(black, file=log_file)
+                    players[black] = mu_sigma(black, event_id)
+                if not (white in players):
+                    print('.white not in players', file=log_file)
+                    print(white, file=log_file)
+                    players[white] = mu_sigma(white, event_id)
+                # a esta altura ambos estan definidos en players
+                # obtengo mus y sigmas
+                if black_win == 'True':
+                    winner_mu, winner_sigma = players[black]
+                    loser_mu, loser_sigma = players[white]
+                else:
+                    winner_mu, winner_sigma = players[white]
+                    loser_mu, loser_sigma = players[black]
+                #calculo evidencia
+                actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi))
+                log_evidence += math.log(actual_evidence)
+                winner_id = black if (black_win == 'True') else white
+                loser_id = white if (black_win == 'True') else black
+                w_category = cat_dict[event_id, winner_id]
+                l_category = cat_dict[event_id, loser_id]
+                print("  winner id, mu, sigma, category:", file=log_file)
+                print(winner_id, winner_mu, winner_sigma, w_category, file=log_file)
+                print("  loser id, mu, sigma, category:", file=log_file)
+                print(loser_id, loser_mu, loser_sigma, l_category, file=log_file)
+                print('--evidence', file=log_file)
+                print(actual_evidence, file=log_file)
+                print(actual_evidence, handicap, komi, winner_mu, w_category, loser_mu, l_category, file = log_csv)
+                # actualizo players con la estimacion de raago posterior a esta partida
+                b_mu, b_sigma = estimations_dict[event_id, black]
+                players[black] = float(b_mu), float(b_sigma)
+                w_mu, w_sigma = estimations_dict[event_id, white]
+                players[white] = float(w_mu), float(w_sigma)

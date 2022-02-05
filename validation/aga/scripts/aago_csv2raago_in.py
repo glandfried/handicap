@@ -78,7 +78,7 @@ def create_in_file(out_filename):
 
 # calcula mu y sigma iniciales de un jugador, es decir,
 # para partidas en las que tienen mu y sigma = NULL
-# a partir de su categoria declarada  
+# a partir de su categoria declarada
 def mu_sigma_float(player_id, ev_id):
     if players_dict[player_id].mu == 'NULL':
         assert(players_dict[player_id].sigma == 'NULL')
@@ -109,13 +109,13 @@ def mu_sigma_float(player_id, ev_id):
 
 #filenames entrando desde ../../
 games_filename = "handicap/data/aago/aago_raago.csv"
-game_filename = "aga-validation/archivos/aago_validation/game_"
-result_filename = "aga-validation/archivos/aago_validation/results_"
-final_results_fname = "aga-validation/archivos/aago_validation/results_final.csv"
+game_filename = "handicap/validation/aga/archivos/aago_validation/game_"
+result_filename = "handicap/validation/aga/archivos/aago_validation/results_"
+final_results_fname = "handicap/validation/aga/archivos/aago_validation/results_final.csv"
 raago_filename = "RAAGo/original-AGA-rating-system/aago-rating-calculator/raago"
-categories_filename = "aga-validation/archivos/aago_validation/categories.csv"
-events_filename = "aga-validation/archivos/aago_validation/events.csv"
-in_filename = "aga-validation/archivos/aago_validation/in.csv"
+categories_filename = "handicap/validation/aga/archivos/aago_validation/categories.csv"
+events_filename = "handicap/validation/aga/archivos/aago_validation/events.csv"
+in_filename = "handicap/validation/aga/archivos/aago_validation/in.csv"
 
 create_in_file(in_filename)
 
@@ -174,7 +174,7 @@ with open(in_filename, 'r') as file:
         event_id = int(event_id)
 
 ### calcular evidencia
-        if black_win:
+        if black_win == 'True':
             winner_mu, winner_sigma = mu_sigma_float(black, event_id)
             loser_mu, loser_sigma = mu_sigma_float(white, event_id)
         else:
@@ -230,6 +230,7 @@ with open(in_filename, 'r') as file:
         out.write(games)
     # corro
     run_raago(game_filename+str(actual_event)+'.in', result_filename+str(actual_event)+'.txt')
+
 
 with open(final_results_fname, 'w') as f:
     for p in players_dict.values():
