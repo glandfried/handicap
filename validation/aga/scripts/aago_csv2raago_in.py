@@ -1,5 +1,5 @@
-# recorro una vez para armar dict de id players
-# recorro otra para poner los resultados
+#Recorre las partidas del csv y usa el algoritmo de RAAGo para calcular estimaciones
+
 import pandas as pd
 import csv
 from math import floor
@@ -30,7 +30,7 @@ def update_players(results_file):
     with open(results_file, 'r') as f:
         for line in f:
             [id, mu, sigma] = line.split()
-            rating = mu2rating(mu)
+            rating = mu2rating(mu) #uso esto? es correcto? igual creo que lo piso
             players_dict[id].rating = rating
             players_dict[id].mu = mu
             players_dict[id].sigma = sigma
@@ -76,9 +76,10 @@ def create_in_file(out_filename):
     #paso a csv con out_filename
     out.to_csv(out_filename, index=False)
 
-# calcula mu y sigma iniciales de un jugador, es decir,
+# calcula mu y sigma de un jugador:
 # para partidas en las que tienen mu y sigma = NULL
-# a partir de su categoria declarada
+# calculo el inicial a partir de su categoria declarada;
+# para los otros uso el diccionario
 def mu_sigma_float(player_id, ev_id):
     if players_dict[player_id].mu == 'NULL':
         assert(players_dict[player_id].sigma == 'NULL')
@@ -97,17 +98,6 @@ def mu_sigma_float(player_id, ev_id):
         sigma = float(players_dict[player_id].sigma)
     return mu, sigma
 
-# filenames desde este entrypoint
-# games_filename = "../../handicap/data/aago/aago_raago.csv"
-# game_filename = "../archivos/aago_validation/game_"
-# result_filename = "../archivos/aago_validation/results_"
-# final_results_fname = "../archivos/aago_validation/results_final.csv"
-# raago_filename = "../../RAAGo/original-AGA-rating-system/aago-rating-calculator/raago"
-# categories_filename = "../archivos/aago_validation/categories.csv"
-# events_filename = "../archivos/aago_validation/events.csv"
-# in_filename = "../archivos/aago_validation/in.csv"
-
-#filenames entrando desde ../../
 games_filename = "handicap/data/aago/aago_raago.csv"
 game_filename = "handicap/validation/aga/archivos/aago_validation/game_"
 result_filename = "handicap/validation/aga/archivos/aago_validation/results_"
@@ -160,7 +150,6 @@ sigma_array = [5.73781, 5.63937, 5.54098, 5.44266, 5.34439,
                     1.01119, 1.00125, 1.00000, 1.00000]
 sigma_dict = { mu+0.5 : sigma_array[mu+50] for mu in range(-50, 9)}
 
-
 actual_event = 1
 games = "GAMES\n"
 players = dict_to_str(players_dict, 1, 'NULL') #pongo 1 porque el primer evento de aago tiene id = 1
@@ -173,7 +162,7 @@ with open(in_filename, 'r') as file:
         [black,white,started,black_win,width,komi,handicap,event_id,end_date] = line.split(",")
         event_id = int(event_id)
 
-### calcular evidencia
+        # calculo evidencia
         if black_win == 'True':
             winner_mu, winner_sigma = mu_sigma_float(black, event_id)
             loser_mu, loser_sigma = mu_sigma_float(white, event_id)
@@ -183,8 +172,6 @@ with open(in_filename, 'r') as file:
         actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi))
         log_evidence += math.log(actual_evidence)
         print(log_evidence)
-###
-
 
         if event_id != actual_event: #si cambié de evento
             print(actual_event)
@@ -203,7 +190,7 @@ with open(in_filename, 'r') as file:
                 print("Archivo inválido")
             # armo el string players para el prox antes de pisarle las dates con el siguiente evento
             players = dict_to_str(players_dict, event_id, to_date(end_date))
-            # reinicio games con solo este game
+            # reinicio games
             games = "GAMES\n"
             # actualizo actual_event
             actual_event = event_id
@@ -211,7 +198,7 @@ with open(in_filename, 'r') as file:
         komi = str(floor(float(komi))) #redondeo para abajo (chequear que este bien lo de japonesas/chinas)
         winner = "BLACK" if black_win == 'True' else "WHITE"
         new_line = white + ' ' + black + ' ' + handicap + ' ' + komi + ' ' + winner + "\n"
-        #agrego evento a game
+        #agrego evento a games
         games = games + new_line
         #acá tendría que modificar el days de los jugadores implicados
         this_date = to_date(end_date)
