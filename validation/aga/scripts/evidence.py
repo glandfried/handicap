@@ -3,6 +3,28 @@ import csv
 import math
 import RAAGo.scripts.rango_aux as rango
 
+class Player:
+    def __init__(self, last_mu, last_sigma, last_event_id= 'NULL', previous_mu= 'NULL', previous_sigma= 'NULL'):
+        self.last_mu = last_mu
+        self.last_sigma = last_sigma
+        self.last_event_id = last_event_id
+        self.previous_mu = previous_mu
+        self.previous_sigma = previous_sigma
+
+    def estimation(self, ev_id):
+        if self.last_event_id == ev_id: #si quiero saber el prior para un evento, no uso el posterior de ese evento. esto sirve para cuando hay varios partidos de un mismo jugador en un mismo evento
+            return self.previous_mu, self.previous_sigma
+        else:
+            return self.last_mu, self.last_sigma
+
+    def update(self, mu, sigma, ev_id):
+        if self.last_event_id != ev_id:
+            self.previous_mu = self.last_mu
+            self.previous_sigma = self.last_sigma
+            self.last_mu = mu
+            self.last_sigma = sigma
+            self.last_event_id = ev_id
+
 #agrega end_date del evento (que está en events_filename) a las partidas (de games_filename), los ordena en base a eso (event_id desempata) y lo guarda en out_filename
 def create_in_file(out_filename):
     #cargo games_filename
@@ -78,34 +100,46 @@ players = {}
 #                               - (dsps) la estimacion guardada en este dict
 #   lo defino en el dicc a partir del resultado en estimations_filename
 log_evidence = 0
+good_evidence = 0 #log evidence ignorando los casos que recien entran
 
 with open(in_filename, 'r') as file:
     with open('handicap/validation/aga/scripts/log_evidence.txt', 'w') as log_file :
         with open('handicap/validation/aga/scripts/log_ev.csv', 'w') as log_csv :
-            print("evidence,handicap,komi,w_mu,w_cat,l_mu,l_cat", file=log_csv)
+            print("evidence,handicap,komi,w_id,w_mu,w_cat,l_id,l_mu,l_cat", file=log_csv)
             file.readline()
             for line in file:
                 [black,white,started,black_win,width,komi,handicap,event_id,end_date] = line.split(",")
                 print(event_id)
+                print('Evento:', file=log_file)
+                print(event_id, file=log_file)
                 if not (black in players):
                     print('.black not in players:', file=log_file)
                     print(black, file=log_file)
-                    players[black] = mu_sigma(black, event_id)
+                    mu,sigma = mu_sigma(black, event_id)
+                    players[black] = Player(mu,sigma)
                 if not (white in players):
                     print('.white not in players', file=log_file)
                     print(white, file=log_file)
-                    players[white] = mu_sigma(white, event_id)
+                    mu,sigma = mu_sigma(white, event_id)
+                    players[white] = Player(mu,sigma)
                 # a esta altura ambos estan definidos en players
+
                 # obtengo mus y sigmas
                 if black_win == 'True':
-                    winner_mu, winner_sigma = players[black]
-                    loser_mu, loser_sigma = players[white]
+                    winner_mu, winner_sigma = players[black].estimation(event_id)
+                    loser_mu, loser_sigma = players[white].estimation(event_id)
                 else:
-                    winner_mu, winner_sigma = players[white]
-                    loser_mu, loser_sigma = players[black]
+                    winner_mu, winner_sigma = players[white].estimation(event_id)
+                    loser_mu, loser_sigma = players[black].estimation(event_id)
+
                 #calculo evidencia
                 actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi))
                 log_evidence += math.log(actual_evidence)
+                print(log_evidence)
+                if players[black].previous_mu != 'NULL' and players[white].previous_mu != 'NULL':
+                    good_evidence += math.log(actual_evidence)
+                    print('Good: ', good_evidence)
+                #loggeo para debuggear
                 winner_id = black if (black_win == 'True') else white
                 loser_id = white if (black_win == 'True') else black
                 w_category = cat_dict[event_id, winner_id]
@@ -116,9 +150,12 @@ with open(in_filename, 'r') as file:
                 print(loser_id, loser_mu, loser_sigma, l_category, file=log_file)
                 print('--evidence', file=log_file)
                 print(actual_evidence, file=log_file)
-                print(actual_evidence, handicap, komi, winner_mu, w_category, loser_mu, l_category, file = log_csv)
+                print('..logaritmo', file=log_file)
+                print(math.log(actual_evidence), file=log_file)
+                print(actual_evidence, handicap, komi, winner_id, winner_mu, w_category, loser_id, loser_mu, l_category, file = log_csv)
+
                 # actualizo players con la estimacion de raago posterior a esta partida
                 b_mu, b_sigma = estimations_dict[event_id, black]
-                players[black] = float(b_mu), float(b_sigma)
+                players[black].update(float(b_mu), float(b_sigma), event_id)
                 w_mu, w_sigma = estimations_dict[event_id, white]
-                players[white] = float(w_mu), float(w_sigma)
+                players[white].update(float(w_mu), float(w_sigma), event_id)
