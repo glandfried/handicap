@@ -63,19 +63,6 @@ def to_date(date_string):
     [year,month,day] = date_string.split('-')
     return date(int(year), int(month), int(day))
 
-#agrega end_date del evento (que está en events_filename) a las partidas (de games_filename), los ordena en base a eso (event_id desempata) y lo guarda en out_filename
-def create_in_file(out_filename):
-    #cargo games_filename
-    games = pd.read_csv(games_filename)
-    #cargo events_filename
-    events = pd.read_csv(events_filename)
-    #joineo
-    out = games.merge(events, on= 'event_id', how= 'left')
-    #ordeno
-    out = out.sort_values(by=['end_date','event_id'])
-    #paso a csv con out_filename
-    out.to_csv(out_filename, index=False)
-
 # calcula mu y sigma de un jugador:
 # para partidas en las que tienen mu y sigma = NULL
 # calculo el inicial a partir de su categoria declarada;
@@ -105,9 +92,10 @@ final_results_fname = "handicap/validation/aga/archivos/aago_validation/results_
 raago_filename = "RAAGo/original-AGA-rating-system/aago-rating-calculator/raago"
 categories_filename = "handicap/validation/aga/archivos/aago_validation/categories.csv"
 events_filename = "handicap/validation/aga/archivos/aago_validation/events.csv"
-in_filename = "handicap/validation/aga/archivos/aago_validation/in.csv"
+in_filename = "handicap/data/aago/aago_original_filtered.csv"
 
-create_in_file(in_filename)
+
+
 
 #cargo todos los jugadores, inicializados en 0, etc.
 

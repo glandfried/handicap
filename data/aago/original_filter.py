@@ -3,9 +3,10 @@
 # particularmente la función _rated_query
 import pandas as pd
 
-csv_name = 'aago.csv'
+aago_name = 'aago.csv'
+events_filename = 'events.csv'
 
-df = pd.read_csv(csv_name)
+df = pd.read_csv(aago_name)
 print('original')
 print(len(df))
 
@@ -48,7 +49,15 @@ df.rename(columns = {'white_player_id': 'white'}, inplace = True)
 df['width'] = 19
 
 df = df[['black','white','started','black_win','width','komi','handicap','event_id']]
-df = df.sort_values(by='event_id')
+#df = df.sort_values(by='event_id') lo ordené por end_date - event_id al principio
+
+#cargo events_filename
+events = pd.read_csv(events_filename)
+#joineo
+defe = df.merge(events, on= 'event_id', how= 'left')
+#ordeno
+df = defe.sort_values(by=['end_date','event_id'])
+
 
 df.to_csv("aago_original_filtered.csv", index=False)
 
