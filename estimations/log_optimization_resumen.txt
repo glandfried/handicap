@@ -1,0 +1,28 @@
+
+Online:
+h-k
+* Minimizer: 4.595333e-02
+* Minimum: 2.012620e+03
+h-kreg
+* Minimizer: 4.203202e-02
+* Minimum: 2.003459e+03
+hreg-kreg
+* Minimizer: 4.017297e-02
+* Minimum: 2.000819e+03
+h
+* Minimizer: 4.101337e-02
+* Minimum: 2.002935e+03
+
+Offline:
+h-k
+* Minimizer: 4.436913e-02
+* Minimum: 1.734192e+03
+h-kreg
+* Minimizer: 4.438966e-02
+* Minimum: 1.733679e+03
+hreg-kreg
+* Minimizer: 4.467431e-02
+* Minimum: 1.726770e+03
+h
+* Minimizer: 4.436581e-02
+* Minimum: 1.732869e+03
