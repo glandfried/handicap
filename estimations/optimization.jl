@@ -21,11 +21,14 @@ function objective(gamma, data, days, results, model)
     return (-evidence) #porque minimizo
 end
 
-data = read_data("../data/aago/aago_filtered.csv")
+data = read_data("../data/aago/aago_original_filtered.csv")
 days, results = set_arguments(data)
-model = "hreg-kreg"
-result = optimize(g->objective(g, data, days, results, model), 0.0, 5.0)
-println(result)
-println("El mejor gamma es:")
-min = Optim.minimizer(result)
-println(min)
+#model = "hreg-kreg"
+for model in ["h-k","h-kreg","hreg-kreg","h"]
+    result = optimize(g->objective(g, data, days, results, model), 0.0, 5.0)
+    println(result)
+    println("El mejor gamma es:")
+    min = Optim.minimizer(result)
+    println(min)
+    println("///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////")
+end
