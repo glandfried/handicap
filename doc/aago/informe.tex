@@ -42,6 +42,61 @@
 
 \section*{Metodología}
 
+En este trabajo nos ocupamos de revisar distintos modelos matemático computacionales para estimar la habilidad de jugadores de Go.
+Utilizaremos los principales métodos de la bibliografía, teniendo como base el que usa actualmente la Asociación Argentina de Go (AAGo).
+Además, propondremos extensiones a uno de los métodos (TrueSkill Through Time) para que contemple tanto el handicap como el komi de cada partida.
+
+\subsection*{Datos}
+
+\subsection*{Comparación de modelos}
+
+Al trabajar con distintos modelos, vamos a querer compararlos para saber cual se aproxima mejor a la realidad.
+En este cap\'itulo describiremos la metodolog\'ia bayesiana basada en probabilidad, usando la evidencia de los modelos.
+Esta forma introduce un factor que penaliza modelos m\'as complejos de lo necesario, mediante un t\'ermino conocido como Factor de Ockham, que surge naturalmente de las reglas de la probabilidad.
+Esto evita sobre ajustes, sin necesidad de acudir a penalizadores ad-hoc.
+
+Inicialmente, vamos a considerar dos niveles de inferencia:
+
+\begin{itemize}
+	\item En el primer nivel, asumimos que el modelo con el que trabajamos es el verdadero, y ajustamos nuestro modelo a los datos
+	\item En el segundo nivel, tenemos la comparaci\'on de modelos, en la cu\'al usamos la evidencia del primer nivel
+\end{itemize}
+
+En el primer nivel, suele haber un espacio de hip\'otesis sobre el cual queremos aprender utilizando los datos.
+Por la regla de Bayes:
+
+\begin{equation}\label{eq:bayes-parametros-modelo}
+	P(\theta | D, M) = \frac{P(D|\theta, M) P(\theta|M)}{\int P(D|\theta, M) P(\theta|M) dw} = \frac{P(D|\theta, M) P(\theta|M)}{P(D|M)}
+\end{equation}
+
+donde $\theta$ son las hip\'otesis del modelo, $M$ es el modelo y $D$ son los datos.
+Notamos que en la ecuación \ref{eq:bayes-parametros-modelo}, la evidencia es la \textbf{probabilidad de los datos, dado que el modelo $M$ es el verdadero}: $P(D|M)$.
+
+El segundo nivel de inferencia utiliza la evidencia del primer nivel para calcular la probabilidad del modelo, dados los datos:
+
+\begin{equation}\label{eq:bayes-modelos}
+	P(M | D) \propto P(D|M) P(M)
+\end{equation}
+
+En el caso de que no tengamos informaci\'on previa que nos haga preferir un modelo por sobre el resto, $P(M)$ ser\'a equiprobable, por lo que elegir el modelo con mayor probabilidad equivale a quedarse con el modelo de mayor evidencia.
+De aqu\'i podemos sacar el concepto de Factor Bayesiano\cite{kass1995-bayesFactors}:
+
+\begin{equation}
+	\frac{P(D|M_i)}{P(D|M_j)}
+\end{equation}
+
+que resume en un n\'umero la evidencia provista por los datos a favor de un modelo o teor\'ia por sobre otra.
+
+Por la regla del producto, podemos descomponer la evidencia en la probabilidad de cada dato, dado el modelo y los datos anteriores (ecuación \ref{eq:productoria-evidencia}).
+En nuestro contexto, esto se traduce en calcular la probabilidad de cada partida, dado que el método conoce el resultado de las partidas anteriores.
+Es destacable el uso de la productoria, ya que una sola partida con probabilidad 0 provoca que la evidencia sea 0.
+
+\begin{equation}\label{eq:productoria-evidencia}
+	P(D|M) = \prod P(d_i|M, d_{1}, .., d_{i-1})
+\end{equation}
+
+Como la evidencia es un número pequeño y poco interpretable, en múltiples ocasiones usaremos el promedio geométrico de las evidencias individuales de las partidas.
+
 \section*{AGA/AAGo}
 \begin{itemize}
   \item vimos que la evidencia daba muy bajita, casi cero (poner numerito, calcular la online también)
