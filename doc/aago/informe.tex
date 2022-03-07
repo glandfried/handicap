@@ -22,7 +22,23 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
+% El paquete authblk no soporta español, no traduce el "and" que separa los autores
+\renewcommand\Authand{, y }
+\renewcommand\Authands{, y }
+
+\title{Estimaci\'on de habilidad en Go}
+\author[a]{Martín Amigo}
+\author[a]{Tobías Carreira Munich}
+\author[a]{\\ \vspace{0.3cm} \normalsize Directores: Esteban Mocskos y Gustavo Landfried}
+% \author[a]{Codirector: Gustavo Landfried}
+
+\date{\today}
+
+\affil[a]{\small Universidad de Buenos Aires. Facultad de Ciencias Exactas y Naturales. Departamento de Computaci\'on. Buenos Aires, Argentina}
+
 \begin{document}
+
+\maketitle
 
 \section*{Metodología}
 
