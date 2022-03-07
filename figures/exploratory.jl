@@ -48,19 +48,6 @@ function ogsplots()
     ogs[ogs.komi .< 0, :] |> barplot(:handicap, :ordinal) |> savepdf("ogs/handicap-when-kominegative")
 end
 
-function kgsplots()
-    # Que representa order? Tiene tres opciones: 0, 1, 13
-    # Width siempre vale 19
-    columns = ["order", "handicap", "komi", "rules", "outcome"]
-    kgs = DataFrame(CSV.File("../data/kgs/KGS.csv"; select=columns))
-    kgs |> barplot(:handicap, :ordinal) |> savepdf("kgs/handicap")
-    kgs[.! ismissing.(kgs.handicap), :] |> barplot(:handicap, :ordinal) |> savepdf("kgs/handicap-notnull")
-    kgs |> verticallogbarplot(:komi) |> savepdf("kgs/komi")
-    kgs |> barplot(:rules, :nominal) |> savepdf("kgs/rules")
-end
-
 aagoplots()
 GC.gc()
 ogsplots()
-GC.gc()
-kgsplots()
