@@ -112,6 +112,12 @@ Como la evidencia es un número pequeño y poco interpretable, en múltiples oca
 
 \section*{Whole History Rating}
 
+Whole-History Rating (WHR) \todo{cita} es un sistema bayesiano de estimación de habilidad. Aunque en muchos puntos es similar a Elo y al método de AGA, difiere en un punto clave: utiliza la historia completa de partidas para estimar las habilidades de los jugadores, permitiendo que la información vaya no solo del pasado al futuro sino también en dirección contraria.
+
+Cuenta con una implementación abierta, hecha en Python\footnote{Disponible en \url{https://github.com/pfmonville/whole_history_rating}}, la cual usamos para evaluar el modelo. Permite ingresar el efecto del handicap en cada partida, que es modelada como habilidad adicional (sumada) para el jugador negro. Decidimos tener como hiperparámetro la habilidad de una piedra de handicap, y asumimos que la habilidad agregada crece de forma lineal con la cantidad de handicap.
+
+Para calcular la evidencia, utilizamos la misma estrategia que el sistema de AGA/AAGo: por cada \textit{batch}, calculamos la probabilidad a priori de sus resultados dada la información de \textit{batches} anteriores, agregamos las partidas al sistema y hacemos correr el método hasta que converge a las habilidades a posteriori. Para el hiperparámetro, usamos una grilla de valores y calculamos la evidencia con cada uno.
+
 \section*{TrueSkill Through Time}
 
 
