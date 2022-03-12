@@ -100,13 +100,64 @@ Es destacable el uso de la productoria, ya que una sola partida con probabilidad
 Como la evidencia es un número pequeño y poco interpretable, en múltiples ocasiones usaremos el promedio geométrico de las evidencias individuales de las partidas.
 
 \section*{AGA/AAGo}
-\begin{itemize}
-  \item vimos que la evidencia daba muy bajita, casi cero (poner numerito, calcular la online también)
-  \item como se calcula multiplicativamente, podía ser que alguna o algunas partidas estén dando muy bajo y arrastrando error
-  \item pensamos que quizás eran las partidas iniciales de los jugadores, donde no hay prior. pero las sacamos y no cambiaba mucho (cuantificar esto). tiene sentido que no cambie mucho porque son tipo 100 partidas de 3300
-  \item buscamos cuántas partidas daban muy bajo. eran muchas. hicimos un histograma. aparte de muchas altas, hay muchisimas bajas, muchas bajísimas y bastantes muuuy bajisisimas.
-  \item nos fijamos la relacion con handicap: claramente es eso. cuando el handicap es bastante alto las predicciones son malísimas. [intentar explicar por qué?]
-\end{itemize}
+
+La AAGo utiliza el mismo modelo (con pequeñísimas modificaciones) que la AGA, la asociación estadounidense.
+Sin entrar en detalles técnicos, este método cuenta siempre con un conjunto de estimaciones que se van actualizando a medida que se cargan torneos.
+Para actualizarlas busca cuál es el conjunto de estimaciones más probables a partir de estos resultados (maximiza el likelihood, en términos bayesianos).
+
+%\item qué significa calcular evidencia acá en concreto. qué dice el numero y cómo lo calculamos
+Para analizar qué tan bueno es este modelo, calculamos su evidencia a partir de los resultados de todos los partidos de la AAGo hasta el [insertar fecha].
+\todo{agregar fecha}
+Siguiendo lo explicado recientemente, la evidencia del modelo está definida como la productoria de las evidencias individuales de las partidas.
+A su vez, estas últimas son la probabilidad de obtener el resultado obtenido asumiendo como ciertas las estimaciones previas. %mal redactado? 'son la probabilidad'
+
+%\item vimos que la evidencia daba muy bajita, casi cero (poner numerito, calcular la online también)
+Realizando estos cálculos obtuvimos una evidencia promedio de 0.0032 (es decir, \%0,3).
+\todo{se llama promedio geométrico?}
+Es muy baja.
+En promedio fue muy poco probable que suceda lo que podíamos esperar que suceda con las estimaciones del modelo.
+\todo{agregar evidencia online?}
+
+%\item como se calcula multiplicativamente, podía ser que alguna o algunas partidas estén dando muy bajo y arrastrando error
+Como la evidencia es por definición una productoria, pensamos que podría estar sucediendo que alguna de las partidas (o algunas pocas) tenga un error de cargado por el que esté dando un valor de evidencia muy bajo y arrastrando consigo al valor final.
+%\item buscamos cuántas partidas daban muy bajo. eran muchas. hicimos un histograma. aparte de muchas altas, hay muchisimas bajas, muchas bajísimas y bastantes muuuy bajisisimas.
+Para poner a prueba esta hipótesis, intentamos localizar cuáles eran las partidas que daban muy bajo.
+Buscamos cuántas daban menor a 0.0000001 (seis ceros).
+Fueron 341.
+Considerando que el total de partidas es 3318, es un número muy grande.
+Hicimos un histograma para comprender mejor cómo estaban distribuidos estos valores:
+\todo{insertar histograma 'FIGURA 1'}
+La escala del eje Y es logarítmica, y los valores del eje X corresponden al logaritmo de las evidencias, en base 10. Así, un valor de -70 refiere a una evidencia del orden de $10^{-70}$.
+Evidentemente no son pocas las partidas que dan muy baja evidencia, por lo que esa hipótesis queda descartada.
+
+%\item pensamos que quizás eran las partidas iniciales de los jugadores, donde no hay prior. pero las sacamos y no cambiaba mucho (cuantificar esto). tiene sentido que no cambie mucho porque son tipo 100 partidas de 3300
+Para intentar explicar la baja evidencia, como segunda hipótesis pensamos que las partidas que estaban dando valores bajos eran las iniciales de cada jugador.
+En esa instancia no se tienen estimaciones previas del jugador, y se usa exclusivamente la categoría declarada por el mismo, por lo que podrían ser una fuente de mucho error.
+Sin embargo, calculamos nuevamente la evidencia sin tener en cuenta esas partidas y el valor obtenido fue de 0.0037 (contra un 0.0032 con esas partidas incluidas).
+Claramente las predicciones iniciales no son malas, o al menos no tienen mucho peso sobre la evidencia final.
+
+%\item nos fijamos la relacion con handicap: claramente es eso. cuando el handicap es bastante alto las predicciones son malísimas. [intentar explicar por qué?]
+Estudiando particularmente algunas de las partidas con valores de evidencia más bajos, observamos que se repetía con frecuencia una situación.
+Se enfrentaban dos participantes con valores muy dispares, y ganaba el que tenía una estimación previa mucho menor (es decir, el que se estimaba peor jugador).
+Tendría sentido que esos resultados sean sorpresivos (es decir, poco evidentes) si no fuera por el hecho de que jugaban con valores altos de handicap.
+Procedimos entonces a analizar la relación de la evidencia con el handicap.
+A continuación se expone un gráfico de la correlación entre esos dos valores.
+\todo{agregar scatterplot evidencia-handicap}
+El eje Y presenta la evidencia en escala logarítmica (base 10) y el eje X el handicap de la partida correspondiente.
+Se puede ver que todos los valores muy bajos de evidencia (menores a -20 en escala logarítmica), corresponden a partidas con handicap mayor a 4.
+Asimismo, las partidas con handicap mayor a 4 tienen valores más bajos en general.
+Además, esta tendencia se manifiesta más cuanto mayor es el handicap.
+
+%\item calcular la evidencia ignorando los handicaps grandes? ( creo que lo puedo hacer en pandas, no hace falta correr de nuevo)
+Efectivamente, si calculamos la evidencia promedio sin tener en cuenta a las partidas con handicap mayor a 4 obtenemos 0.34.
+Este valor de evidencia, si bien no es muy alto, podría ser aceptable (si no fuera porque requiere ignorar las partidas con handicap).
+
+Lo que aprendemos de este análisis es que este modelo es muy deficiente, particularmente en las partidas que tienen alto valor de handicap.
+Evidentemente, le supone al handicap menos influencia de la que efectivamente tiene.
+Asumiendo que la AGA tiene una mayor cantidad de miembros, y por tanto menos partidas entre jugadores muy dispares, este defecto podría ser poco significante para esa asociación.
+Sin embargo, lo expuesto evidencia %XD
+que su repercusión en las estimaciones de la AAGo es sobresaliente.
+
 
 
 
