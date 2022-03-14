@@ -107,6 +107,12 @@ La AAGo utiliza el mismo modelo (con pequeñísimas modificaciones) que la AGA, 
 Sin entrar en detalles técnicos, este método cuenta siempre con un conjunto de estimaciones que se van actualizando a medida que se cargan torneos.
 Para actualizarlas busca cuál es el conjunto de estimaciones más probables a partir de estos resultados (maximiza el likelihood, en términos bayesianos).
 
+\todo{Calculamos las mismas estimaciones y obtuvimos prácticamente lo mismo}
+
+Implementamos nuestro propio software para recorrer las partidas utilizando este algoritmo.
+Construimos los archivos de entrada de los torneos a partir de lo registrado en la base de datos, y de las estimaciones previas (cuando las había).
+Siguiendo este procedimiento obtuvimos las mismas estimaciones (con diferencias insignificantes) que las de la AAGo.
+
 %\item qué significa calcular evidencia acá en concreto. qué dice el numero y cómo lo calculamos
 Para analizar qué tan bueno es este modelo, calculamos su evidencia a partir de los resultados de todos los partidos de la AAGo hasta el [insertar fecha].
 \todo{agregar fecha}
@@ -114,11 +120,11 @@ Siguiendo lo explicado recientemente, la evidencia del modelo está definida com
 A su vez, estas últimas son la probabilidad de obtener el resultado obtenido asumiendo como ciertas las estimaciones previas. %mal redactado? 'son la probabilidad'
 
 %\item vimos que la evidencia daba muy bajita, casi cero (poner numerito, calcular la online también)
-Realizando estos cálculos obtuvimos una evidencia promedio de 0.0032 (es decir, \%0,3).
-\todo{se llama promedio geométrico?}
+Realizando estos cálculos obtuvimos una evidencia promedio (geométrico) de 0.0032 (es decir, \%0,3).
 Es muy baja.
 En promedio fue muy poco probable que suceda lo que podíamos esperar que suceda con las estimaciones del modelo.
 \todo{agregar evidencia online?}
+
 
 %\item como se calcula multiplicativamente, podía ser que alguna o algunas partidas estén dando muy bajo y arrastrando error
 Como la evidencia es por definición una productoria, pensamos que podría estar sucediendo que alguna de las partidas (o algunas pocas) tenga un error de cargado por el que esté dando un valor de evidencia muy bajo y arrastrando consigo al valor final.
@@ -128,7 +134,14 @@ Buscamos cuántas daban menor a 0.0000001 (seis ceros).
 Fueron 341.
 Considerando que el total de partidas es 3318, es un número muy grande.
 Hicimos un histograma para comprender mejor cómo estaban distribuidos estos valores:
-\todo{insertar histograma 'FIGURA 1'}
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.5]{"../../figures/aago/evidence_histgram.png"}
+	\caption{An example graph}
+	\label{fig:aago-hist}
+\end{figure}
+
 La escala del eje Y es logarítmica, y los valores del eje X corresponden al logaritmo de las evidencias, en base 10. Así, un valor de -70 refiere a una evidencia del orden de $10^{-70}$.
 Evidentemente no son pocas las partidas que dan muy baja evidencia, por lo que esa hipótesis queda descartada.
 
@@ -144,7 +157,14 @@ Se enfrentaban dos participantes con valores muy dispares, y ganaba el que tení
 Tendría sentido que esos resultados sean sorpresivos (es decir, poco evidentes) si no fuera por el hecho de que jugaban con valores altos de handicap.
 Procedimos entonces a analizar la relación de la evidencia con el handicap.
 A continuación se expone un gráfico de la correlación entre esos dos valores.
-\todo{agregar scatterplot evidencia-handicap}
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.5]{"../../figures/aago/evidence_hdcap_scatter.png"}
+	\caption{An example graph}
+	\label{fig:aago-hdcap}
+\end{figure}
+
 El eje Y presenta la evidencia en escala logarítmica (base 10) y el eje X el handicap de la partida correspondiente.
 Se puede ver que todos los valores muy bajos de evidencia (menores a -20 en escala logarítmica), corresponden a partidas con handicap mayor a 4.
 Asimismo, las partidas con handicap mayor a 4 tienen valores más bajos en general.
@@ -188,12 +208,13 @@ En la figura \ref{fig:whr-evidence} podemos ver que se alcanza un máximo de $0.
 Como referencia, una diferencia de 20 puntos de habilidad equivale a un $0.528$ de probabilidad de ganar.
 Esto nos da un punto de partida superior al modelo original de AGA/AAGo\todo{Bayes factor?}.
 
-\begin{figure}
-	\centering
-	\includegraphics[scale=0.5]{whr/aago/geometric_mean}
-	\caption{An example graph}
-	\label{fig:whr-evidence}
-\end{figure}
+% Lo comenté porque la dirección de la imagen no compila
+% \begin{figure}
+% 	\centering
+% 	\includegraphics[scale=0.5]{whr/aago/geometric_mean}
+% 	\caption{An example graph}
+% 	\label{fig:whr-evidence}
+% \end{figure}
 
 
 \section*{TrueSkill Through Time}
