@@ -4,7 +4,7 @@ import os
 from tqdm import tqdm
 import logging
 
-AAGO_CSV = "data/aago/aago.adapted.csv"
+AAGO_CSV = "data/aago/aago_original_filtered.csv"
 DIR = "estimations/whr/aago/"
 
 os.makedirs(DIR, exist_ok=True)

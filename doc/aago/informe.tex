@@ -22,6 +22,8 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
+\graphicspath{ {../../figures/} }
+
 % El paquete authblk no soporta español, no traduce el "and" que separa los autores
 \renewcommand\Authand{, y }
 \renewcommand\Authands{, y }
@@ -163,11 +165,36 @@ que su repercusión en las estimaciones de la AAGo es sobresaliente.
 
 \section*{Whole History Rating}
 
-Whole-History Rating (WHR) \todo{cita} es un sistema bayesiano de estimación de habilidad. Aunque en muchos puntos es similar a Elo y al método de AGA, difiere en un punto clave: utiliza la historia completa de partidas para estimar las habilidades de los jugadores, permitiendo que la información vaya no solo del pasado al futuro sino también en dirección contraria.
+Whole-History Rating (WHR) \todo{cita} es un sistema bayesiano de estimación de habilidad.
+Aunque en muchos puntos es similar a Elo y al método de AGA, difiere en un punto clave: utiliza la historia completa de partidas para estimar las habilidades de los jugadores, permitiendo que la información vaya no solo del pasado al futuro sino también en dirección contraria.
 
-Cuenta con una implementación abierta, hecha en Python\footnote{Disponible en \url{https://github.com/pfmonville/whole_history_rating}}, la cual usamos para evaluar el modelo. Permite ingresar el efecto del handicap en cada partida, que es modelada como habilidad adicional (sumada) para el jugador negro. Decidimos tener como hiperparámetro la habilidad de una piedra de handicap, y asumimos que la habilidad agregada crece de forma lineal con la cantidad de handicap.
+Cuenta con una implementación abierta, hecha en Python\footnote{Disponible en \url{https://github.com/pfmonville/whole_history_rating}}, la cual usamos para evaluar el modelo.
+Permite ingresar el efecto del handicap en cada partida, que es modelada como habilidad adicional (sumada) para el jugador negro.
+Decidimos tener como hiperparámetro la habilidad de una piedra de handicap, y asumimos que la habilidad agregada crece de forma lineal con la cantidad de handicap.
+El otro hiperparámetro, bastante común en este tipo de modelos, es el factor dinámico.
+Tanto WHR como TrueSkill Through Time (el siguiente modelo que estudiamos) modelan el cambio de la habilidad en el tiempo como un proceso de Wiener, que se puede resumir en la ecuación \ref{eq:wiener}.
+La habilidad $s$ del jugador en el tiempo $t+k$ con respecto a la habilidad en el tiempo $t$.
+El factor dinámico $\gamma$ regula el aumento de incertidumbre por cada unidad de tiempo (en nuestro caso, días).
+Esto asume que la habilidad puede tanto aumentar como disminuir en el tiempo, y el factor dinámico regula cuanto esperamos que cambie.
 
-Para calcular la evidencia, utilizamos la misma estrategia que el sistema de AGA/AAGo: por cada \textit{batch}, calculamos la probabilidad a priori de sus resultados dada la información de \textit{batches} anteriores, agregamos las partidas al sistema y hacemos correr el método hasta que converge a las habilidades a posteriori. Para el hiperparámetro, usamos una grilla de valores y calculamos la evidencia con cada uno.
+\begin{equation}\label{eq:wiener}
+	s_{t+k} | s_t \sim N(s_t, k \cdot \gamma)
+\end{equation}
+
+Para calcular la evidencia, utilizamos la misma estrategia que el sistema de AGA/AAGo: por cada \textit{batch}, calculamos la probabilidad a priori de sus resultados dada la información de \textit{batches} anteriores, agregamos las partidas al sistema y hacemos correr el método hasta que converge a las habilidades a posteriori.
+Para los hiperparámetros, usamos una grilla de valores en un rango que a priori consideramos razonable y calculamos la evidencia con cada uno.\todo{volver a correr con el dataset corregido}.
+
+En la figura \ref{fig:whr-evidence} podemos ver que se alcanza un máximo de $0.547$ con 20 puntos de habilidad (en escala de Elo) por cada piedra de handicap y 6 puntos de habilidad de factor dinámico (en la misma escala).
+Como referencia, una diferencia de 20 puntos de habilidad equivale a un $0.528$ de probabilidad de ganar.
+Esto nos da un punto de partida superior al modelo original de AGA/AAGo\todo{Bayes factor?}.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.5]{whr/aago/geometric_mean}
+	\caption{An example graph}
+	\label{fig:whr-evidence}
+\end{figure}
+
 
 \section*{TrueSkill Through Time}
 
