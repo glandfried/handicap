@@ -21,6 +21,7 @@
 \usepackage{amsmath}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{cancel}
 
 \graphicspath{ {../../figures/} }
 
@@ -45,7 +46,7 @@
 \section*{Metodología}
 
 En este trabajo nos ocupamos de revisar distintos modelos matemático computacionales para estimar la habilidad de jugadores de Go.
-Utilizaremos los principales métodos de la bibliografía, teniendo como base el que usa actualmente la Asociación Argentina de Go (AAGo).
+Utilizaremos los principales métodos de la bibliografía, teniendo como base el que usa actualmente la Asociación Argentina (AAGo).
 Además, propondremos extensiones a uno de los métodos (TrueSkill Through Time) para que contemple tanto el handicap como el komi de cada partida.
 
 \subsection*{Datos}
@@ -55,7 +56,7 @@ Trabajamos con el dataset provisto por la AAGo, del cual nos quedamos con las pa
 \subsection*{Comparación de modelos}
 
 Al trabajar con distintos modelos, vamos a querer compararlos para saber cual se aproxima mejor a la realidad.
-En este cap\'itulo describiremos la metodolog\'ia bayesiana basada en probabilidad, usando la evidencia de los modelos.
+A continuación describiremos la metodolog\'ia bayesiana basada en probabilidad, usando la evidencia de los modelos.
 Esta forma introduce un factor que penaliza modelos m\'as complejos de lo necesario, mediante un t\'ermino conocido como Factor de Ockham, que surge naturalmente de las reglas de la probabilidad.
 Esto evita sobre ajustes, sin necesidad de acudir a penalizadores ad-hoc.
 
@@ -70,7 +71,7 @@ En el primer nivel, suele haber un espacio de hip\'otesis sobre el cual queremos
 Por la regla de Bayes:
 
 \begin{equation}\label{eq:bayes-parametros-modelo}
-	P(\theta | D, M) = \frac{P(D|\theta, M) P(\theta|M)}{\int P(D|\theta, M) P(\theta|M) dw} = \frac{P(D|\theta, M) P(\theta|M)}{P(D|M)}
+	P(\theta | D, M) = \frac{P(D|\theta, M) P(\theta|M)}{\int P(D|\theta, M) P(\theta|M) dw} = \frac{P(D|\theta, M) P(\theta|M)}{\underbrace{P(D|M)}_{evidencia}}
 \end{equation}
 
 donde $\theta$ son las hip\'otesis del modelo, $M$ es el modelo y $D$ son los datos.
@@ -79,20 +80,20 @@ Notamos que en la ecuación \ref{eq:bayes-parametros-modelo}, la evidencia es la
 El segundo nivel de inferencia utiliza la evidencia del primer nivel para calcular la probabilidad del modelo, dados los datos:
 
 \begin{equation}\label{eq:bayes-modelos}
-	P(M | D) \propto P(D|M) P(M)
+	P(M_i | D) = \frac{P(D|M_i) P(M_i)}{\sum_k P(D|M_k) P(M_k)}
 \end{equation}
 
-En el caso de que no tengamos informaci\'on previa que nos haga preferir un modelo por sobre el resto, $P(M)$ ser\'a equiprobable, por lo que elegir el modelo con mayor probabilidad equivale a quedarse con el modelo de mayor evidencia.
+En el caso de que no tengamos informaci\'on previa que nos haga preferir un modelo por sobre el resto, $P(M_i)$ ser\'a equiprobable, por lo que elegir el modelo con mayor probabilidad equivale a quedarse con el modelo de mayor evidencia.
 De aqu\'i podemos sacar el concepto de Factor Bayesiano\cite{kass1995-bayesFactors}:
 
 \begin{equation}
-	\frac{P(D|M_i)}{P(D|M_j)}
+	log_b\left(\frac{P(M_i|D)}{P(M_j|D)}\right) = log_b\left(\frac{P(D|M_i) \cancel{P(M_i)}}{P(D|M_j) \cancel{P(M_j)}} \cancel{\frac{\sum_k P(D|M_k) P(M_k)}{\sum_k P(D|M_k) P(M_k)}}\right) = log_b\left(\frac{P(D|M_i)}{P(D|M_j)}\right)
 \end{equation}
 
-que resume en un n\'umero la evidencia provista por los datos a favor de un modelo o teor\'ia por sobre otra.
+que resume en un n\'umero (en escala logarítmica\todo{elegir una base y usar la misma en todos lados}) la evidencia provista por los datos a favor de un modelo o teor\'ia por sobre otra.
 
 Por la regla del producto, podemos descomponer la evidencia en la probabilidad de cada dato, dado el modelo y los datos anteriores (ecuación \ref{eq:productoria-evidencia}).
-En nuestro contexto, esto se traduce en calcular la probabilidad de cada partida, dado que el método conoce el resultado de las partidas anteriores.
+En nuestro contexto, esto se traduce en calcular la probabilidad a priori de cada partida, dado que el método conoce el resultado de las partidas anteriores.
 Es destacable el uso de la productoria, ya que una sola partida con probabilidad 0 provoca que la evidencia sea 0.
 
 \begin{equation}\label{eq:productoria-evidencia}
@@ -193,7 +194,6 @@ Permite ingresar el efecto del handicap en cada partida, que es modelada como ha
 Decidimos tener como hiperparámetro la habilidad de una piedra de handicap, y asumimos que la habilidad agregada crece de forma lineal con la cantidad de handicap.
 El otro hiperparámetro, bastante común en este tipo de modelos, es el factor dinámico.
 Tanto WHR como TrueSkill Through Time (el siguiente modelo que estudiamos) modelan el cambio de la habilidad en el tiempo como un proceso de Wiener, que se puede resumir en la ecuación \ref{eq:wiener}.
-La habilidad $s$ del jugador en el tiempo $t+k$ con respecto a la habilidad en el tiempo $t$.
 El factor dinámico $\gamma$ regula el aumento de incertidumbre por cada unidad de tiempo (en nuestro caso, días).
 Esto asume que la habilidad puede tanto aumentar como disminuir en el tiempo, y el factor dinámico regula cuanto esperamos que cambie.
 
@@ -201,20 +201,19 @@ Esto asume que la habilidad puede tanto aumentar como disminuir en el tiempo, y 
 	s_{t+k} | s_t \sim N(s_t, k \cdot \gamma)
 \end{equation}
 
-Para calcular la evidencia, utilizamos la misma estrategia que el sistema de AGA/AAGo: por cada \textit{batch}, calculamos la probabilidad a priori de sus resultados dada la información de \textit{batches} anteriores, agregamos las partidas al sistema y hacemos correr el método hasta que converge a las habilidades a posteriori.
+Para calcular la evidencia, utilizamos la misma estrategia que el sistema de AGA/AAGo: por cada \textit{batch} de partidas, calculamos la probabilidad a priori de sus resultados dada la información de \textit{batches} anteriores. Después agregamos las partidas al sistema y hacemos correr el método hasta que converge a las habilidades a posteriori.
 Para los hiperparámetros, usamos una grilla de valores en un rango que a priori consideramos razonable y calculamos la evidencia con cada uno.\todo{volver a correr con el dataset corregido}.
 
-En la figura \ref{fig:whr-evidence} podemos ver que se alcanza un máximo de $0.547$ con 20 puntos de habilidad (en escala de Elo) por cada piedra de handicap y 6 puntos de habilidad de factor dinámico (en la misma escala).
+En la figura \ref{fig:whr-evidence} podemos ver que se alcanza un máximo de $0.547$ de media geométrica. Este máximo se alcanza cuando los hiperparámetros valen: 20 puntos de habilidad (en escala de Elo) por cada piedra de handicap y 6 puntos de habilidad de factor dinámico (en la misma escala).
 Como referencia, una diferencia de 20 puntos de habilidad equivale a un $0.528$ de probabilidad de ganar.
 Esto nos da un punto de partida superior al modelo original de AGA/AAGo\todo{Bayes factor?}.
 
-% Lo comenté porque la dirección de la imagen no compila
-% \begin{figure}
-% 	\centering
-% 	\includegraphics[scale=0.5]{whr/aago/geometric_mean}
-% 	\caption{An example graph}
-% 	\label{fig:whr-evidence}
-% \end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.5]{whr/aago/geometric_mean}
+	\caption{Media geométrica de las evidencias a priori de las partidas individuales}
+	\label{fig:whr-evidence}
+\end{figure}
 
 
 \section*{TrueSkill Through Time}

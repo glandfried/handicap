@@ -1,10 +1,13 @@
 all: informe.pdf clean
-	
-informe.pdf: informe.tex
+
+informe.pdf: informe.tex graficos
 	# pdflatex informe.tex
 	# bibtex informe.aux
 	pdflatex informe.tex
 	pdflatex informe.tex
+
+graficos:
+	make -C ../../figures aago-plots
 
 pdf:
 	pdflatex informe.tex
