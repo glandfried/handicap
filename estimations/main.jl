@@ -136,20 +136,31 @@ function lc_evidence(data, days, results, model, base)
     events, weights = events_weights(data, model)
     sigma, gamma, iterations = default_config(base)
 
+    println("----------------------------------------------------------------------------------------------entro  a run_and_converge ")
     run_and_converge(events, results, days, prior_dict, sigma, gamma, iterations, weights, model)
+    println("----------------------------------------------------------------------------------------------sali de run_and_converge ")
+
 end
 
 function run_and_converge(events, results, days, prior_dict, sigma, gamma, iterations, weights, model) #repensar nombre :/
     h = missing
     GC.gc()
+    println("--------------------------------------------------------------------------------------------------------------cero ")
+
     if model == "h" || model == "h-k"
         h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma)
     else
         h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma, weights = weights)
     end
+    println("--------------------------------------------------------------------------------------------------------------uno ")
     ttt.convergence(h, iterations=iterations)
-    ttt_log_evidence = ttt.log_evidence(h)
+    println("--------------------------------------------------------------------------------------------------------------dos ")
+
+    ttt_log_evidence = 0 #ttt.log_evidence(h) OJO VOLVER A PONER ESTO, solo comentado para debuggear
+    println("--------------------------------------------------------------------------------------------------------------tres ")
+
     lc = ttt.learning_curves(h)
+    println("--------------------------------------------------------------------------------------------------------------cuatro ")
 
     return lc, ttt_log_evidence, prior_dict
 end

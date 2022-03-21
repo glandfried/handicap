@@ -16,8 +16,8 @@ class Player:
         self.sigma = sigma
         self.last_date = last_date
 
-def run_raago(f_in, f_out):
-    system(raago_filename + " < " +f_in+ " > " +f_out)
+def run_raago(f_in, f_out, omicron):
+    system(raago_filename + " " + str(omicron) + " < " +f_in+ " > " +f_out)
 
 def mu2rating(mu):
     mu = float(mu)
@@ -26,7 +26,7 @@ def mu2rating(mu):
 
     return str(num)+letra
 
-def update_players(results_file):
+def update_players(results_file, players_dict):
     with open(results_file, 'r') as f:
         for line in f:
             [id, mu, sigma] = line.split()
@@ -67,7 +67,7 @@ def to_date(date_string):
 # para partidas en las que tienen mu y sigma = NULL
 # calculo el inicial a partir de su categoria declarada;
 # para los otros uso el diccionario
-def mu_sigma_float(player_id, ev_id):
+def mu_sigma_float(player_id, ev_id, players_dict):
     if players_dict[player_id].mu == 'NULL':
         assert(players_dict[player_id].sigma == 'NULL')
         rating = cat_dict[(str(ev_id), player_id)]
@@ -85,6 +85,7 @@ def mu_sigma_float(player_id, ev_id):
         sigma = float(players_dict[player_id].sigma)
     return mu, sigma
 
+
 games_filename = "handicap/data/aago/aago_raago.csv"
 game_filename = "handicap/validation/aga/archivos/aago_validation/game_"
 result_filename = "handicap/validation/aga/archivos/aago_validation/results_"
@@ -93,9 +94,6 @@ raago_filename = "RAAGo/original-AGA-rating-system/aago-rating-calculator/raago"
 categories_filename = "handicap/validation/aga/archivos/aago_validation/categories.csv"
 events_filename = "handicap/validation/aga/archivos/aago_validation/events.csv"
 in_filename = "handicap/data/aago/aago_original_filtered.csv"
-
-
-
 
 #cargo todos los jugadores, inicializados en 0, etc.
 
@@ -109,11 +107,6 @@ p = pd.concat([blacks, whites])
 print("Eliminando duplicados")
 p = p.drop_duplicates()
 
-#diccionario de jugadores (Player's)
-players_dict = {}
-for id in p['id']:
-    id = str(id)
-    players_dict[id] = Player(id)
 
 #diccionario de categorias
 with open(categories_filename, mode='r') as infile:
@@ -138,76 +131,89 @@ sigma_array = [5.73781, 5.63937, 5.54098, 5.44266, 5.34439,
                     1.01119, 1.00125, 1.00000, 1.00000]
 sigma_dict = { mu+0.5 : sigma_array[mu+50] for mu in range(-50, 9)}
 
-actual_event = 1
-games = "GAMES\n"
-players = dict_to_str(players_dict, 1, 'NULL') #pongo 1 porque el primer evento de aago tiene id = 1
-log_evidence = 0
+def get_evidence(omicron):
 
-#recorro las partidas, del archivo de entrada
-with open(in_filename, 'r') as file:
-    file.readline() #salteo el header
-    for line in file:
-        [black,white,started,black_win,width,komi,handicap,event_id,end_date] = line.split(",")
-        event_id = int(event_id)
+    #diccionario de jugadores (Player's)
+    players_dict = {}
+    global p
+    for id in p['id']:
+        id = str(id)
+        players_dict[id] = Player(id)
 
-        # calculo evidencia
-        if black_win == 'True':
-            winner_mu, winner_sigma = mu_sigma_float(black, event_id)
-            loser_mu, loser_sigma = mu_sigma_float(white, event_id)
-        else:
-            winner_mu, winner_sigma = mu_sigma_float(white, event_id)
-            loser_mu, loser_sigma = mu_sigma_float(black, event_id)
-        actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi))
-        log_evidence += math.log(actual_evidence)
-        print(log_evidence)
+    actual_event = 1
+    games = "GAMES\n"
+    players = dict_to_str(players_dict, 1, 'NULL') #pongo 1 porque el primer evento de aago tiene id = 1
+    log_evidence = 0
 
-        if event_id != actual_event: #si cambié de evento
-            print(actual_event)
-            # cierro games
-            games = games + "END_GAMES\n"
-            # armo i.in con games y players
-            with open(game_filename+str(actual_event)+'.in' , 'w') as out:
-                out.write(players)
-                out.write(games)
-            # corro
-            run_raago(game_filename+str(actual_event)+'.in', result_filename+str(actual_event)+'.txt')
-            # leo results (si no falla por el error que puede tener fdf)
-            try:
-                update_players(result_filename+str(actual_event)+'.txt')
-            except:
-                print("Archivo inválido")
-            # armo el string players para el prox antes de pisarle las dates con el siguiente evento
-            players = dict_to_str(players_dict, event_id, to_date(end_date))
-            # reinicio games
-            games = "GAMES\n"
-            # actualizo actual_event
-            actual_event = event_id
-        #handicap = str(math.floor(float(handicap))) por que hacia esto?
-        komi = str(floor(float(komi))) #redondeo para abajo (chequear que este bien lo de japonesas/chinas)
-        winner = "BLACK" if black_win == 'True' else "WHITE"
-        new_line = white + ' ' + black + ' ' + handicap + ' ' + komi + ' ' + winner + "\n"
-        #agrego evento a games
-        games = games + new_line
-        #acá tendría que modificar el days de los jugadores implicados
-        this_date = to_date(end_date)
-        w_last = players_dict[white].last_date
-        b_last = players_dict[black].last_date
-        if (w_last == 'NULL') or (this_date > w_last) :
-            players_dict[white].last_date = this_date
-        if (b_last == 'NULL') or (this_date > b_last):
-            players_dict[black].last_date = this_date
+    #recorro las partidas, del archivo de entrada
+    with open(in_filename, 'r') as file:
+        file.readline() #salteo el header
+        for line in file:
+            [black,white,started,black_win,width,komi,handicap,event_id,end_date] = line.split(",")
+            event_id = int(event_id)
 
-    #armo el ultimo games
-    print(actual_event)
-    games = games + "END_GAMES\n"
-    with open(game_filename+str(actual_event)+'.in' , 'w') as out:
-        out.write(players)
-        out.write(games)
-    # corro
-    run_raago(game_filename+str(actual_event)+'.in', result_filename+str(actual_event)+'.txt')
+            # calculo evidencia
+            if black_win == 'True':
+                winner_mu, winner_sigma = mu_sigma_float(black, event_id, players_dict)
+                loser_mu, loser_sigma = mu_sigma_float(white, event_id, players_dict)
+            else:
+                winner_mu, winner_sigma = mu_sigma_float(white, event_id, players_dict)
+                loser_mu, loser_sigma = mu_sigma_float(black, event_id, players_dict)
+            actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi))
+            log_evidence += math.log(actual_evidence)
+            print(log_evidence)
+
+            if event_id != actual_event: #si cambié de evento
+                print(actual_event)
+                # cierro games
+                games = games + "END_GAMES\n"
+                # armo i.in con games y players
+                with open(game_filename+str(actual_event)+'.in' , 'w') as out:
+                    out.write(players)
+                    out.write(games)
+                # corro
+                run_raago(game_filename+str(actual_event)+'.in', result_filename+str(actual_event)+'.txt', omicron)
+                # leo results (si no falla por el error que puede tener fdf)
+                try:
+                    update_players(result_filename+str(actual_event)+'.txt', players_dict)
+                except:
+                    print("Archivo inválido")
+                # armo el string players para el prox antes de pisarle las dates con el siguiente evento
+                players = dict_to_str(players_dict, event_id, to_date(end_date))
+                # reinicio games
+                games = "GAMES\n"
+                # actualizo actual_event
+                actual_event = event_id
+            #handicap = str(math.floor(float(handicap))) por que hacia esto?
+            komi = str(floor(float(komi))) #redondeo para abajo (chequear que este bien lo de japonesas/chinas)
+            winner = "BLACK" if black_win == 'True' else "WHITE"
+            new_line = white + ' ' + black + ' ' + handicap + ' ' + komi + ' ' + winner + "\n"
+            #agrego evento a games
+            games = games + new_line
+            #acá tendría que modificar el days de los jugadores implicados
+            this_date = to_date(end_date)
+            w_last = players_dict[white].last_date
+            b_last = players_dict[black].last_date
+            if (w_last == 'NULL') or (this_date > w_last) :
+                players_dict[white].last_date = this_date
+            if (b_last == 'NULL') or (this_date > b_last):
+                players_dict[black].last_date = this_date
+
+        #armo el ultimo games
+        print(actual_event)
+        games = games + "END_GAMES\n"
+        with open(game_filename+str(actual_event)+'.in' , 'w') as out:
+            out.write(players)
+            out.write(games)
+        # corro
+        run_raago(game_filename+str(actual_event)+'.in', result_filename+str(actual_event)+'.txt', omicron)
 
 
-with open(final_results_fname, 'w') as f:
-    for p in players_dict.values():
-        new_line = p._id + ',' + p.rating + ',' + p.mu + ',' + p.sigma + "\n"
-        f.write(new_line)
+    with open(final_results_fname, 'w') as f:
+        for p in players_dict.values():
+            new_line = p._id + ',' + p.rating + ',' + p.mu + ',' + p.sigma + "\n"
+            f.write(new_line)
+
+    return (-log_evidence)
+
+#get_evidence(0.04264)
