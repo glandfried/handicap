@@ -49,15 +49,15 @@ def dict_to_str(players_d, event_id, actual_date):
     return res+("END_PLAYERS\n")
 
 def event_players(target_event):
-    p = []
+    plyrs = []
     with open(in_filename, 'r') as file:
         file.readline() #salteo el header
         for line in file:
             [black,white,_,_,_,_,_,event_id,_] = line.split(',')
             if (int(event_id) == int(target_event)):
-                p.append(black)
-                p.append(white)
-    return p
+                plyrs.append(black)
+                plyrs.append(white)
+    return plyrs
 
 def to_date(date_string):
     [year,month,day] = date_string.split('-')
@@ -96,7 +96,7 @@ events_filename = "handicap/validation/aga/archivos/aago_validation/events.csv"
 in_filename = "handicap/data/aago/aago_original_filtered.csv"
 
 #cargo todos los jugadores, inicializados en 0, etc.
-
+p = {}
 print("Leyendo")
 blacks = pd.read_csv(in_filename, usecols = ['black'])
 whites = pd.read_csv(in_filename, usecols = ['white'])
@@ -159,7 +159,7 @@ def get_evidence(omicron):
             else:
                 winner_mu, winner_sigma = mu_sigma_float(white, event_id, players_dict)
                 loser_mu, loser_sigma = mu_sigma_float(black, event_id, players_dict)
-            actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi))
+            actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi), omicron)
             log_evidence += math.log(actual_evidence)
             print(log_evidence)
 
@@ -210,8 +210,8 @@ def get_evidence(omicron):
 
 
     with open(final_results_fname, 'w') as f:
-        for p in players_dict.values():
-            new_line = p._id + ',' + p.rating + ',' + p.mu + ',' + p.sigma + "\n"
+        for player in players_dict.values():
+            new_line = player._id + ',' + player.rating + ',' + player.mu + ',' + player.sigma + "\n"
             f.write(new_line)
 
     return (-log_evidence)
