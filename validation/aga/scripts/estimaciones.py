@@ -20,9 +20,7 @@ def run_raago(f_in, f_out, parameters):
     p0 = " " + str(parameters[0])
     p1 = " " + str(parameters[1])
     p2 = " " + str(parameters[2])
-    p3 = " " + str(parameters[3])
-    p4 = " " + str(parameters[4])
-    system(raago_filename + p0 + p1 + p2 + p3 + p4 + " < " +f_in+ " > " +f_out)
+    system(raago_filename + p0 + p1 + p2 + " < " +f_in+ " > " +f_out)
 
 def mu2rating(mu):
     mu = float(mu)
@@ -171,6 +169,7 @@ def get_evidence(parameters):
                         winner_mu, winner_sigma = mu_sigma_float(white, event_id, players_dict)
                         loser_mu, loser_sigma = mu_sigma_float(black, event_id, players_dict)
                     actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi), parameters)
+                    print(actual_evidence)
                     log_evidence += math.log(actual_evidence)
                     print(log_evidence)
                     winner_id = black if (black_win == 'True') else white
@@ -234,4 +233,4 @@ def get_evidence(parameters):
             print(log_evidence, file=log_file)
     return (-log_evidence)
 
-get_evidence([0.04264, 1.05801, 1, 1, 0])
+# get_evidence([1, 0, 0.0005])
