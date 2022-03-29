@@ -168,6 +168,7 @@ def get_evidence(parameters):
                     else:
                         winner_mu, winner_sigma = mu_sigma_float(white, event_id, players_dict)
                         loser_mu, loser_sigma = mu_sigma_float(black, event_id, players_dict)
+                    print(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi), parameters)
                     actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi), parameters)
                     print(actual_evidence)
                     log_evidence += math.log(actual_evidence)
@@ -213,7 +214,6 @@ def get_evidence(parameters):
                         players_dict[white].last_date = this_date
                     if (b_last == 'NULL') or (this_date > b_last):
                         players_dict[black].last_date = this_date
-
                 #armo el ultimo games
                 print(actual_event)
                 games = games + "END_GAMES\n"
