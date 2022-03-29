@@ -170,7 +170,6 @@ def get_evidence(parameters):
                         loser_mu, loser_sigma = mu_sigma_float(black, event_id, players_dict)
                     print(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi), parameters)
                     actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi), parameters)
-                    print(actual_evidence)
                     log_evidence += math.log(actual_evidence)
                     print(log_evidence)
                     winner_id = black if (black_win == 'True') else white
