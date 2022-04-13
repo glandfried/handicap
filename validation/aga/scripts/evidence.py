@@ -59,9 +59,10 @@ games_filename = "handicap/data/aago/aago_raago.csv"
 categories_filename = "handicap/validation/aga/archivos/aago_validation/categories.csv"
 estimations_filename = "handicap/validation/aga/archivos/aago_validation/raago.csv"
 events_filename = "handicap/validation/aga/archivos/aago_validation/events.csv"
-in_filename = "handicap/validation/aga/archivos/aago_validation/in.csv"
+#in_filename = "handicap/validation/aga/archivos/aago_validation/in.csv"
+in_filename = "handicap/data/aago/aago_original_filtered.csv"
 
-create_in_file(in_filename)
+#create_in_file(in_filename)
 
 #diccionario de categorias
 with open(categories_filename, mode='r') as infile:
@@ -133,7 +134,7 @@ with open(in_filename, 'r') as file:
                     loser_mu, loser_sigma = players[black].estimation(event_id)
 
                 #calculo evidencia
-                actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi))
+                actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi), [1,0,0.0005])
                 log_evidence += math.log(actual_evidence)
                 print(log_evidence)
                 if players[black].previous_mu != 'NULL' and players[white].previous_mu != 'NULL':

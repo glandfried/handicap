@@ -1,8 +1,8 @@
 # original_filename = "../archivos/aago_validation/raago.csv"
 # my_filename = "../archivos/aago_validation/results_"
 
-original_filename = "aga-validation/archivos/aago_validation/raago.csv"
-my_filename = "aga-validation/archivos/aago_validation/results_"
+original_filename = "handicap/validation/aga/archivos/aago_validation/raago.csv"
+my_filename = "handicap/validation/aga/archivos/aago_validation/results_"
 
 
 with open(original_filename, 'r') as orig_estimations :
