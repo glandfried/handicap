@@ -89,7 +89,7 @@ def mu_sigma_float(player_id, ev_id, players_dict):
     return mu, sigma
 
 
-games_filename = "handicap/data/aago/aago_raago.csv"
+#games_filename = "handicap/data/aago/aago_raago.csv" ya no lo uso
 game_filename = "handicap/validation/aga/archivos/aago_validation/game_"
 result_filename = "handicap/validation/aga/archivos/aago_validation/results_"
 final_results_fname = "handicap/validation/aga/archivos/aago_validation/results_final.csv"
