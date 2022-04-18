@@ -21,7 +21,7 @@ def logistic_likelihood(diff_elo):
 
 
 def integrate(mean, stddev, likelihood, steps=51, sigmas=6):
-    A = -steps//2
+    A = -steps // 2
     B = A + steps
     total_p = 0.0
     dx = 2 * sigmas * stddev / float(steps)
@@ -37,7 +37,7 @@ def integrate(mean, stddev, likelihood, steps=51, sigmas=6):
 
 class WHRRunner:
     def __init__(self, matches, handicap_elo=0.0, dynamic_factor=14.0,
-                 auto_iter_rate=inf, auto_iter_time=inf, day_batch=False):
+                 auto_iter_rate=inf, auto_iter_time=inf, day_batch=False, handicap_elo_offset=0.0):
         """
         @param dynamic_factor: número que indica cuanta varianza hay entre las habilidades de un jugador en el tiempo
         @param handicap_elo: número que indica la habilidad que aporta una piedra de handicap, medido en unidades de elo
@@ -50,6 +50,7 @@ class WHRRunner:
         self.evidence = []
         self.priors = []
         self.handicap_elo = handicap_elo
+        self.handicap_elo_offset = handicap_elo_offset
         self.matches = matches
         self.auto_iter_rate = auto_iter_rate
         self.auto_iter_time = auto_iter_time
@@ -59,18 +60,19 @@ class WHRRunner:
         black_estimate = self.player_estimate(match['black'])
         white_estimate = self.player_estimate(match['white'])
 
-        mean = black_estimate['mean'] - white_estimate['mean'] + match['handicap'] * self.handicap_elo
+        mean = black_estimate['mean'] - white_estimate['mean'] \
+               + match['handicap'] * self.handicap_elo + self.handicap_elo_offset
         stddev = sqrt(black_estimate['variance'] + white_estimate['variance'])
         black_probability = integrate(mean, stddev, logistic_likelihood)
         return black_probability if match['winner'] == 'B' else 1 - black_probability
-    
+
     def optimize_players(self, match):
         self.optimize_player(match['black'])
         self.optimize_player(match['white'])
-    
+
     def optimize_player(self, player):
         self.whr.player_by_name(player).run_one_newton_iteration()
-    
+
     def iterate(self, new_matches=None):
         if new_matches is None:
             new_matches = self.matches
@@ -109,14 +111,14 @@ class WHRRunner:
         self.evidence.append(self.match_evidence(match))
         self.priors.append((self.player_estimate(match['black']), self.player_estimate(match['white'])))
         self.whr.create_game(match['black'], match['white'], match['winner'],
-                             match['day'], match['handicap'] * self.handicap_elo)
-    
+                             match['day'], match['handicap'] * self.handicap_elo + self.handicap_elo_offset)
+
     def cross_entropy(self):
-        return -self.log_evidence()/len(self.evidence)
+        return -self.log_evidence() / len(self.evidence)
 
     def geometric_mean(self):
-        return exp(self.log_evidence()/len(self.evidence))
-    
+        return exp(self.log_evidence() / len(self.evidence))
+
     def log_evidence(self):
         return reduce(lambda x, acc: x + acc, [log(e) for e in self.evidence])
 
@@ -167,7 +169,7 @@ def read_args():
 
 
 def run(dataset, handicap_elo=0.0, dynamic_factor=14.0,
-        auto_iter_rate=inf, auto_iter_time=inf, day_batch=False):
+        auto_iter_rate=inf, auto_iter_time=inf, day_batch=False, handicap_elo_offset=0.0):
     df = pd.read_csv(dataset)
 
     runner = WHRRunner(df,
@@ -175,7 +177,8 @@ def run(dataset, handicap_elo=0.0, dynamic_factor=14.0,
                        dynamic_factor=dynamic_factor,
                        auto_iter_rate=auto_iter_rate,
                        auto_iter_time=auto_iter_time,
-                       day_batch=day_batch)
+                       day_batch=day_batch,
+                       handicap_elo_offset=handicap_elo_offset)
     start_time = dt.now()
     runner.iterate()
     end_time = dt.now()

@@ -4,15 +4,16 @@ import os
 from tqdm import tqdm
 import logging
 
-AAGO_CSV = "data/aago/aago_original_filtered.csv"
+AAGO_CSV = "data/aago/aago_original_filtered.adapted.csv"
 DIR = "estimations/whr/aago/"
 
 os.makedirs(DIR, exist_ok=True)
 
-HANDICAP_ELOS = range(-30, 91, 10)
-DYNAMIC_FACTORS = list(map(lambda w: w**2, range(1, 11)))
+HANDICAP_ELOS = range(-10, 41, 10)
+DYNAMIC_FACTORS = list(map(lambda w: w**2, range(4, 8)))
+HANDICAP_ELO_OFFSETS = range(-15, 6, 5)
 
-EXPERIMENTS = list(product(HANDICAP_ELOS, DYNAMIC_FACTORS))
+EXPERIMENTS = list(product(HANDICAP_ELOS, DYNAMIC_FACTORS, HANDICAP_ELO_OFFSETS))
 
 
 def results_path():
@@ -27,7 +28,7 @@ def evidence_path(handicap_elo, dynamic_factor):
     return os.path.join(DIR, f"whr_aago_evidence-handicap_{handicap_elo}-w2_{dynamic_factor}.csv")
 
 
-def run_with(handicap_elo, dynamic_factor):
+def run_with(handicap_elo, dynamic_factor, handicap_elo_offset):
     lc_filename = lc_path(handicap_elo, dynamic_factor)
     evidence_filename = evidence_path(handicap_elo, dynamic_factor)
     if not os.path.exists(lc_filename) or os.path.getsize(lc_filename) == 0:
@@ -37,7 +38,8 @@ def run_with(handicap_elo, dynamic_factor):
                 runner, runtime = run(aago_csv,
                                       handicap_elo=handicap_elo,
                                       dynamic_factor=dynamic_factor,
-                                      day_batch=True)
+                                      day_batch=True,
+                                      handicap_elo_offset=handicap_elo_offset)
                 runner.learning_curves().to_csv(lc_filename, index=False)
                 runner.matches_evidence().to_csv(evidence_filename, index=False)
         except AttributeError as err:
@@ -48,8 +50,8 @@ def main():
     logging.basicConfig(format='[%(levelname)s] %(asctime)s - %(message)s',
                         filename=os.path.join(DIR, 'log.log'),
                         level=logging.INFO)
-    for handicap_elo, dynamic_factor in tqdm(EXPERIMENTS):
-        run_with(handicap_elo, dynamic_factor)
+    for handicap_elo, dynamic_factor, handicap_elo_offset in tqdm(EXPERIMENTS):
+        run_with(handicap_elo, dynamic_factor, handicap_elo_offset)
 
 
 if __name__ == '__main__':
