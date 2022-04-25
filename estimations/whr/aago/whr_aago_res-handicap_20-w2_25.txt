@@ -1,4 +1,0 @@
-geometric_mean: 0.5397993466394878
-log_evidence: -2063.618919027002
-cross_entropy: 0.6165577887741267
-runtime: 726.230918
