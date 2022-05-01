@@ -135,7 +135,6 @@ sigma_array = [5.73781, 5.63937, 5.54098, 5.44266, 5.34439,
 sigma_dict = { mu+0.5 : sigma_array[mu+50] for mu in range(-50, 9)}
 
 def get_evidence(parameters):
-    parameters[2] = 0.0005
     with open('log_handi_optimization.txt', 'a') as log_file:
         with open('handicap/validation/aga/scripts/log_ev.csv', 'a') as log_csv :
             print("evidence,handicap,komi,w_id,w_mu,w_cat,l_id,l_mu,l_cat", file=log_csv)
@@ -170,7 +169,7 @@ def get_evidence(parameters):
                         winner_mu, winner_sigma = mu_sigma_float(white, event_id, players_dict)
                         loser_mu, loser_sigma = mu_sigma_float(black, event_id, players_dict)
                     print(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi), parameters)
-                    actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi), parameters)
+                    actual_evidence = rango.win_chance_hk(winner_mu, loser_mu, winner_sigma, loser_sigma, float(handicap), float(komi), parameters, black_win)
                     log_evidence += math.log(actual_evidence)
                     print(log_evidence)
                     winner_id = black if (black_win == 'True') else white
@@ -233,4 +232,4 @@ def get_evidence(parameters):
             print(log_evidence, file=log_file)
     return (-log_evidence)
 
-get_evidence([1, 0, 0.0005])
+#get_evidence([1, 0, 0.0005])
