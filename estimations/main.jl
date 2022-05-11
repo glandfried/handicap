@@ -136,31 +136,29 @@ function lc_evidence(data, days, results, model, base)
     events, weights = events_weights(data, model)
     sigma, gamma, iterations = default_config(base)
 
-    println("----------------------------------------------------------------------------------------------entro  a run_and_converge ")
+    # println("----------------------------------------------------------------------------------------------entro  a run_and_converge ")
     run_and_converge(events, results, days, prior_dict, sigma, gamma, iterations, weights, model)
-    println("----------------------------------------------------------------------------------------------sali de run_and_converge ")
-
 end
 
 function run_and_converge(events, results, days, prior_dict, sigma, gamma, iterations, weights, model) #repensar nombre :/
     h = missing
     GC.gc()
-    println("--------------------------------------------------------------------------------------------------------------cero ")
+    # println("--------------------------------------------------------------------------------------------------------------cero ")
 
     if model == "h" || model == "h-k"
         h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma)
     else
         h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma, weights = weights)
     end
-    println("--------------------------------------------------------------------------------------------------------------uno ")
+    # println("--------------------------------------------------------------------------------------------------------------uno ")
     ttt.convergence(h, iterations=iterations)
-    println("--------------------------------------------------------------------------------------------------------------dos ")
+    # println("--------------------------------------------------------------------------------------------------------------dos ")
 
-    ttt_log_evidence = 0 #ttt.log_evidence(h) OJO VOLVER A PONER ESTO, solo comentado para debuggear
-    println("--------------------------------------------------------------------------------------------------------------tres ")
+    ttt_log_evidence = ttt.log_evidence(h)
+    # println("--------------------------------------------------------------------------------------------------------------tres ")
 
     lc = ttt.learning_curves(h)
-    println("--------------------------------------------------------------------------------------------------------------cuatro ")
+    # println("--------------------------------------------------------------------------------------------------------------cuatro ")
 
     return lc, ttt_log_evidence, prior_dict
 end
@@ -175,6 +173,21 @@ function generate_csv(output, prior_dict, lc)
     end
     CSV.write(output, df; header=true)
 end
+
+function debug()
+    base = "aago"
+    data = read_data("../data/aago/aago_filtered.csv")
+    days, results = set_arguments(data)
+    model = "h"
+    println("----------------------------------------------------------------------------------------------entrando: ")
+    lc, evidence, dict = lc_evidence(data, days, results, model, base)
+    println("----------------------------------------------------------------------------------------------Evidence h: ")
+    println(evidence)
+end
+
+#debug()
+
+
 
 #=
 args = parse_commandline()

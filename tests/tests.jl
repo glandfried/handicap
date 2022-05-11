@@ -34,9 +34,9 @@ base = "aago"
     #### Handicap ###############
 
     model = "h"
-    println("----------------------------------------------------------------------------------------------entrando: ")
+    # println("----------------------------------------------------------------------------------------------entrando: ")
     lc, evidence, dict = lc_evidence(data, days, results, model, base)
-    println("----------------------------------------------------------------------------------------------Evidence h: ")
+    println("Evidence h: ")
     println(evidence)
 
     generate_csv("output/aago_ttt-h.csv", dict, lc)
