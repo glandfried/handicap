@@ -176,7 +176,7 @@ end
 
 function debug()
     base = "aago"
-    data = read_data("../data/aago/aago_filtered.csv")
+    data = read_data("../data/aago/tiny_debug.csv")
     days, results = set_arguments(data)
     model = "h"
     println("----------------------------------------------------------------------------------------------entrando: ")
