@@ -57,6 +57,7 @@ class WHRRunner:
         self.day_batch = day_batch
 
     def match_evidence(self, match):
+        # TODO: no tiene en cuenta el aumento de la incertidumbre por el paso del tiempo
         black_estimate = self.player_estimate(match['black'])
         white_estimate = self.player_estimate(match['white'])
 
