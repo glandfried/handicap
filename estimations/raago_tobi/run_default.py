@@ -1,11 +1,24 @@
 import pandas as pd
 import subprocess
 from math import floor
+from dataclasses import dataclass
 
 CATEGORIES_FILENAME = "data/aago/categories.csv"
 MATCHES_FILENAME = "data/aago/aago_original_filtered.adapted.csv"
 RAAGO_PATH = "../RAAGo/original-AGA-rating-system/aago-rating-calculator/raago"
+PRIORS_FILENAME = "estimations/raago_tobi/priors.csv"
+PRIORS_COLUMNS = ["event_id", "player_id", "category", "mu", "sigma", "age_in_days"]
 LC_FILENAME = "estimations/raago_tobi/posteriors.csv"
+
+
+@dataclass
+class Prior:
+    event_id: int
+    player_id: int
+    category: str
+    mu: int | str = "NULL"
+    sigma: int | str = "NULL"
+    age_in_days: int | str = "NULL"
 
 
 class EstimationHistory:
@@ -44,21 +57,30 @@ def load_categories():
     }
 
 
-def make_raago_in(day, event, estimations, categories, matches):
-    players = pd.concat([matches['black'], matches['white']]).unique()
-
-    def player_description(player):
-        last_day, estimation = estimations.get_estimation(player)
+def make_priors(players, estimations, categories, day, event_id) -> list[Prior]:
+    def player_prior(player):
+        last_day, (mu, sigma) = estimations.get_estimation(player)
         diff_day = "NULL" if last_day == "NULL" else day - last_day
-        return f"{player} {categories[(event, player)]} {estimation[0]} {estimation[1]} {diff_day}"
+        return Prior(event_id=event_id, player_id=player, category=categories[(event_id, player)],
+                     mu=mu, sigma=sigma, age_in_days=diff_day)
+
+    return [
+        player_prior(player)
+        for player in players
+    ]
+
+
+def make_raago_in(matches, priors):
+    def player_description(prior: Prior):
+        return f"{prior.player_id} {prior.category} {prior.mu} {prior.sigma} {prior.age_in_days}"
 
     def match_description(match):
         winner = "BLACK" if match["winner"] == "B" else "WHITE"
         return f"{match['white']} {match['black']} {match['handicap']} {floor(match['komi'])} {winner}"
 
     return ("PLAYERS\n" + "\n".join([
-        player_description(player)
-        for player in players
+        player_description(prior)
+        for prior in priors
     ]) + "\nEND_PLAYERS\nGAMES\n" + "\n".join([
         match_description(match)
         for _, match in matches.iterrows()
@@ -76,23 +98,29 @@ def parse_raago_out(outs):
     ]
 
 
-def run_raago(matches, day, event, estimations, categories):
+def run_raago(matches, priors):
     with subprocess.Popen(RAAGO_PATH, stdin=subprocess.PIPE, stdout=subprocess.PIPE) as p:
-        ins = make_raago_in(day, event, estimations, categories, matches)
+        ins = make_raago_in(matches, priors)
         outs, errs = p.communicate(ins)
         return parse_raago_out(outs.decode())
 
 
 def main():
     categories = load_categories()  # dado un event_id y player_id, dice la categoria declarada
-    matches_df = pd.read_csv(MATCHES_FILENAME)
+    matches_df = pd.read_csv(MATCHES_FILENAME).sort_values(["day", "start_date", "event_id"])
     estimations = EstimationHistory()  # datos un jugador, da la lista de tuplas con (dia, estimacion)
+    priors_list: list[Prior] = []
 
-    for day, day_matches in matches_df.groupby('day'):
-        for start_date, sd_matches in day_matches.groupby('start_date'):
-            for event_id, event_matches in sd_matches.groupby('event_id'):
-                posteriors = run_raago(event_matches, day, event_id, estimations, categories)
-                estimations.add_estimations(day, event_id, posteriors)
+    for (day, start_date, event_id), event_matches in matches_df.groupby(["day", "start_date", "event_id"]):
+        players = pd.concat([event_matches['black'], event_matches['white']]).unique()
+        priors = make_priors(players, estimations, categories, day, event_id)
+        priors_list.extend(priors)
+        posteriors = run_raago(event_matches, priors)
+        estimations.add_estimations(day, event_id, posteriors)
+    pd.DataFrame([
+        (prior.event_id, prior.player_id, prior.category, prior.mu, prior.sigma, prior.age_in_days)
+        for prior in priors_list
+    ], columns=PRIORS_COLUMNS).to_csv(PRIORS_FILENAME, index=False)
     estimations.export().to_csv(LC_FILENAME, index=False)
 
 
