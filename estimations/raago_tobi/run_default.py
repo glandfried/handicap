@@ -89,9 +89,10 @@ def main():
     estimations = EstimationHistory()  # datos un jugador, da la lista de tuplas con (dia, estimacion)
 
     for day, day_matches in matches_df.groupby('day'):
-        for event_id, event_matches in day_matches.groupby('event_id'):
-            posteriors = run_raago(event_matches, day, event_id, estimations, categories)
-            estimations.add_estimations(day, event_id, posteriors)
+        for start_date, sd_matches in day_matches.groupby('start_date'):
+            for event_id, event_matches in sd_matches.groupby('event_id'):
+                posteriors = run_raago(event_matches, day, event_id, estimations, categories)
+                estimations.add_estimations(day, event_id, posteriors)
     estimations.export().to_csv(LC_FILENAME, index=False)
 
 

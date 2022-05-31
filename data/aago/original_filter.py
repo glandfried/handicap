@@ -54,9 +54,9 @@ df = df[['black','white','started','black_win','width','komi','handicap','event_
 #cargo events_filename
 events = pd.read_csv(events_filename)
 #joineo
-defe = df.merge(events, on= 'event_id', how= 'left')
+defe = df.merge(events, on='event_id', how='left')
 #ordeno
-df = defe.sort_values(by=['end_date','event_id'])
+df = defe.sort_values(by=['end_date', 'start_date', 'event_id'])
 
 
 df.to_csv("aago_original_filtered.csv", index=False)
