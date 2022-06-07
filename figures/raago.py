@@ -45,8 +45,8 @@ def plot_probability(df):
     plt.yticks(np.arange(0, 1.1, 0.1))
     plt.ylim(0, 1)
     plt.title("Probabilidad de que Laplagne gane en una partida frente a Gutierrez")
-    plt.xlabel("Probabilidad")
-    plt.ylabel("Tiempo")
+    plt.ylabel("Probabilidad")
+    plt.xlabel("Tiempo")
     plt.xticks(rotation=30)
     # plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     # plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=4))
@@ -59,9 +59,16 @@ def plot_lcs(df):
     df["variance"] = df["sigma"]**2
     players_lc = df[df["player"].isin(PLAYER_IDS)]
     plt.figure()
+    plt.axhspan(1, -1, color="grey")
     plot(players_lc, "date", [("Laplagne", LAPLAGNE_ID), ("Gutierrez", GUTIERREZ_ID)])
+    plt.title("Curvas de aprendizaje de jugadores, con área de un desvio estándar")
+    plt.ylabel("Habilidad (escala RAAGo con kyu/dan)")
+    plt.xlabel("Tiempo")
+    plt.legend()
+    plt.xticks(rotation=30)
     plt.grid()
     plt.yticks(range(-5, 4))
+    plt.show()
     plt.savefig(join(OUT_DIR, "laplagne_gutierrez_lc.pdf"))
 
 
