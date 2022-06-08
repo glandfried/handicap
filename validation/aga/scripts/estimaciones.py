@@ -232,4 +232,4 @@ def get_evidence(parameters):
             print(log_evidence, file=log_file)
     return (-log_evidence)
 
-get_evidence([1, 0, 0.0005])
+#get_evidence([1, 0, 0.0005])
