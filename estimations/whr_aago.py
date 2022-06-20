@@ -1,4 +1,6 @@
-from estimations.run_whr import run
+import pandas as pd
+
+from estimations.whr_simple import run_by_event
 from itertools import product
 import os
 from tqdm import tqdm
@@ -17,15 +19,15 @@ EXPERIMENTS = list(product(HANDICAP_ELOS, DYNAMIC_FACTORS, HANDICAP_ELO_OFFSETS)
 
 
 def results_path():
-    return os.path.join(DIR, f"whr_aago_res.csv")
+    return os.path.join(DIR, f"whr_simple_aago_res.csv")
 
 
 def lc_path(handicap_elo, dynamic_factor, handicap_elo_offset):
-    return os.path.join(DIR, f"whr_aago_lc-handicap_{handicap_elo}-offset_{handicap_elo_offset}-w2_{dynamic_factor}.csv")
+    return os.path.join(DIR, f"whr_simple_aago_lc-handicap_{handicap_elo}-offset_{handicap_elo_offset}-w2_{dynamic_factor}.csv")
 
 
 def evidence_path(handicap_elo, dynamic_factor, handicap_elo_offset):
-    return os.path.join(DIR, f"whr_aago_evidence-handicap_{handicap_elo}-offset_{handicap_elo_offset}-w2_{dynamic_factor}.csv")
+    return os.path.join(DIR, f"whr_simple_aago_evidence-handicap_{handicap_elo}-offset_{handicap_elo_offset}-w2_{dynamic_factor}.csv")
 
 
 def run_with(handicap_elo, dynamic_factor, handicap_elo_offset):
@@ -34,14 +36,18 @@ def run_with(handicap_elo, dynamic_factor, handicap_elo_offset):
     if not os.path.exists(lc_filename) or os.path.getsize(lc_filename) == 0:
         try:
             logging.info(f'Corriendo con handicap {handicap_elo}, offset {handicap_elo_offset} y w2 {dynamic_factor}')
-            with open(AAGO_CSV) as aago_csv:
-                runner, runtime = run(aago_csv,
-                                      handicap_elo=handicap_elo,
-                                      dynamic_factor=dynamic_factor,
-                                      day_batch=True,
-                                      handicap_elo_offset=handicap_elo_offset)
-                runner.learning_curves().to_csv(lc_filename, index=False)
-                runner.matches_evidence().to_csv(evidence_filename, index=False)
+            # with open(AAGO_CSV) as aago_csv:
+            #     runner, runtime = run(aago_csv,
+            #                           handicap_elo=handicap_elo,
+            #                           dynamic_factor=dynamic_factor,
+            #                           day_batch=True,
+            #                           handicap_elo_offset=handicap_elo_offset)
+            #     runner.learning_curves().to_csv(lc_filename, index=False)
+            #     runner.matches_evidence().to_csv(evidence_filename, index=False)
+            df = pd.read_csv(AAGO_CSV)
+            lcs, evidences = run_by_event(df, handicap_elo, handicap_elo_offset, dynamic_factor)
+            lcs.to_csv(lc_filename, index=False)
+            evidences.to_csv(evidence_filename, index=False)
         except AttributeError as err:
             logging.error(f'Handicap: {handicap_elo}, offset {handicap_elo_offset}, w2: {dynamic_factor}, error: {err}')
 
