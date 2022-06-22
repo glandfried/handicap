@@ -1,6 +1,6 @@
-include("../../software/ttt.jl/src/TrueSkill.jl")
-using .TrueSkill
-global ttt = TrueSkill
+include("../../software/ttt.jl/src/TrueSkillThroughTime.jl")
+using .TrueSkillThroughTime
+global ttt = TrueSkillThroughTime
 include("../main.jl")
 using CSV
 using JLD2
@@ -12,7 +12,7 @@ data = read_data("../../data/aago/aago_filtered.csv")
 days, results = set_arguments(data)
 model = "hreg-kreg"
 lc, evidence, dict = lc_evidence(data, days, results, model, base)
-print(lc)
+#print(lc)
 
 lc_df = DataFrame(id=String[], day=Int[], mu=Float64[], sigma=Float64[])
 
@@ -37,7 +37,7 @@ lc_gutierrez = lc[gutierrez_id]
 compare_dict = Dict()
 last_laplagne = lc_laplagne[1][2]
 last_gutierrez = lc_gutierrez[1][2]
-beta = 0.0
+beta = 1.0
 i = 1
 j = 1
 
@@ -61,7 +61,7 @@ while (i<112 && j<65)
         last_gutierrez = lc_gutierrez[j][2]
         j = min(j + 1, 65)
     end
-    win_prob = ttt.cdf(last_gutierrez - last_laplagne, -beta) #prob de ganar de laplagne
+    win_prob = ttt.cdf(ttt.forget(last_gutierrez, beta) - ttt.forget(last_laplagne, beta), 0.0) #prob de ganar de laplagne
     compare_dict[day] = win_prob
 end
 CSV.write("./output_demo/compare_dict.csv", compare_dict)

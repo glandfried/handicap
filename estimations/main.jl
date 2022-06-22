@@ -1,6 +1,6 @@
-include("../software/ttt.jl/src/TrueSkill.jl")
-using .TrueSkill
-global ttt = TrueSkill
+include("../software/ttt.jl/src/TrueSkillThroughTime.jl")
+using .TrueSkillThroughTime
+global ttt = TrueSkillThroughTime
 using Test
 using CSV
 using JLD2
@@ -32,16 +32,16 @@ end
 
 function default_config(base)
     if base == "ogs"
-        sigma = 6.0
+        sigma = 0.82
         gamma = 0.16
         iterations = 16
     elseif base == "kgs"
-        sigma = 6.0
+        sigma = 0.82
         gamma = 0.02
         iterations = 16
     elseif base == "aago"
-        sigma = 6.0
-        gamma = 0.16
+        sigma = 1.23
+        gamma = 0.027
         iterations = 16
     end
     sigma, gamma, iterations
@@ -77,7 +77,7 @@ function init_priors(data, model)
             prior_dict[k0(width)] = static_prior
         end
     end
-    if model == "hreg-kreg"
+    if model == "hreg-kreg" || model == "hreg"
         for width in unique(data.width)
             prior_dict[h1(width)] = static_prior
         end
@@ -124,6 +124,12 @@ function events_weights(data, model)
             [string(r.black), h1(r.width) ]
         ] for r in eachrow(data) ]
         weights = [[[1.0, 1.0, r.komi],[1.0,  r.handicap ]] for r in eachrow(data) ]
+    elseif model == "hreg"
+        events = [ [
+            [string(r.white)],
+            [string(r.black), h1(r.width) ]
+        ] for r in eachrow(data) ]
+        weights = [[[1.0],[1.0,  r.handicap ]] for r in eachrow(data) ]
     end
     return events, weights
 end
@@ -131,6 +137,7 @@ end
 k0(size :: Integer) = "_komi$(size)_0_"
 k1(size :: Integer) = "_komi$(size)_1_"
 h1(size :: Integer) = "_handicap$(size)_1_"
+
 function lc_evidence(data, days, results, model, base)
     prior_dict = init_priors(data, model)
     events, weights = events_weights(data, model)
@@ -146,9 +153,9 @@ function run_and_converge(events, results, days, prior_dict, sigma, gamma, itera
     # println("--------------------------------------------------------------------------------------------------------------cero ")
 
     if model == "h" || model == "h-k"
-        h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma)
+        h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma, online = false, iterations = 4)
     else
-        h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma, weights = weights)
+        h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma, weights = weights, online = false, iterations = 4)
     end
     # println("--------------------------------------------------------------------------------------------------------------uno ")
     ttt.convergence(h, iterations=iterations)
