@@ -153,9 +153,9 @@ function run_and_converge(events, results, days, prior_dict, sigma, gamma, itera
     # println("--------------------------------------------------------------------------------------------------------------cero ")
 
     if model == "h" || model == "h-k"
-        h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma)
+        h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma, online = false, iterations = 4)
     else
-        h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma, weights = weights)
+        h = ttt.History(composition=events, results=results, times = days , priors=prior_dict, sigma=sigma,gamma=gamma, weights = weights, online = false, iterations = 4)
     end
     # println("--------------------------------------------------------------------------------------------------------------uno ")
     ttt.convergence(h, iterations=iterations)

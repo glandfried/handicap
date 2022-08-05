@@ -10,7 +10,7 @@ using Optim
 function objective(gamma, data, days, results, model)
     prior_dict = init_priors(data, model)
     events, weights = events_weights(data, model)
-    sigma = 6.0
+    sigma = 1.23
     iterations = 16
 
     lc, evidence, dict = run_and_converge(events, results, days, prior_dict, sigma, gamma, iterations, weights, model)
@@ -22,6 +22,7 @@ end
 
 data = read_data("../data/aago/aago_original_filtered.csv")
 days, results = set_arguments(data)
+
 #model = "hreg-kreg"
 #for model in ["h-k","h-kreg","hreg-kreg","h"]
 for model in ["h", "h-k", "hreg", "hreg-kreg"]

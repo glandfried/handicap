@@ -1,7 +1,7 @@
-include("../software/ttt.jl/src/TrueSkill.jl")
-using .TrueSkill
+include("../software/ttt.jl/src/TrueSkillThroughTime.jl")
+using .TrueSkillThroughTime
 include("../estimations/main.jl")
-global ttt = TrueSkill
+global ttt = TrueSkillThroughTime
 using Test
 using CSV
 using JLD2
@@ -31,6 +31,16 @@ base = "aago"
         @test expected_results == results
     end
 
+    #### Handicap con regresion ###############
+
+    model = "hreg"
+    # println("----------------------------------------------------------------------------------------------entrando: ")
+    lc, evidence, dict = lc_evidence(data, days, results, model, base)
+    println("Evidence hreg: ")
+    println(evidence)
+
+    generate_csv("output/aago_ttt-hreg.csv", dict, lc)
+"""
     #### Handicap ###############
 
     model = "h"
@@ -134,6 +144,7 @@ base = "aago"
         @testset "final priors" begin
             @test dict == expected_prior_dict
         end
+"""
     end
 
 end
