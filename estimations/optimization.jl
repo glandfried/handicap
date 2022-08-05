@@ -1,7 +1,6 @@
-include("../software/ttt.jl/src/TrueSkill.jl")
-using .TrueSkill
+using TrueSkillThroughTime
+global ttt = TrueSkillThroughTime
 include("./main.jl")
-global ttt = TrueSkill
 using CSV
 using JLD2
 using Dates
@@ -24,7 +23,8 @@ end
 data = read_data("../data/aago/aago_original_filtered.csv")
 days, results = set_arguments(data)
 #model = "hreg-kreg"
-for model in ["h-k","h-kreg","hreg-kreg","h"]
+#for model in ["h-k","h-kreg","hreg-kreg","h"]
+for model in ["h", "h-k", "hreg", "hreg-kreg"]
     result = optimize(g->objective(g, data, days, results, model), 0.0, 5.0)
     println(result)
     println("El mejor gamma es:")

@@ -1,6 +1,5 @@
-include("../software/ttt.jl/src/TrueSkill.jl")
-using .TrueSkill
-global ttt = TrueSkill
+using TrueSkillThroughTime
+global ttt = TrueSkillThroughTime
 using Test
 using CSV
 using JLD2
@@ -32,16 +31,16 @@ end
 
 function default_config(base)
     if base == "ogs"
-        sigma = 6.0
+        sigma = 1.23
         gamma = 0.16
         iterations = 16
     elseif base == "kgs"
-        sigma = 6.0
+        sigma = 1.23
         gamma = 0.02
         iterations = 16
     elseif base == "aago"
-        sigma = 6.0
-        gamma = 0.16
+        sigma = 1.23
+        gamma = 0.036
         iterations = 16
     end
     sigma, gamma, iterations
@@ -53,7 +52,7 @@ function read_data(source)
 end
 
 function get_days(data)
-    days = Dates.value.(data.started .- Date("2001-01-01"))
+    days = Dates.value.(data.end_date .- Date("2001-01-01"))
     days
 end
 
@@ -74,12 +73,12 @@ function init_priors(data, model)
     if model == "h-kreg" || model == "hreg-kreg"
         for width in unique(data.width)
             prior_dict[k1(width)] = static_prior
-            prior_dict[k0(width)] = static_prior
         end
     end
-    if model == "hreg-kreg"
+    if model == "hreg-kreg" || model == "hreg"
         for width in unique(data.width)
             prior_dict[h1(width)] = static_prior
+            prior_dict[h0(width)] = static_prior
         end
     end
     prior_dict
@@ -114,23 +113,31 @@ function events_weights(data, model)
         #weights = [ [[1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ] #falla
     elseif model == "h-kreg"
         events = [ [
-            [string(r.white), k1(r.width), k0(r.width)],
+            [string(r.white), k1(r.width)],
             r.handicap<2 ? [string(r.black)] : [string(r.black),string((r.handicap,r.width))]
         ] for r in eachrow(data) ]
         weights = [ [[1.0, r.komi, 1.0], r.handicap<2 ? [1.0] : [1.0,1.0] ] for r in eachrow(data) ]
     elseif model == "hreg-kreg"
         events = [ [
-            [string(r.white), k0(r.width), k1(r.width)],
-            [string(r.black), h1(r.width) ]
+            [string(r.white), k1(r.width)],
+            [string(r.black), h1(r.width), h0(r.width) ]
         ] for r in eachrow(data) ]
         weights = [[[1.0, 1.0, r.komi],[1.0,  r.handicap ]] for r in eachrow(data) ]
+    elseif model == "hreg"
+        events = [ [
+            [string(r.white)],
+            [string(r.black), h1(r.width), h0(r.width) ]
+        ] for r in eachrow(data) ]
+        weights = [[[1.0],[1.0,  r.handicap ]] for r in eachrow(data) ]
     end
     return events, weights
 end
 
-k0(size :: Integer) = "_komi$(size)_0_"
+# k0(size :: Integer) = "_komi$(size)_0_"
 k1(size :: Integer) = "_komi$(size)_1_"
+h0(size :: Integer) = "_handicap$(size)_0_"
 h1(size :: Integer) = "_handicap$(size)_1_"
+
 function lc_evidence(data, days, results, model, base)
     prior_dict = init_priors(data, model)
     events, weights = events_weights(data, model)
